@@ -15,10 +15,9 @@ from redbot.core.utils.menus import start_adding_reactions
 import sys
 import pprint as pp
 
-defaults = {
+defaults =   {
     "AuthToken": config.auth_token,
     "TopLevelGroup": config.top_level_group,
-    "TierRank": config.tier_rank,
     "AccountRegister": config.account_register
 }
 verify_timeout = 30
@@ -29,8 +28,7 @@ class BCSixMans(commands.Cog):
     def __init__(self, bot):
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
-        self.team_manager_cog = bot.get_cog("TeamManager")
-        self.match_cog = bot.get_cog("Match")
+        self.six_mans_cog = bot.get_cog("SixMans")
     
 
     # TODO: UPDATE TO FIND RECENT GAMES FROM MATCHUP
@@ -40,14 +38,20 @@ class BCSixMans(commands.Cog):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
 
+        # TODO: Get info from `sixMans` cog for popped queue:
+        # - game ID
+        # - matchup/teams (players)
+        # - winner = winning_team
+
         member = ctx.message.author
-        match = await self.get_match(ctx, member, team_name, match_day)
         
-        if not match:
-            await ctx.send(":x: No match found.")
+        game, six_mans_queue = await self.six_mans_cog._get_info(ctx)
+
+        if not game:
+            await ctx.send(":x: `bcSixMans` could not find 6 mans game.")
             return False
-        
-        match_subgroup_id = await self._get_replay_destination(ctx, match)
+
+        match_subgroup_id = await self._get_replay_destination(ctx, six_mans_queue, game)
         # await ctx.send("Match Subgroup ID: {}".format(match_subgroup_id))
         replays_found = await self._find_match_replays(ctx, member, match)
 
@@ -321,7 +325,7 @@ class BCSixMans(commands.Cog):
         match = await self.match_cog.get_match_from_day_team(ctx, match_day, team)
         return match
 
-    async def _get_replay_destination(self, ctx, match, top_level_group=None, group_owner_discord_id=None):
+    async def _get_replay_destination(self, ctx, queue, game, top_level_group=None, group_owner_discord_id=None):
         
         auth_token = await self._get_auth_token(ctx)
 
@@ -330,15 +334,17 @@ class BCSixMans(commands.Cog):
             bc_group_owner = await self._get_steam_id_from_token(ctx, auth_token)
             top_level_group = await self._get_top_level_group(ctx)
         else:
-            bc_group_owner = await self._get_uploader_id(ctx, group_owner_discord_id)  # config.group_owner_discord_id
+            bc_group_owner = await self._get_uploader_id(ctx, group_owner_discord_id)
 
-        # RSC/<top level group>/<tier num><tier>/Match Day <match day>/<Home> vs <Away>
-        tier = (await self.team_manager_cog._roles_for_team(ctx, match['home']))[1].name  # Get tier role's name
-        tier_group = await self._get_tier_subgroup_name(ctx, tier)
+        # /<top level group>/<queue name>/<game id>
+        game_id = game.id
+        blue_players = game.blue 
+        oran_players = game.orange
+        queue_name = next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
+
         ordered_subgroups = [
-            tier_group,
-            "Match Day {}".format(str(match['matchDay']).zfill(2)),
-            "{home} vs {away}".format(home=match['home'].title(), away=match['away'].title())
+            queue_name,
+            game_id
         ]
 
         endpoint = '/groups'
