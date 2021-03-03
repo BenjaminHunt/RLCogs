@@ -315,7 +315,7 @@ class BCSixMans(commands.Cog):
         if use_account:
             account_register = {uploader.id: [account]}
         else:
-            account_register = await self._get_account_register(ctx)
+            account_register = self._get_account_register(ctx)
         
         # which team is the uploader supposed to be on
         if uploader in sm_game.blue:
