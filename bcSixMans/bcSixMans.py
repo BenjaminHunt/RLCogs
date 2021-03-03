@@ -27,10 +27,10 @@ class BCSixMans(commands.Cog):
         self.six_mans_cog = bot.get_cog("SixMans")
     
 
-    # TODO: UPDATE TO FIND RECENT GAMES FROM MATCHUP
-    @commands.command(aliases=['sr'])
+    # TODO: automatically run when score reported
+    @commands.command(aliases=['ggs'])
     @commands.guild_only()
-    async def scoreReport(self, ctx, winning_team: str):
+    async def gameOver(self, ctx, winning_team: str):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         member = ctx.message.author
@@ -315,7 +315,7 @@ class BCSixMans(commands.Cog):
         if use_account:
             account_register = {uploader.id: [account]}
         else:
-            account_register = self._get_account_register(ctx)
+            account_register = await self._get_account_register(ctx)
         
         # which team is the uploader supposed to be on
         if uploader in sm_game.blue:
