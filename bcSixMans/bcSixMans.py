@@ -37,27 +37,21 @@ class BCSixMans(commands.Cog):
     async def scoreReport(self, ctx, winning_team: str):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
-
         member = ctx.message.author
         game, six_mans_queue = await self.six_mans_cog._get_info(ctx)
-
-        if not game:
-            await ctx.send(":x: `bcSixMans` could not find 6 mans game.")
+        if game is None or six_mans_queue is None or not winning_team.lower() in ['blue', 'orange']:
             return False
 
-        match_subgroup_id = await self._get_replay_destination(ctx, six_mans_queue, game)
-        # await ctx.send("Match Subgroup ID: {}".format(match_subgroup_id))
-        replays_found = await self._find_match_replays(ctx, member, game)
+        replays_found = await self._find_match_replays(ctx, game, winning_team)
 
         if not replays_found:
             await ctx.send(":x: No matching replays found.")
             return False
-        replay_ids, summary = replays_found
-        prompt = "Match summary:\n{summary}\n\n{mention} - Please react to confirm the score summary.".format(summary=summary, mention=member.mention)
-        
-        if not await self._react_prompt(ctx, prompt, "Ballchasing upload cancelled."):
-            return False
 
+        match_subgroup_id = await self._get_replay_destination(ctx, six_mans_queue, game)
+        # await ctx.send("Match Subgroup ID: {}".format(match_subgroup_id))
+
+        replay_ids, summary = replays_found
         # await ctx.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
         tmp_replay_files = await self._download_replays(ctx, replay_ids)
@@ -70,7 +64,8 @@ class BCSixMans(commands.Cog):
         # await ctx.send("replays renamed: {}".format(renamed))
         self._delete_temp_files(tmp_replay_files)
         
-        await ctx.send(":white_check_mark: Done")
+        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup: <https://ballchasing.com/group/{}>'.format(summary, subgroup_id)
+        await ctx.send(message)
 
     @commands.command(aliases=['setAuthKey'])
     @commands.guild_only()
@@ -323,14 +318,16 @@ class BCSixMans(commands.Cog):
         player_id = "{}:{}".format(arr[0], arr[1])
         return player_id
 
-    async def _get_uploader_id(self, ctx, discord_id):
+    async def _get_steam_ids(self, ctx, discord_id):
+        steam_accounts = []
         account_register = await self._get_account_register(ctx)
-        if member.id in account_register:
-            if account_register[discord_id][0] != 'steam':
-                return account_register[discord_id][1]
-        return None
+        if discord_id in account_register:
+            for account in account_register[discord_id]:
+                if account[0] == 'steam':
+                    steam_accounts.append(account[1])
+        return steam_accounts
 
-    def is_full_replay(self, replay_data):
+    def _is_full_replay(self, replay_data):
         if replay_data['duration'] < 300:
             return False
         if replay_data['blue']['goals'] == replay_data['orange']['goals']:
@@ -341,12 +338,12 @@ class BCSixMans(commands.Cog):
                     return True
         return False
 
-    def is_six_mans_replay(self, member, sm_game, replay_data, matched_replay=None):
-        # TODO: rework matching team replays
+    def _is_six_mans_replay(self, ctx, uploader, sm_game, replay_data):
+        # TODO: rework matching team replays - make sure a player is on a team
         oran_team = sm_game.orange
         blue_team = sm_game.blue
 
-        if not is_full_replay(replay_data):
+        if not _is_full_replay(replay_data):
             return False
 
         replay_teams = self.get_replay_teams(replay_data)
@@ -373,8 +370,6 @@ class BCSixMans(commands.Cog):
         if not group_owner_discord_id or not top_level_group:
             bc_group_owner = await self._get_steam_id_from_token(ctx, auth_token)
             top_level_group = await self._get_top_level_group(ctx)
-        else:
-            bc_group_owner = await self._get_uploader_id(ctx, group_owner_discord_id)
 
         # /<top level group>/<queue name>/<game id>
         game_id = game.id
@@ -443,8 +438,7 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    async def _find_match_replays(self, ctx, member_accounts, game, winner):
-        uploader = await self._get_uploader_id(ctx, member.id)
+    async def _find_match_replays(self, ctx, game, winner):
         if not uploader:
             # Return empty for now TODO: Check for opponent steam
             await ctx.send(":x: No steam account linked to ballchasing.com")
@@ -453,36 +447,51 @@ class BCSixMans(commands.Cog):
         # search for appearances in private matches
         endpoint = "/replays"
         sort = 'replay-date' # 'created
-        sort_dir = 'desc' # 'asc'
-        count = config.search_count
-
-        params = [
-            'uploader={}'.format(uploader),
-            'playlist=private',
-            'count={}'.format(count),
-            'sort-by={}'.format(sort),
-            'sort-dir={}'.format(sort_dir)
-        ]
-
+        sort_dir = 'asc'
+        count = 7
+        queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
         auth_token = await self._get_auth_token(ctx)
-        r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
-        data = r.json()
+        
+        players = []
+        for player in game.blue:
+            players.append(player)
+        for player in game.orange:
+            players.append(player)
 
-        # checks for correct replays
-        oran_wins = 0
-        blue_wins = 0
-        replay_ids = []
-        for replay in data['list']:
-            winner = self.is_six_mans_replay(member, sm_game, replay)
-            if winner == 'blue':
-                blue_wins += 1
-            else:
-                oran_wins += 1
+        i = 0
+        while not found and i < len(players):
+            player = players[i]
+            for steam_id in await self._get_steam_ids(ctx, player.id):
+                params = [
+                    'uploader={}'.format(steam_id)
+                    # 'player-id={}:{}'.format(platform, plat_id),
+                    'playlist=private',
+                    'replay-date-after={}'.format(queue_pop_time)
+                    'count={}'.format(count),
+                    'sort-by={}'.format(sort),
+                    'sort-dir={}'.format(sort_dir)
+                ]
 
+                r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
+                data = r.json()
 
-        series_summary = "****Blue** {blue_wins} - {oran_wins} **Orange**".format(
-            blue_wins = blue_wins, oran_wins = oran_wins
-        )
+                # checks for correct replays
+                oran_wins = 0
+                blue_wins = 0
+                replay_ids = []
+                for replay in data['list']:
+                    winner = self._is_six_mans_replay(ctx, player, game, replay)
+                    if winner == 'blue':
+                        blue_wins += 1
+                    else:
+                        oran_wins += 1
+
+                series_summary = "****Blue** {blue_wins} - {oran_wins} **Orange**".format(
+                    blue_wins = blue_wins, oran_wins = oran_wins
+                )
+
+                if replay_ids:
+                    found = True
 
         if replay_ids:
             return replay_ids, series_summary
