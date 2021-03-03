@@ -30,7 +30,7 @@ class BCSixMans(commands.Cog):
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs'])
     @commands.guild_only()
-    async def gameOver(self, ctx, winning_team: str):
+    async def gameOver(self, ctx, winning_team: str=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         member = ctx.message.author
