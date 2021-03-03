@@ -183,7 +183,11 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     async def accounts(self, ctx):
         member = ctx.message.author
-        show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in await self._get_all_accounts(ctx, member))
+        accounts = await self._get_all_accounts(ctx, member)
+        if not accounts:
+            await ctx.send("{}, you have not registered any accounts.".format(member.mention))
+            return
+        show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
         await ctx.send(show_accounts)
 
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
