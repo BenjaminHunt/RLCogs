@@ -101,26 +101,34 @@ class BCSixMans(commands.Cog):
             [p]registerAccount epic 76edd61bd58841028a8ee27373ae307a
             [p]registerAccount steam
         """
-
         # Check platform
         if platform.lower() not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
             return False
         
+
         member = ctx.message.author
         if not identifier:
             if platform.lower() in ['ps4', 'ps5']:
                 await ctx.send(":x: Discord does not support linking to **{}** accounts. Auto-detection failed.".format(platform))
                 return False
 
-            identifier = await self._auto_link_account(ctx, member, platform)
+            identifier = await self._auto_link_account(member, platform)
 
         # Validate account -- check for public ballchasing appearances
         valid_account = await self._validate_account(ctx, platform, identifier)
+
         if valid_account:
             username, appearances = valid_account
         else:
             await ctx.send(":x: No ballchasing replays found for user: {identifier} ({platform}) ".format(identifier=identifier, platform=platform))
+            return False
+
+        account_register = await self._get_account_register(ctx)
+        
+        # Make sure not a repeat account
+        if member.id in account_register and [platform][identifier] in account_register[member.id]:
+            await ctx.send("{}, you have already registered this account.".format(member.mention))
             return False
 
         # React to confirm account registration
@@ -130,7 +138,7 @@ class BCSixMans(commands.Cog):
         if not await self._react_prompt(ctx, prompt, nvm_message):
             return False
         
-        account_register = await self._get_account_register(ctx)
+        
         if member.id in account_register:
             account_register[member.id].append([platform, identifier])
         else:
