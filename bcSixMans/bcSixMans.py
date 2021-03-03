@@ -179,6 +179,12 @@ class BCSixMans(commands.Cog):
         else:
             await ctx.send("No account found.")
 
+    @commands.command(aliases=['accs', 'getAccounts', 'getRegisteredAccounts', 'getAccountsRegistered', 'viewAccounts'])
+    @commands.guild_only()
+    async def accounts(self, ctx):
+        accounts = "{}, you have registered the following accounts:\n - ".format(ctx.message.author.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in remove_accs)
+        await ctx.send(accounts)
+
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
     async def bcgroup(self, ctx):
