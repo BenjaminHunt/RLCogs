@@ -432,11 +432,6 @@ class BCSixMans(commands.Cog):
         return next_subgroup_id
 
     async def _find_series_replays(self, ctx, game, winner):
-        if not uploader:
-            # Return empty for now TODO: Check for opponent steam
-            await ctx.send(":x: No steam account linked to ballchasing.com")
-            return []
-
         # search for appearances in private matches
         endpoint = "/replays"
         sort = 'replay-date' # 'created
