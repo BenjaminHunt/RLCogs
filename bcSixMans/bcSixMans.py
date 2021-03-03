@@ -195,7 +195,7 @@ class BCSixMans(commands.Cog):
         await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
 
-    async def _get_all_accounts(ctx, member):
+    async def _get_all_accounts(self, ctx, member):
         accs = []
         account_register = await self._get_account_register(ctx)
         if member.id in account_register:
