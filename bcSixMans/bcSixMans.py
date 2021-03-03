@@ -38,13 +38,7 @@ class BCSixMans(commands.Cog):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
 
-        # TODO: Get info from `sixMans` cog for popped queue:
-        # - game ID
-        # - matchup/teams (players)
-        # - winner = winning_team
-
         member = ctx.message.author
-        
         game, six_mans_queue = await self.six_mans_cog._get_info(ctx)
 
         if not game:
@@ -105,7 +99,7 @@ class BCSixMans(commands.Cog):
             await ctx.send(":x: Error setting top level group.")
 
 
-    @commands.command(aliases=['accountRegister'])
+    @commands.command(aliases=['accountRegister', 'addAccount'])
     @commands.guild_only()
     async def registerAccount(self, ctx, platform, identifier=None):
         """Allows user to register account for ballchasing requests. This may be found by searching your appearances on ballchasing.com
@@ -147,20 +141,51 @@ class BCSixMans(commands.Cog):
             return False
         
         account_register = await self._get_account_register(ctx)
-        account_register[member.id] = [platform, identifier]
-
+        if member.id in account_register:
+            account_register[member.id].append([platform, identifier])
+        else:
+            account_register[member.id] = [[platform, identifier]]
+        
         # Register account
         if await self._save_account_register(ctx, account_register):
             await ctx.send("Done")
 
     @commands.command(aliases=['rmaccount'])
     @commands.guild_only()
-    async def unregisterAccount(self, ctx):
+    async def unregisterAccount(self, ctx, platform, identifier=None):
+        remove_accs = []
+        account_register = await self._get_account_register(ctx)
+        if member.id in account_register:
+            for account in account_register[member.id]:
+                if account[0] == platform:
+                    if not identifier or account[1] == identifier:
+                        remove_accs.append(account)
+        
+        if not remove_accs:
+            await ctx.send(":x: No matching account has been found.")
+            return False
+        
+        prompt = "React to confirm removal of the following accounts:\n - " + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in remove_accs)
+        if not await self._react_prompt(ctx, prompt, "No accounts have been removed."):
+            return False
+        
+        count = 0
+        for acc in remove_accs:
+            account_register[member.id].remove(acc)
+            count += 1
+        
+        await self._save_account_register(ctx, account_register)
+        await ctx.send(":white_check_mark: Removed **{}** accounts.".format(count))
+
+    @commands.command(aliases=['rmaccounts', 'clearaccounts', 'clearAccounts'])
+    @commands.guild_only()
+    async def unregisterAccounts(self, ctx):
         """Unlinks registered account for ballchasing requests."""
         account_register = await self._get_account_register(ctx)
         if ctx.message.author.id in account_register:
+            count = len(account_register[ctx.message.author.id])
             del account_register[ctx.message.author.id]
-            await ctx.send("Done")
+            await ctx.send(":white_check_mark: Removed **{}** accounts.".format(count))
         else:
             await ctx.send("No account found.")
 
@@ -316,10 +341,10 @@ class BCSixMans(commands.Cog):
                     return True
         return False
 
-    def is_match_replay(self, game, replay_data, matched_replay=None):
+    def is_six_mans_replay(self, member, sm_game, replay_data, matched_replay=None):
         # TODO: rework matching team replays
-        oran_team = game.orange
-        blue_team = game.blue
+        oran_team = sm_game.orange
+        blue_team = sm_game.blue
 
         if not is_full_replay(replay_data):
             return False
@@ -329,7 +354,7 @@ class BCSixMans(commands.Cog):
         oran_team_found = replay_teams['blue']['name'].lower() in oran_team.lower() or replay_teams['orange']['name'].lower() in blue_team.lower()
         blue_team_found = replay_teams['blue']['name'].lower() in oran_team.lower() or replay_teams['orange']['name'].lower() in blue_team.lower()
 
-        return oran_team_found and oran_team_found
+        return winner
 
     async def get_match(self, ctx, member, team=None, match_day=None):
         if not match_day:
@@ -418,7 +443,7 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    async def _find_match_replays(self, ctx, member, game, winner):
+    async def _find_match_replays(self, ctx, member_accounts, game, winner):
         uploader = await self._get_uploader_id(ctx, member.id)
         if not uploader:
             # Return empty for now TODO: Check for opponent steam
@@ -430,11 +455,6 @@ class BCSixMans(commands.Cog):
         sort = 'replay-date' # 'created
         sort_dir = 'desc' # 'asc'
         count = config.search_count
-
-        # RFC3339 Date/Time format
-        now = datetime.now(timezone.utc).astimezone().isoformat()
-        adj_char = '+' if '+' in str(now) else '-'
-        zone_adj = "{}{}".format(adj_char, str(now).split(adj_char)[-1])
 
         params = [
             'uploader={}'.format(uploader),
@@ -449,29 +469,19 @@ class BCSixMans(commands.Cog):
         data = r.json()
 
         # checks for correct replays
-        home_wins = 0
-        away_wins = 0
+        oran_wins = 0
+        blue_wins = 0
         replay_ids = []
         for replay in data['list']:
-            if self.is_match_replay(game, replay):
-                if replay['blue']['name'] in match['home']:
-                    home = 'blue'
-                    away = 'orange'
-                else:
-                    home = 'orange'
-                    away = 'blue'
-                replay_ids.append(replay['id'])
-                if replay[home]['goals'] > replay[away]['goals']:
-                    home_wins += 1
-                else:
-                    orange_wins += 1
+            winner = self.is_six_mans_replay(member, sm_game, replay)
+            if winner == 'blue':
+                blue_wins += 1
+            else:
+                oran_wins += 1
 
-        # TODO: rework confirmation
-        series_summary = "**{home_team} {home_wins} - {away_wins} {away_team}".format(
-            home_team = match['home'],
-            home_wins = home_wins,
-            away_wins = away_wins,
-            away_team = match['away']
+
+        series_summary = "****Blue** {blue_wins} - {oran_wins} **Orange**".format(
+            blue_wins = blue_wins, oran_wins = oran_wins
         )
 
         if replay_ids:
