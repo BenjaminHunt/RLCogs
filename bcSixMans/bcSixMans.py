@@ -348,7 +348,7 @@ class BCSixMans(commands.Cog):
         if swap_teams:
             if winner == 'orange':
                 winner = 'blue'
-            elif winner = 'blue':
+            elif winner == 'blue':
                 winner = 'orange'
 
         return winner
