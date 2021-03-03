@@ -310,7 +310,7 @@ class BCSixMans(commands.Cog):
                     return team
         return None
 
-    def _is_six_mans_replay(self, ctx, uploader, sm_game, replay_data, use_account=None):
+    async def _is_six_mans_replay(self, ctx, uploader, sm_game, replay_data, use_account=None):
         """searches for the uploader's appearance in the replay under any registered account"""
         if use_account:
             account_register = {uploader.id: [account]}
@@ -470,7 +470,7 @@ class BCSixMans(commands.Cog):
                 blue_wins = 0
                 replay_ids = []
                 for replay in data['list']:
-                    winner = self._is_six_mans_replay(ctx, player, game, replay)
+                    winner = await self._is_six_mans_replay(ctx, player, game, replay)
                     if winner == 'blue':
                         blue_wins += 1
                     else:
