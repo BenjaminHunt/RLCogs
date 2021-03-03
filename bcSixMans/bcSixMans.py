@@ -271,7 +271,7 @@ class BCSixMans(commands.Cog):
         # {"type": "twitch", "id": "92473777", "name": "discordapp"}
         import pprint as pp
         print()
-        pp.print(await member.profile())
+        pp.pprint(await member.profile())
         Print()
         for account in (await member.profile()).connected_accounts:
                 if account['type'] == platform:
