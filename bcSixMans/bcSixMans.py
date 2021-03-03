@@ -278,10 +278,11 @@ class BCSixMans(commands.Cog):
             return r.json()['steam_id']
         return None
 
-    def get_player_id(discord_id):
-        arr = config.account_register[discord_id]
-        player_id = "{}:{}".format(arr[0], arr[1])
-        return player_id
+    # async def get_player_id(discord_id):
+    #     account_register = self._get_account_register(ctx)
+    #     arr = config.account_register[discord_id]
+    #     player_id = "{}:{}".format(arr[0], arr[1])
+    #     return player_id
 
     async def _get_steam_ids(self, ctx, discord_id):
         steam_accounts = []
