@@ -182,8 +182,9 @@ class BCSixMans(commands.Cog):
     @commands.command(aliases=['accs', 'getAccounts', 'getRegisteredAccounts', 'getAccountsRegistered', 'viewAccounts'])
     @commands.guild_only()
     async def accounts(self, ctx):
-        accounts = "{}, you have registered the following accounts:\n - ".format(ctx.message.author.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in remove_accs)
-        await ctx.send(accounts)
+        member = ctx.message.author
+        show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in await self._get_all_accounts(ctx, member))
+        await ctx.send(show_accounts)
 
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
@@ -193,6 +194,14 @@ class BCSixMans(commands.Cog):
         url = "https://ballchasing.com/group/{}".format(group_code)
         await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
+
+    async def _get_all_accounts(ctx, member):
+        accs = []
+        account_register = await self._get_account_register(ctx)
+        if member.id in account_register:
+            for account in account_register[member.id]:
+                accs.append(account)
+        return accs
 
     async def _bc_get_request(self, ctx, endpoint, params=[], auth_token=None):
         if not auth_token:
