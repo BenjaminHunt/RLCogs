@@ -269,6 +269,10 @@ class BCSixMans(commands.Cog):
 
     async def _auto_link_account(self, member, platform):
         # {"type": "twitch", "id": "92473777", "name": "discordapp"}
+        import pprint as pp
+        print()
+        pp.print(await member.profile())
+        Print()
         for account in (await member.profile()).connected_accounts:
                 if account['type'] == platform:
                     return account['id']
