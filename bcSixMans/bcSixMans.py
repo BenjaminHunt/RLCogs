@@ -248,7 +248,8 @@ class BCSixMans(commands.Cog):
         return None
 
     async def _validate_account(self, ctx, platform, identifier):
-        auth_token = config.auth_token
+        # auth_token = config.auth_token
+        auth_token = await self._get_auth_token(ctx)
         endpoint = '/replays'
         params = [
             'player-id={platform}:{identifier}'.format(platform=platform, identifier=identifier),
