@@ -27,7 +27,7 @@ class BCSixMans(commands.Cog):
         self.six_mans_cog = bot.get_cog("SixMans")
     
 
-    # TODO: automatically run when score reported
+    # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs'])
     @commands.guild_only()
     async def gameOver(self, ctx, winning_team: str):
@@ -179,13 +179,13 @@ class BCSixMans(commands.Cog):
         else:
             await ctx.send("No account found.")
 
-    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg'])
+    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
     async def bcgroup(self, ctx):
         """Get the top-level ballchasing group to see all season match replays."""
         group_code = await self._get_top_level_group(ctx)
         url = "https://ballchasing.com/group/{}".format(group_code)
-        await ctx.send("See all season replays in the top level ballchasing group: {}".format())
+        await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
 
     async def _bc_get_request(self, ctx, endpoint, params=[], auth_token=None):
