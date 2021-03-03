@@ -91,7 +91,7 @@ class BCSixMans(commands.Cog):
 
     @commands.command(aliases=['accountRegister', 'addAccount'])
     @commands.guild_only()
-    async def registerAccount(self, ctx, platform, identifier=None):
+    async def registerAccount(self, ctx, platform, identifier):
         """Allows user to register account for ballchasing requests. This may be found by searching your appearances on ballchasing.com
 
         Examples:
@@ -108,12 +108,14 @@ class BCSixMans(commands.Cog):
         
 
         member = ctx.message.author
-        if not identifier:
-            if platform.lower() in ['ps4', 'ps5']:
-                await ctx.send(":x: Discord does not support linking to **{}** accounts. Auto-detection failed.".format(platform))
-                return False
+        # Profile can't be seen from bots :/
+        # if not identifier:
+        #     return 
+        #     if platform.lower() in ['ps4', 'ps5']:
+        #         await ctx.send(":x: Discord does not support linking to **{}** accounts. Auto-detection failed.".format(platform))
+        #         return False
 
-            identifier = await self._auto_link_account(member, platform)
+        #     identifier = await self._auto_link_account(member, platform)
 
         # Validate account -- check for public ballchasing appearances
         valid_account = await self._validate_account(ctx, platform, identifier)
@@ -268,11 +270,8 @@ class BCSixMans(commands.Cog):
             return False
 
     async def _auto_link_account(self, member, platform):
+        return None
         # {"type": "twitch", "id": "92473777", "name": "discordapp"}
-        import pprint as pp
-        print()
-        pp.pprint(await member.profile())
-        Print()
         for account in (await member.profile()).connected_accounts:
                 if account['type'] == platform:
                     return account['id']
