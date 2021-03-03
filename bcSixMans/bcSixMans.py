@@ -15,11 +15,7 @@ from redbot.core.utils.menus import start_adding_reactions
 import sys
 import pprint as pp
 
-defaults =   {
-    "AuthToken": config.auth_token,
-    "TopLevelGroup": config.top_level_group,
-    "AccountRegister": config.account_register
-}
+defaults =   {"AuthToken": None, "TopLevelGroup": None, "AccountRegister": {}}
 verify_timeout = 30
 
 class BCSixMans(commands.Cog):
@@ -39,10 +35,10 @@ class BCSixMans(commands.Cog):
         """
         member = ctx.message.author
         game, six_mans_queue = await self.six_mans_cog._get_info(ctx)
-        if game is None or six_mans_queue is None or not winning_team.lower() in ['blue', 'orange']:
+        if game is None or six_mans_queue is None or not winning_team.lower() in ['blue', 'orange'] or not await self._get_top_level_group(ctx):
             return False
 
-        replays_found = await self._find_match_replays(ctx, game, winning_team)
+        replays_found = await self._find_series_replays(ctx, game, winning_team)
 
         if not replays_found:
             await ctx.send(":x: No matching replays found.")
@@ -92,7 +88,6 @@ class BCSixMans(commands.Cog):
             await ctx.send("Done.")
         else:
             await ctx.send(":x: Error setting top level group.")
-
 
     @commands.command(aliases=['accountRegister', 'addAccount'])
     @commands.guild_only()
@@ -275,36 +270,6 @@ class BCSixMans(commands.Cog):
             return username, appearances
         return False
 
-    def get_replay_teams(self, replay):
-        try:
-            blue_name = replay['blue']['name'].title()
-        except:
-            blue_name = "Blue"
-        try:
-            orange_name = replay['orange']['name'].title()
-        except:
-            orange_name = "Orange"
-
-        blue_players = []
-        for player in replay['blue']['players']:
-            blue_players.append(player['name'])
-        
-        orange_players = []
-        for player in replay['orange']['players']:
-            orange_players.append(player['name'])
-        
-        teams = {
-            'blue': {
-                'name': blue_name,
-                'players': blue_players
-            },
-            'orange': {
-                'name': orange_name,
-                'players': orange_players
-            }
-        }
-        return teams
-
     async def _get_steam_id_from_token(self, ctx, auth_token=None):
         if not auth_token:
             auth_token = await self._get_auth_token(ctx)
@@ -338,29 +303,55 @@ class BCSixMans(commands.Cog):
                     return True
         return False
 
-    def _is_six_mans_replay(self, ctx, uploader, sm_game, replay_data):
-        # TODO: rework matching team replays - make sure a player is on a team
-        oran_team = sm_game.orange
-        blue_team = sm_game.blue
+    def _get_account_team(self, platform, plat_id, replay_data):
+        for team in ['blue', 'orange']:
+            for player in replay_data['players']:
+                if player['id']['platform'] == platform and player['id']['id'] == plat_id:
+                    return team
+        return None
 
+    def _is_six_mans_replay(self, ctx, uploader, sm_game, replay_data, use_account=None):
+        """searches for the uploader's appearance in the replay under any registered account"""
+        if use_account:
+            account_register = {uploader.id: [account]}
+        else:
+            account_register = await self._get_account_register(ctx)
+        
+        # which team is the uploader supposed to be on
+        if uploader in sm_game.blue:
+            uploader_team = 'blue'
+        elif uploader in sm_game.orange:
+            uploader_team = 'orange'
+        else:
+            return None
+
+        # swap_teams covers the scenario where the teams join incorrectly, assumes group is correct (applies to score summary only)
+        swap_teams = False
+        for account in account_register[uploader.id]:
+            account_replay_team = self._get_account_team(platform, plat_id, replay_data)
+            if not account_replay_team:
+                break
+            if account_team != account_replay_team:
+                swap_teams = True
+
+        # don't count incomplete replays
         if not _is_full_replay(replay_data):
             return False
 
-        replay_teams = self.get_replay_teams(replay_data)
-
-        oran_team_found = replay_teams['blue']['name'].lower() in oran_team.lower() or replay_teams['orange']['name'].lower() in blue_team.lower()
-        blue_team_found = replay_teams['blue']['name'].lower() in oran_team.lower() or replay_teams['orange']['name'].lower() in blue_team.lower()
+        # determine winner
+        if replay_data['blue']['goals'] > replay_data['orange']['goals']:
+            winner = 'blue'
+        else:
+            winner = 'orange'
+        
+        # swap teams if necessary
+        if swap_teams:
+            if winner == 'orange':
+                winner = 'blue'
+            elif winner = 'blue':
+                winner = 'orange'
 
         return winner
-
-    async def get_match(self, ctx, member, team=None, match_day=None):
-        if not match_day:
-            match_day = await self.match_cog._match_day(ctx)
-        if not team:
-            team = (await self.team_manager_cog.teams_for_user(ctx, member))[0]
-        
-        match = await self.match_cog.get_match_from_day_team(ctx, match_day, team)
-        return match
 
     async def _get_replay_destination(self, ctx, queue, game, top_level_group=None, group_owner_discord_id=None):
         
@@ -438,7 +429,7 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    async def _find_match_replays(self, ctx, game, winner):
+    async def _find_series_replays(self, ctx, game, winner):
         if not uploader:
             # Return empty for now TODO: Check for opponent steam
             await ctx.send(":x: No steam account linked to ballchasing.com")
@@ -458,15 +449,14 @@ class BCSixMans(commands.Cog):
         for player in game.orange:
             players.append(player)
 
-        i = 0
-        while not found and i < len(players):
-            player = players[i]
+        for player in players:
             for steam_id in await self._get_steam_ids(ctx, player.id):
+                if found:
+                    break
                 params = [
-                    'uploader={}'.format(steam_id)
-                    # 'player-id={}:{}'.format(platform, plat_id),
+                    'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'replay-date-after={}'.format(queue_pop_time)
+                    'replay-date-after={}'.format(queue_pop_time),
                     'count={}'.format(count),
                     'sort-by={}'.format(sort),
                     'sort-dir={}'.format(sort_dir)
@@ -490,11 +480,12 @@ class BCSixMans(commands.Cog):
                     blue_wins = blue_wins, oran_wins = oran_wins
                 )
 
-                if replay_ids:
-                    found = True
+                return replay_ids, series_summary
 
-        if replay_ids:
-            return replay_ids, series_summary
+        message = "No replay files could be found on ballchasing. Please use `[p]accountRegister` to make sure "
+        message += "auto-uploaded replays can be automatically added to a Six Mans ballchasing replay group."
+        await ctx.send(message)
+            
         return None
 
     async def _download_replays(self, ctx, replay_ids):
@@ -537,7 +528,6 @@ class BCSixMans(commands.Cog):
 
             try:
                 if status_code == 201 or status_code == 409:
-                    # TODO: If duplicate, patch to make sure its in the correct group (?) [patch request]
                     replay_ids_in_group.append(data['id'])
             except:
                 await ctx.send(":x: {} error: {}".format(status_code, data['error']))
@@ -579,10 +569,6 @@ class BCSixMans(commands.Cog):
             return False
         return True
 
-    async def _get_tier_subgroup_name(self, ctx, tier):
-        tier_num = (await self._get_tier_ranks(ctx))[tier]
-        return '{}{}'.format(tier_num, tier)
-
     async def _get_auth_token(self, ctx):
         return await self.config.guild(ctx.guild).AuthToken()
     
@@ -597,13 +583,6 @@ class BCSixMans(commands.Cog):
         await self.config.guild(ctx.guild).TopLevelGroup.set(group_id)
         return True
     
-    async def _get_tier_ranks(self, ctx):
-        return await self.config.guild(ctx.guild).TierRank()
-    
-    async def _save_tier_ranks(self, ctx, tier_ranks):
-        await self.config.guild(ctx.guild).TierRanks.set(tier_ranks)
-        return True
-
     async def _get_account_register(self, ctx):
         return await self.config.guild(ctx.guild).AccountRegister()
     
