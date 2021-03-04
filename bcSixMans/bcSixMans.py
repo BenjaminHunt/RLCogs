@@ -221,7 +221,7 @@ class BCSixMans(commands.Cog):
         member_lines = "discord id:        platform - platform id"
         for member, accs in account_register.items():
             for acc in accs:
-                member_lines += "\n{}: {} - {}\n".format(member, acc[0], acc[1])
+                member_lines += "{}: {} - {}\n".format(member, acc[0], acc[1])
                 if len(member_lines) > 1800:
                     await ctx.send(output + "\n```{}```".format(member_lines))
                     output = ""
