@@ -89,7 +89,7 @@ class BCSixMans(commands.Cog):
         else:
             await ctx.send(":x: Error setting top level group.")
 
-    @commands.command(aliases=['accountRegister', 'addAccount'])
+    @commands.command(aliases=['accountRegister', 'addAccount', 'addacc'])
     @commands.guild_only()
     async def registerAccount(self, ctx, platform, identifier):
         """Allows user to register account for ballchasing requests. This may be found by searching your appearances on ballchasing.com
@@ -130,6 +130,9 @@ class BCSixMans(commands.Cog):
         account_register = await self._get_account_register(ctx)
         
         # Make sure not a repeat account
+        import pprint as pp
+        pp.pprint(account_register)
+        print(type(account_register))
         if str(member.id) in account_register:
             if [platform][identifier] in account_register[str(member.id)]:
                 await ctx.send("{}, you have already registered this account.".format(member.mention))
