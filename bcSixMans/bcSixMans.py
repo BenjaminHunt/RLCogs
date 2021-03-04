@@ -130,7 +130,7 @@ class BCSixMans(commands.Cog):
         account_register = await self._get_account_register(ctx)
         
         # Make sure not a repeat account
-        if str(member.id) in account_register and [[platform][identifier]] in account_register[str(member.id)]:
+        if str(member.id) in account_register and [[platform][identifier]] in account_register.get((member.id)):
                 await ctx.send("{}, you have already registered this account.".format(member.mention))
                 return False
 
