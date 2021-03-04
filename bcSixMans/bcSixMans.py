@@ -130,9 +130,10 @@ class BCSixMans(commands.Cog):
         account_register = await self._get_account_register(ctx)
         
         # Make sure not a repeat account
-        if str(member.id) in account_register.keys() and [platform][identifier] in account_register[str(member.id)]:
-            await ctx.send("{}, you have already registered this account.".format(member.mention))
-            return False
+        if str(member.id) in account_register 
+            if [platform][identifier] in account_register[str(member.id)]:
+                await ctx.send("{}, you have already registered this account.".format(member.mention))
+                return False
 
         # React to confirm account registration
         prompt = "**{username}** ({platform}) appears in **{count}** ballchasing replays.".format(username=username, platform=platform, count=appearances)
@@ -177,7 +178,7 @@ class BCSixMans(commands.Cog):
             count += 1
         
         await self._save_account_register(ctx, account_register)
-        await ctx.send(":white_check_mark: Removed **{}** accounts.".format(count))
+        await ctx.send(":white_check_mark: Removed **{}** account(s).".format(count))
 
     @commands.command(aliases=['rmaccounts', 'clearaccounts', 'clearAccounts'])
     @commands.guild_only()
