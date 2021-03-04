@@ -155,8 +155,8 @@ class BCSixMans(commands.Cog):
     async def unregisterAccount(self, ctx, platform, identifier=None):
         remove_accs = []
         account_register = await self._get_account_register(ctx)
-        if member.id in account_register:
-            for account in account_register[member.id]:
+        if str(member.id) in account_register:
+            for account in account_register[str(member.id)]:
                 if account[0] == platform:
                     if not identifier or account[1] == identifier:
                         remove_accs.append(account)
@@ -165,7 +165,7 @@ class BCSixMans(commands.Cog):
             await ctx.send(":x: No matching account has been found.")
             return False
         
-        prompt = "React to confirm removal of the following accounts:\n - " + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in remove_accs)
+        prompt = "React to confirm removal of the following account(s):\n - " + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in remove_accs)
         if not await self._react_prompt(ctx, prompt, "No accounts have been removed."):
             return False
         
