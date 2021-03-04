@@ -209,17 +209,20 @@ class BCSixMans(commands.Cog):
         show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
         await ctx.send(show_accounts)
 
-    @commands.command(aliases=['allaccs'])
+    @commands.command(aliases=['allaccs', 'allaccounts'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def getAllAccounts(self, ctx):
         """lists all accounts registered for troubleshooting purposes"""
+        account_register = await self._get_account_register(ctx)
+        if not account_register:
+            return await ctx.send("No accounts have been registered.")
         output = ""
         for member, accs in account_register.items():
             for acc in accs:
                 output += "\t{}:\t{} - {}\n".format(member, acc[0], acc[1])
         if not output:
-            return await ctx.send("No accounts have been registered.")
+            return await ctx.send("No accounts have been found.")
         await ctx.send("All Accounts:\n{}".format(output))
 
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
