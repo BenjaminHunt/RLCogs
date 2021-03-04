@@ -193,7 +193,7 @@ class BCSixMans(commands.Cog):
                 return False
             
             del account_register[discord_id]
-            await ctx.send(":white_check_mark: Removed **{}** accounts.".format(count))
+            await ctx.send(":white_check_mark: Removed **{}** account(s).".format(count))
         else:
             await ctx.send("No account found.")
 
