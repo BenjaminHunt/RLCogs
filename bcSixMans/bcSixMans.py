@@ -217,13 +217,16 @@ class BCSixMans(commands.Cog):
         account_register = await self._get_account_register(ctx)
         if not account_register:
             return await ctx.send("No accounts have been registered.")
-        output = ""
+        output = "All Accounts:\n"
+        member_lines = "discord id:        platform - platform id"
         for member, accs in account_register.items():
             for acc in accs:
-                output += "\t{}: {} - {}\n".format(member, acc[0], acc[1])
-        if not output:
-            return await ctx.send("No accounts have been found.")
-        await ctx.send("All Accounts:\n```\n{}\n```".format(output))
+                member_lines += "\n{}: {} - {}\n".format(member, acc[0], acc[1])
+                if len(members) > 1800:
+                    await ctx.send(output + "\n```{}```".format(member_lines))
+                    output = ""
+                    members = ""
+        await ctx.send(output + "```\n{}\n```".format(members))
 
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
