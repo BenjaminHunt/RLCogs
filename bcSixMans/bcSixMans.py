@@ -184,9 +184,10 @@ class BCSixMans(commands.Cog):
     async def unregisterAccounts(self, ctx):
         """Unlinks registered account for ballchasing requests."""
         account_register = await self._get_account_register(ctx)
-        if ctx.message.author.id in account_register:
-            count = len(account_register[ctx.message.author.id])
-            del account_register[ctx.message.author.id]
+        discord_id = str(ctx.message.author.id)
+        if discord_id in account_register:
+            count = len(account_register[discord_id])
+            del account_register[discord_id]]
             await ctx.send(":white_check_mark: Removed **{}** accounts.".format(count))
         else:
             await ctx.send("No account found.")
