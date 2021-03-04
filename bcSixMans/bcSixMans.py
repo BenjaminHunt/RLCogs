@@ -102,7 +102,8 @@ class BCSixMans(commands.Cog):
             [p]registerAccount steam
         """
         # Check platform
-        if platform.lower() not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
+        platform = platform.lower()
+        if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
             return False
         
@@ -129,7 +130,7 @@ class BCSixMans(commands.Cog):
         account_register = await self._get_account_register(ctx)
         
         # Make sure not a repeat account
-        if str(member.id) in account_register and [platform][identifier] in account_register[str(member.id)]:
+        if str(member.id) in account_register.keys() and [platform][identifier] in account_register[str(member.id)]:
             await ctx.send("{}, you have already registered this account.".format(member.mention))
             return False
 
@@ -150,11 +151,12 @@ class BCSixMans(commands.Cog):
         if await self._save_account_register(ctx, account_register):
             await ctx.send("Done")
 
-    @commands.command(aliases=['rmaccount'])
+    @commands.command(aliases=['rmaccount', 'removeAccount'])
     @commands.guild_only()
     async def unregisterAccount(self, ctx, platform, identifier=None):
         remove_accs = []
         account_register = await self._get_account_register(ctx)
+        member = ctx.message.author
         if str(member.id) in account_register:
             for account in account_register[str(member.id)]:
                 if account[0] == platform:
