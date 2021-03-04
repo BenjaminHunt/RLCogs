@@ -230,6 +230,7 @@ class BCSixMans(commands.Cog):
         if member.id in account_register:
             for account in account_register[member.id]:
                 accs.append(account)
+                print("> {}".format(account))
         return accs
 
     async def _bc_get_request(self, ctx, endpoint, params=[], auth_token=None):
