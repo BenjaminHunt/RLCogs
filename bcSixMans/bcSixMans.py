@@ -210,7 +210,7 @@ class BCSixMans(commands.Cog):
         output = ""
         for member, accs in account_register.items():
             for acc in accs:
-                output += "\t{}: {} - {}".format(member, acc[0], acc[1])
+                output += "\t{}: {} - {}\n".format(member, acc[0], acc[1])
         if not output:
             return await ctx.send("No accounts have been registered.")
         await ctx.send("All Accounts:\n{}".format(output))
