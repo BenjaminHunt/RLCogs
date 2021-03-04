@@ -200,6 +200,21 @@ class BCSixMans(commands.Cog):
         show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
         await ctx.send(show_accounts)
 
+    @commands.command(aliases=['allaccs'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def getAllAccounts(self, ctx):
+        import pprint as pp
+        account_register = await self._get_account_register(ctx)
+        pp.pprint(account_register)
+        output = ""
+        for member, accs in account_register.items():
+            for acc in accs:
+                output += "\t{}: {} - {}".format(member, acc[0], acc[1])
+        if not output:
+            return await ctx.send("No accounts have been registered.")
+        await ctx.send("All Accounts:\n{}".format(output))
+
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
     async def bcgroup(self, ctx):
@@ -269,13 +284,13 @@ class BCSixMans(commands.Cog):
             await ctx.send("Sorry {}, you didn't react quick enough. Please try again.".format(user.mention))
             return False
 
-    async def _auto_link_account(self, member, platform):
-        return None
-        # {"type": "twitch", "id": "92473777", "name": "discordapp"}
-        for account in (await member.profile()).connected_accounts:
-                if account['type'] == platform:
-                    return account['id']
-        return None
+    # async def _auto_link_account(self, member, platform):
+    #     return None
+    #     # {"type": "twitch", "id": "92473777", "name": "discordapp"}
+    #     for account in (await member.profile()).connected_accounts:
+    #             if account['type'] == platform:
+    #                 return account['id']
+    #     return None
 
     async def _validate_account(self, ctx, platform, identifier):
         # auth_token = config.auth_token
