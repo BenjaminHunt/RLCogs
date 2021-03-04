@@ -129,7 +129,7 @@ class BCSixMans(commands.Cog):
         account_register = await self._get_account_register(ctx)
         
         # Make sure not a repeat account
-        if member.id in account_register and [platform][identifier] in account_register[member.id]:
+        if str(member.id) in account_register and [platform][identifier] in account_register[str(member.id)]:
             await ctx.send("{}, you have already registered this account.".format(member.mention))
             return False
 
@@ -204,6 +204,7 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def getAllAccounts(self, ctx):
+        """lists all accounts registered for troubleshooting purposes"""
         import pprint as pp
         account_register = await self._get_account_register(ctx)
         pp.pprint(account_register)
@@ -229,12 +230,10 @@ class BCSixMans(commands.Cog):
             member = ctx.message.author
         accs = []
         account_register = await self._get_account_register(ctx)
-        print('here1')
-        print(account_register)
-        if str(member.id) in account_register:
-            for account in account_register[str(member.id)]:
+        discord_id = str(member.id)
+        if discord_id in account_register:
+            for account in account_register[discord_id]:
                 accs.append(account)
-                print("> {}".format(account))
         return accs
 
     async def _bc_get_request(self, ctx, endpoint, params=[], auth_token=None):
