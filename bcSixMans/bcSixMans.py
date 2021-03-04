@@ -232,7 +232,7 @@ class BCSixMans(commands.Cog):
         print('here1')
         print(account_register)
         if member.id in account_register:
-            for account in account_register[member.id]:
+            for account in account_register[str(member.id)]:
                 accs.append(account)
                 print("> {}".format(account))
         return accs
