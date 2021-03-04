@@ -228,6 +228,7 @@ class BCSixMans(commands.Cog):
         accs = []
         account_register = await self._get_account_register(ctx)
         if member.id in account_register:
+            print('here1')
             for account in account_register[member.id]:
                 accs.append(account)
                 print("> {}".format(account))
