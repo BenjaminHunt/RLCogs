@@ -187,7 +187,7 @@ class BCSixMans(commands.Cog):
         discord_id = str(ctx.message.author.id)
         if discord_id in account_register:
             count = len(account_register[discord_id])
-            del account_register[discord_id]]
+            del account_register[discord_id]
             await ctx.send(":white_check_mark: Removed **{}** accounts.".format(count))
         else:
             await ctx.send("No account found.")
