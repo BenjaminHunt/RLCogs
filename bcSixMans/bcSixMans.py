@@ -222,7 +222,7 @@ class BCSixMans(commands.Cog):
         for member, accs in account_register.items():
             for acc in accs:
                 member_lines += "\n{}: {} - {}\n".format(member, acc[0], acc[1])
-                if len(members) > 1800:
+                if len(member_lines) > 1800:
                     await ctx.send(output + "\n```{}```".format(member_lines))
                     output = ""
                     members = ""
