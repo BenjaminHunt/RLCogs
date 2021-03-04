@@ -188,7 +188,7 @@ class BCSixMans(commands.Cog):
         if discord_id in account_register:
             count = len(account_register[discord_id])
             
-            prompt = "React to confirm removal of the following account(s):\n - " + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in self._get_all_accounts(ctx, ctx.message.author))
+            prompt = "React to confirm removal of the following account(s):\n - " + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in await self._get_all_accounts(ctx, ctx.message.author))
             if not await self._react_prompt(ctx, prompt, "No accounts have been removed."):
                 return False
             
