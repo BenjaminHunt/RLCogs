@@ -226,7 +226,7 @@ class BCSixMans(commands.Cog):
                     await ctx.send(output + "\n```{}```".format(member_lines))
                     output = ""
                     members = ""
-        await ctx.send(output + "```\n{}\n```".format(members))
+        await ctx.send(output + "```\n{}\n```".format(member_lines))
 
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
