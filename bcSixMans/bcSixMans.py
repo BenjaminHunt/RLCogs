@@ -173,7 +173,7 @@ class BCSixMans(commands.Cog):
         
         count = 0
         for acc in remove_accs:
-            account_register[member.id].remove(acc)
+            account_register[str(member.id)].remove(acc)
             count += 1
         
         await self._save_account_register(ctx, account_register)
