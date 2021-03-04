@@ -218,7 +218,7 @@ class BCSixMans(commands.Cog):
         if not account_register:
             return await ctx.send("No accounts have been registered.")
         output = "All Accounts:\n"
-        member_lines = "discord id:        platform - platform id"
+        member_lines = "discord id:         platform - id"
         for member, accs in account_register.items():
             for acc in accs:
                 member_lines += "{}: {} - {}\n".format(member, acc[0], acc[1])
