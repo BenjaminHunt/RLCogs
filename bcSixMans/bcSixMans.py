@@ -220,10 +220,10 @@ class BCSixMans(commands.Cog):
         output = ""
         for member, accs in account_register.items():
             for acc in accs:
-                output += "\t{}:\t{} - {}\n".format(member, acc[0], acc[1])
+                output += "\t{}: {} - {}\n".format(member, acc[0], acc[1])
         if not output:
             return await ctx.send("No accounts have been found.")
-        await ctx.send("All Accounts:\n{}".format(output))
+        await ctx.send("All Accounts:\n```\n{}\n```".format(output))
 
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
