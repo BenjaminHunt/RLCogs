@@ -227,8 +227,8 @@ class BCSixMans(commands.Cog):
     async def _get_all_accounts(self, ctx, member):
         accs = []
         account_register = await self._get_account_register(ctx)
+        print('here1')
         if member.id in account_register:
-            print('here1')
             for account in account_register[member.id]:
                 accs.append(account)
                 print("> {}".format(account))
