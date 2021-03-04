@@ -200,6 +200,7 @@ class BCSixMans(commands.Cog):
     @commands.command(aliases=['accs', 'getAccounts', 'getRegisteredAccounts', 'getAccountsRegistered', 'viewAccounts'])
     @commands.guild_only()
     async def accounts(self, ctx):
+        """view all accounts that have been registered to with your discord account in this guild."""
         member = ctx.message.author
         accounts = await self._get_all_accounts(ctx, member)
         if not accounts:
