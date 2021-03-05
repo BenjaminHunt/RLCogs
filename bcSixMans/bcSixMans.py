@@ -35,7 +35,7 @@ class BCSixMans(commands.Cog):
         """
         member = ctx.message.author
         game = self.six_mans_cog._get_game(ctx)
-        if game is None or six_mans_queue is None or not winning_team.lower() in ['blue', 'orange'] or not await self._get_top_level_group(ctx):
+        if game is None or not winning_team.lower() in ['blue', 'orange'] or not await self._get_top_level_group(ctx):
             return False
 
         replays_found = await self._find_series_replays(ctx, game, winning_team)
@@ -88,6 +88,14 @@ class BCSixMans(commands.Cog):
             await ctx.send("Done.")
         else:
             await ctx.send(":x: Error setting top level group.")
+    
+    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
+    @commands.guild_only()
+    async def bcgroup(self, ctx):
+        """Get the top-level ballchasing group to see all season match replays."""
+        group_code = await self._get_top_level_group(ctx)
+        url = "https://ballchasing.com/group/{}".format(group_code)
+        await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
     @commands.command(aliases=['accountRegister', 'addAccount', 'addaccount', 'addacc'])
     @commands.guild_only()
@@ -227,14 +235,6 @@ class BCSixMans(commands.Cog):
                     output = ""
                     members = ""
         await ctx.send(output + "```\n{}\n```".format(member_lines))
-
-    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
-    @commands.guild_only()
-    async def bcgroup(self, ctx):
-        """Get the top-level ballchasing group to see all season match replays."""
-        group_code = await self._get_top_level_group(ctx)
-        url = "https://ballchasing.com/group/{}".format(group_code)
-        await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
 
     async def _get_all_accounts(self, ctx, member=None):
