@@ -35,7 +35,7 @@ class BCSixMans(commands.Cog):
         """
         member = ctx.message.author
         game = self.six_mans_cog._get_game(ctx)
-        if game is None or not winning_team.lower() in ['blue', 'orange'] or not await self._get_top_level_group(ctx):
+        if game is None or await self._get_top_level_group(ctx) or (winning_team and winning_team.lower() in ['blue', 'orange'] or not ):
             return False
 
         replays_found = await self._find_series_replays(ctx, game, winning_team)
