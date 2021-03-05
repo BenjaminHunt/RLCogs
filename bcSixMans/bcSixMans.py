@@ -148,10 +148,8 @@ class BCSixMans(commands.Cog):
         nvm_message = "Registration cancelled."
         if not await self._react_prompt(ctx, prompt, nvm_message):
             return False
-        
-        
-        await ctx.send(account_register)
-        if member.id in account_register:
+            
+        if str(member.id) in account_register:
             account_register[str(member.id)].append([platform, identifier])
         else:
             account_register[str(member.id)] = [[platform, identifier]]
