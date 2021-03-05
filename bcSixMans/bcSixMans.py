@@ -97,7 +97,7 @@ class BCSixMans(commands.Cog):
         url = "https://ballchasing.com/group/{}".format(group_code)
         await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
-    @commands.command(aliases=['accountRegister', 'addAccount', 'addaccount', 'addacc'])
+    @commands.command(aliases=['registeraccount', 'accountregister', 'accountRegister', 'addAccount', 'addaccount', 'addacc'])
     @commands.guild_only()
     async def registerAccount(self, ctx, platform:str, identifier:str):
         """Allows user to register account for ballchasing requests. This may be found by searching your appearances on ballchasing.com
@@ -139,8 +139,8 @@ class BCSixMans(commands.Cog):
         
         # Make sure not a repeat account
         if str(member.id) in account_register and [platform, identifier] in account_register[str(member.id)]:
-                await ctx.send("{}, you have already registered this account.".format(member.mention))
-                return False
+            await ctx.send("{}, you have already registered this account.".format(member.mention))
+            return False
 
         # React to confirm account registration
         prompt = "**{username}** ({platform}) appears in **{count}** ballchasing replays.".format(username=username, platform=platform, count=appearances)
@@ -150,10 +150,11 @@ class BCSixMans(commands.Cog):
             return False
         
         
+        await ctx.send(account_register)
         if member.id in account_register:
-            account_register[member.id].append([platform, identifier])
+            account_register[str(member.id)].append([platform, identifier])
         else:
-            account_register[member.id] = [[platform, identifier]]
+            account_register[str(member.id)] = [[platform, identifier]]
         
         # Register account
         if await self._save_account_register(ctx, account_register):
