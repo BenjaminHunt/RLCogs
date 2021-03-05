@@ -214,7 +214,8 @@ class BCSixMans(commands.Cog):
         if not accounts:
             await ctx.send("{}, you have not registered any accounts.".format(member.mention))
             return
-        show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join(("{}: {}".format(acc[0], acc[1])) for acc in accounts)
+        # accs = 
+        show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join(["{}: {}".format(acc[0], acc[1]) for acc in accounts])
         await ctx.send(show_accounts)
 
     @commands.command(aliases=['allaccs', 'allaccounts'])
