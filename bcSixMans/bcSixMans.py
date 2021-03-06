@@ -553,7 +553,7 @@ class BCSixMans(commands.Cog):
         sort_dir = 'asc'
         count = 7
         queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
-        queue_pop_time = queue_pop_time[0:19] + queue_pop_time[-6:]
+        # queue_pop_time = queue_pop_time[0:19] + queue_pop_time[-6:]
         auth_token = await self._get_auth_token(ctx)
         
         players = []
@@ -571,12 +571,14 @@ class BCSixMans(commands.Cog):
                     'playlist=private',
                     'replay-date-after={}'.format(queue_pop_time),
                     'count={}'.format(count),
-                    'sort-by={}'.format(sort),
-                    'sort-dir={}'.format(sort_dir)
+                    # 'sort-by={}'.format(sort),
+                    # 'sort-dir={}'.format(sort_dir)
                 ]
 
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
                 data = r.json()
+
+                await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
 
                 # checks for correct replays
                 oran_wins = 0
