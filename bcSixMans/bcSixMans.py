@@ -30,20 +30,8 @@ class BCSixMans(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def g(self, ctx, member: discord.Member=None):
-        games = self.six_mans_cog.games
-        for g in games:
-            await ctx.send(g.id)
-            for player in g.blue:
-                await ctx.send(player.name)
-                if player == member:
-                    await ctx.send(":white_check_mark: {} is in this game!".format(player))
-            for player in g.orange:
-                await ctx.send(player.name)
-                if player == member:
-                    await ctx.send(":white_check_mark: {} is in this game!".format(player))
-
-        if not games:
-            await ctx.send("no games found")
+        queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
+        await ctx.send("replay-date-after: {}".format(queue_pop_time))
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
@@ -51,8 +39,8 @@ class BCSixMans(commands.Cog):
     async def gameOver(self, ctx, winning_team: str=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
+        # Find Six Mans Game, Queue
         member = ctx.message.author
-        # game = self.six_mans_cog._get_game(ctx)
         game = None
         for g in self.six_mans_cog.games:
             if member in g.blue or member in g.orange or g.textChannel == ctx.message.channel:
@@ -79,6 +67,7 @@ class BCSixMans(commands.Cog):
             await ctx.send('ballchasing group group not found')
             return False
 
+        # Find Series replays
         replays_found = await self._find_series_replays(ctx, game, winning_team)
 
         if not replays_found:
@@ -378,14 +367,6 @@ class BCSixMans(commands.Cog):
             await ctx.send("Sorry {}, you didn't react quick enough. Please try again.".format(user.mention))
             return False
 
-    # async def _auto_link_account(self, member, platform):
-    #     return None
-    #     # {"type": "twitch", "id": "92473777", "name": "discordapp"}
-    #     for account in (await member.profile()).connected_accounts:
-    #             if account['type'] == platform:
-    #                 return account['id']
-    #     return None
-
     async def _validate_account(self, ctx, platform, identifier):
         # auth_token = config.auth_token
         auth_token = await self._get_auth_token(ctx)
@@ -417,12 +398,6 @@ class BCSixMans(commands.Cog):
         if r.status_code == 200:
             return r.json()['steam_id']
         return None
-
-    # async def get_player_id(discord_id):
-    #     account_register = self._get_account_register(ctx)
-    #     arr = config.account_register[discord_id]
-    #     player_id = "{}:{}".format(arr[0], arr[1])
-    #     return player_id
 
     async def _get_steam_ids(self, ctx, discord_id):
         steam_accounts = []
@@ -585,10 +560,10 @@ class BCSixMans(commands.Cog):
         for player in game.orange:
             players.append(player)
 
+        await ctx.send("replay-date-after: {}".format(queue_pop_time))
+
         for player in players:
             for steam_id in await self._get_steam_ids(ctx, player.id):
-                if found:
-                    break
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
