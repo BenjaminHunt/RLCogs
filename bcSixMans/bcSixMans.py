@@ -68,7 +68,8 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def findSixMansBot(self, ctx):
-        qs = await self.six_mans_cog.queues(ctx)
+        # await self.six_mans_cog._pre_load_queues(ctx)
+        qs = await self.six_mans_cog.queues
         if qs:
             # await ctx.send("Six Mans Queues ({}): **{}**".format(len(qs), ", ".join(q.name for q in qs)))
             for q in qs:
