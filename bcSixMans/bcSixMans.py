@@ -57,12 +57,17 @@ class BCSixMans(commands.Cog):
         for g in self.six_mans_cog.games:
             if member in g.blue or member in g.orange or g.textChannel == ctx.message.textChannel:
                 game = g
+                await ctx.send("game found: {}".format(game.id))
                 break
 
         six_mans_queue = None
         for q in self.six_mans_cog.queues:
             if game.queueId == q.id:
                 six_mans_queue = q
+                await ctx.send("game found: {}".format(six_mans_queue.id))
+                break
+
+        return False
 
         if game is None or await self._get_top_level_group(ctx) or (winning_team and winning_team.lower() in ['blue', 'orange']):
             await ctx.send('game not found')
