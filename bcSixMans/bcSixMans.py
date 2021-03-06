@@ -99,6 +99,8 @@ class BCSixMans(commands.Cog):
 
         series_subgroup_id = await self._get_replay_destination(ctx, six_mans_queue, game)
         # await ctx.send("Match Subgroup ID: {}".format(series_subgroup_id))
+        if not series_subgroup_id:
+            await ctx.send(":x: series_subgroup_id not found.")
 
         replay_ids, summary = replays_found
         # await ctx.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
