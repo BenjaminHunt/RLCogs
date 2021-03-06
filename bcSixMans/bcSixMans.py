@@ -33,6 +33,11 @@ class BCSixMans(commands.Cog):
         games = self.six_mans_cog.games
         for g in games:
             await ctx.send(g.id)
+            for player in g.blue
+                await ctx.send(player.name)
+            for player in g.orange
+                await ctx.send(player.name)
+                
         if not games:
             await ctx.send("no games found")
 
@@ -46,9 +51,10 @@ class BCSixMans(commands.Cog):
         # game = self.six_mans_cog._get_game(ctx)
         game = None
         for g in self.six_mans_cog.games:
-            if member in g.blue or member in g.orange or game.textChannel == ctx.message.textChannel:
+            if member in g.blue or member in g.orange or g.textChannel == ctx.message.textChannel:
                 game = g
                 break
+
         six_mans_queue = None
         for q in self.six_mans_cog.queues:
             if game.queueId == q.id:
