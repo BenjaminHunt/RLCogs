@@ -36,6 +36,7 @@ class BCSixMans(commands.Cog):
         member = ctx.message.author
         game = self.six_mans_cog._get_game(ctx)
         if game is None or await self._get_top_level_group(ctx) or (winning_team and winning_team.lower() in ['blue', 'orange']):
+            await ctx.send('game not found')
             return False
 
         replays_found = await self._find_series_replays(ctx, game, winning_team)
@@ -204,7 +205,7 @@ class BCSixMans(commands.Cog):
         else:
             await ctx.send("No account found.")
 
-    @commands.command(aliases=['accs', 'getAccounts', 'getRegisteredAccounts', 'getAccountsRegistered', 'viewAccounts'])
+    @commands.command(aliases=['accs', 'myAccounts', 'registeredAccounts'])
     @commands.guild_only()
     async def accounts(self, ctx):
         """view all accounts that have been registered to with your discord account in this guild."""
@@ -213,8 +214,21 @@ class BCSixMans(commands.Cog):
         if not accounts:
             await ctx.send("{}, you have not registered any accounts.".format(member.mention))
             return
-            
+
         show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
+        await ctx.send(show_accounts)
+
+    @commands.command(aliases=['getAccounts', 'getRegisteredAccounts', 'getAccountsRegistered', 'viewAccounts', 'showAccounts'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def memberAccounts(self, ctx, member: discord.Member):
+        """view all accounts that have been registered to with your discord account in this guild."""
+        accounts = await self._get_all_accounts(ctx, member)
+        if not accounts:
+            await ctx.send("{}, you have not registered any accounts.".format(member.mention))
+            return
+
+        show_accounts = "{}, has registered the following accounts:\n - ".format(member.name) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
         await ctx.send(show_accounts)
 
     @commands.command(aliases=['allaccs', 'allaccounts'])
