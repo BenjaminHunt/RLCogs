@@ -49,7 +49,7 @@ class BCSixMans(commands.Cog):
                     # 'sort-dir={}'.format(sort_dir)
                 ]
 
-                r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
+                r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
                 data = r.json()
 
                 await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
