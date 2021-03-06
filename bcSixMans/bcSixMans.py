@@ -40,7 +40,6 @@ class BCSixMans(commands.Cog):
         if member:
             accounts = await self._get_steam_ids(ctx, member.id)
             for steam_id in accounts:
-                await ctx.send('here!')
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
@@ -444,7 +443,7 @@ class BCSixMans(commands.Cog):
                     return True
         return False
 
-    def _get_account_team(self, platform, plat_id, replay_data):
+    def _get_account_replay_team(self, platform, plat_id, replay_data):
         for team in ['blue', 'orange']:
             for player in replay_data['players']:
                 if player['id']['platform'] == platform and player['id']['id'] == plat_id:
@@ -460,19 +459,17 @@ class BCSixMans(commands.Cog):
         
         # which team is the uploader supposed to be on
         if uploader in sm_game.blue:
-            uploader_team = 'blue'
+            uploader_sm_team = 'blue'
         elif uploader in sm_game.orange:
-            uploader_team = 'orange'
+            uploader_sm_team = 'orange'
         else:
             return None
 
         # swap_teams covers the scenario where the teams join incorrectly, assumes group is correct (applies to score summary only)
         swap_teams = False
-        for account in account_register[uploader.id]:
-            account_replay_team = self._get_account_team(platform, plat_id, replay_data)
-            if not account_replay_team:
-                break
-            if account_team != account_replay_team:
+        for account in account_register[str(uploader.id)]:
+            account_replay_team = self._get_account_replay_team(platform, plat_id, replay_data)
+            if account_sm_team != account_replay_team:
                 swap_teams = True
 
         # don't count incomplete replays
@@ -577,7 +574,6 @@ class BCSixMans(commands.Cog):
         sort_dir = 'asc'
         count = 7
         queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
-        # queue_pop_time = queue_pop_time[0:19] + queue_pop_time[-6:]
         auth_token = await self._get_auth_token(ctx)
         
         players = []
@@ -615,7 +611,7 @@ class BCSixMans(commands.Cog):
                     else:
                         oran_wins += 1
 
-                series_summary = "****Blue** {blue_wins} - {oran_wins} **Orange**".format(
+                series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
                     blue_wins = blue_wins, oran_wins = oran_wins
                 )
 
