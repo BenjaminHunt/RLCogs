@@ -70,7 +70,9 @@ class BCSixMans(commands.Cog):
     async def findSixMansBot(self, ctx):
         qs = await self.six_mans_cog._queues(ctx)
         if qs:
-            await ctx.send("Six Mans Queues ({}): **{}**".format(len(qs), ", ".join(q.name for q in qs)))
+            # await ctx.send("Six Mans Queues ({}): **{}**".format(len(qs), ", ".join(q.name for q in qs)))
+            for q in qs:
+                await ctx.send(q)
         else:
             await ctx.send("qs not found.")
 
