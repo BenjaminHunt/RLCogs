@@ -422,7 +422,8 @@ class BCSixMans(commands.Cog):
             return r.json()['steam_id']
         return None
 
-    async def _get_steam_ids(self, ctx, discord_id:str):
+    async def _get_steam_ids(self, ctx, discord_id):
+        discord_id = str(discord_id)
         steam_accounts = []
         account_register = await self._get_account_register(ctx)
         if discord_id in account_register:
