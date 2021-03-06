@@ -53,7 +53,7 @@ class BCSixMans(commands.Cog):
                 r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
                 data = r.json()
 
-                await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
+                await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
             if not accounts:
                 await ctx.send("No accounts found")
 
