@@ -103,8 +103,9 @@ class BCSixMans(commands.Cog):
     async def bcPage(self, ctx):
         """Get the ballchasing pages for registered accounts"""
         group_code = await self._get_top_level_group(ctx)
+        member = ctx.author.member
         lines = []
-        for acc in await self._get_all_accounts(ctx, ctx.message.author):
+        for acc in await self._get_all_accounts(ctx, member):
             lines.append("<https://ballchasing.com/player/{}/{}>".format(acc[0], acc[1]))
         show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
         await ctx.send("Here are the ballchasing pages for your reigistered accounts: {}".format())
