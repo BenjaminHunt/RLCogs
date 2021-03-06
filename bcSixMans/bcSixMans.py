@@ -29,14 +29,18 @@ class BCSixMans(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def g(self, ctx, winning_team: str=None):
+    async def g(self, ctx, member: discord.Member=None):
         games = self.six_mans_cog.games
         for g in games:
             await ctx.send(g.id)
             for player in g.blue:
                 await ctx.send(player.name)
+                if player == member:
+                    await ctx.send(":white_check_mark: {} is in this game!".format(player))
             for player in g.orange:
                 await ctx.send(player.name)
+                if player == member:
+                    await ctx.send(":white_check_mark: {} is in this game!".format(player))
 
         if not games:
             await ctx.send("no games found")
