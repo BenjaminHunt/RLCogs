@@ -68,7 +68,7 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def findSixMansBot(self, ctx):
-        qcat = self.six_mans_cog._category(ctx)
+        qcat = await self.six_mans_cog._category(ctx)
         if qcat:
             await ctx.send("**{}** is the q category".format(qcat))
         else:
