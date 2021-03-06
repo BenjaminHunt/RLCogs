@@ -31,7 +31,8 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     async def g(self, ctx, member: discord.Member=None):
         queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
-        await ctx.send("replay-date-after: {}".format(queue_pop_time))
+        qpt = queue_pop_time[0:19] + queue_pop_time[-6:]
+        await ctx.send("replay-date-after: {}".format(qpt))
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
@@ -552,6 +553,7 @@ class BCSixMans(commands.Cog):
         sort_dir = 'asc'
         count = 7
         queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
+        queue_pop_time = queue_pop_time[0:19] + queue_pop_time[-6:]
         auth_token = await self._get_auth_token(ctx)
         
         players = []
