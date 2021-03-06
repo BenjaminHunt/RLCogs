@@ -55,7 +55,7 @@ class BCSixMans(commands.Cog):
         # game = self.six_mans_cog._get_game(ctx)
         game = None
         for g in self.six_mans_cog.games:
-            if member in g.blue or member in g.orange or g.textChannel == ctx.message.textChannel:
+            if member in g.blue or member in g.orange or g.textChannel == ctx.message.channel:
                 game = g
                 await ctx.send("game found: {}".format(game.id))
                 break
