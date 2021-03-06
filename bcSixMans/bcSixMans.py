@@ -64,6 +64,16 @@ class BCSixMans(commands.Cog):
         message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup: <https://ballchasing.com/group/{}>'.format(summary, subgroup_id)
         await ctx.send(message)
 
+    @commands.command(aliases=['smb'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def findSixMansBot(self, ctx):
+        qcat = self.six_mans_cog._category(ctx)
+        if qcat:
+            await ctx.send("**{}** is the q category".format(qcat))
+        else:
+            await ctx.send("q category not found.")
+
     @commands.command(aliases=['setAuthKey'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
