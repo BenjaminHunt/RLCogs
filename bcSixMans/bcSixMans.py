@@ -98,7 +98,7 @@ class BCSixMans(commands.Cog):
         url = "https://ballchasing.com/group/{}".format(group_code)
         await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
-    @commands.command(aliases=['bcpage', 'mybcpage', 'bcp', 'getBCPage'])
+    @commands.command(aliases=['bcpage', 'mybcpage', 'bcp', 'getBCPage', 'ballchasingpage', 'bcpages'])
     @commands.guild_only()
     async def bcPage(self, ctx):
         """Get the ballchasing pages for registered accounts"""
