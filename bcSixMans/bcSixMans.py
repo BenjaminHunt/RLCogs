@@ -106,10 +106,9 @@ class BCSixMans(commands.Cog):
         member = ctx.message.author
         lines = []
         for acc in await self._get_all_accounts(ctx, member):
-            # lines.append("<https://ballchasing.com/player/{}/{}>".format(acc[0], acc[1]))
-            lines.append(acc)
+            lines.append("<https://ballchasing.com/player/{}/{}>".format(acc[0], acc[1]))
         show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
-        await ctx.send("Here are the ballchasing pages for your reigistered accounts: {}".format())
+        await ctx.send("Here are the ballchasing pages for your reigistered accounts: {}".format(lines))
 
     @commands.command(aliases=['registeraccount', 'accountregister', 'accountRegister', 'addAccount', 'addaccount', 'addacc'])
     @commands.guild_only()
