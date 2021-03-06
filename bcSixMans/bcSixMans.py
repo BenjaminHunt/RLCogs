@@ -576,15 +576,15 @@ class BCSixMans(commands.Cog):
         queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
         auth_token = await self._get_auth_token(ctx)
         
-        players = []
-        for player in game.blue:
-            players.append(player)
-        for player in game.orange:
-            players.append(player)
+        # players = []
+        # for player in game.blue:
+        #     players.append(player)
+        # for player in game.orange:
+        #     players.append(player)
 
         await ctx.send("replay-date-after: {}".format(queue_pop_time))
 
-        for player in players:
+        for player in game.players:
             for steam_id in await self._get_steam_ids(ctx, player.id):
                 params = [
                     'uploader={}'.format(steam_id),
