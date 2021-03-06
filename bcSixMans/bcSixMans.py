@@ -27,6 +27,15 @@ class BCSixMans(commands.Cog):
         self.six_mans_cog = bot.get_cog("SixMans")
     
 
+    @commands.command()
+    @commands.guild_only()
+    async def g(self, ctx, winning_team: str=None):
+        games = self.six_mans_cog.games
+        for g in games:
+            await ctx.send(g.name)
+        if not games:
+            await ctx.send("no games found")
+
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
     @commands.guild_only()
