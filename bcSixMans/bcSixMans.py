@@ -87,7 +87,7 @@ class BCSixMans(commands.Cog):
             return False
 
         if not await self._get_top_level_group(ctx):
-            await ctx.send('ballchasing group group not found')
+            await ctx.send('ballchasing group group not found.')
             return False
 
         # Find Series replays
@@ -97,8 +97,8 @@ class BCSixMans(commands.Cog):
             await ctx.send(":x: No matching replays found.")
             return False
 
-        match_subgroup_id = await self._get_replay_destination(ctx, six_mans_queue, game)
-        # await ctx.send("Match Subgroup ID: {}".format(match_subgroup_id))
+        series_subgroup_id = await self._get_replay_destination(ctx, six_mans_queue, game)
+        # await ctx.send("Match Subgroup ID: {}".format(series_subgroup_id))
 
         replay_ids, summary = replays_found
         # await ctx.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
@@ -106,14 +106,14 @@ class BCSixMans(commands.Cog):
         tmp_replay_files = await self._download_replays(ctx, replay_ids)
         # await ctx.send("Temp replay files to upload ({}): {}".format(len(tmp_replay_files), ", ".join(tmp_replay_files)))
         
-        uploaded_ids = await self._upload_replays(ctx, match_subgroup_id, tmp_replay_files)
+        uploaded_ids = await self._upload_replays(ctx, series_subgroup_id, tmp_replay_files)
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
         
         renamed = await self._rename_replays(ctx, uploaded_ids)
         # await ctx.send("replays renamed: {}".format(renamed))
         self._delete_temp_files(tmp_replay_files)
         
-        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup: <https://ballchasing.com/group/{}>'.format(summary, subgroup_id)
+        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup: <https://ballchasing.com/group/{}>'.format(summary, series_subgroup_id)
         await ctx.send(message)
 
     @commands.command(aliases=['smb'])
@@ -590,7 +590,7 @@ class BCSixMans(commands.Cog):
                     'uploader={}'.format(steam_id),
                     'playlist=private',
                     'replay-date-after={}'.format(queue_pop_time),
-                    'count={}'.format(count),
+                    # 'count={}'.format(count),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
                 ]
@@ -599,6 +599,8 @@ class BCSixMans(commands.Cog):
                 data = r.json()
 
                 await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
+                if not len(data['list']):
+                    await ctx.send(data)
 
                 # checks for correct replays
                 oran_wins = 0
