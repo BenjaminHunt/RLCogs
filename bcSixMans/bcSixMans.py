@@ -68,7 +68,7 @@ class BCSixMans(commands.Cog):
         for q in self.six_mans_cog.queues:
             if game.queueId == q.id:
                 six_mans_queue = q
-                await ctx.send("game found: {}".format(six_mans_queue.id))
+                await ctx.send("queue found: {}".format(six_mans_queue.id))
                 break
 
         return False
