@@ -32,7 +32,7 @@ class BCSixMans(commands.Cog):
     async def g(self, ctx, winning_team: str=None):
         games = self.six_mans_cog.games
         for g in games:
-            await ctx.send(g.name)
+            await ctx.send(g.id)
         if not games:
             await ctx.send("no games found")
 
