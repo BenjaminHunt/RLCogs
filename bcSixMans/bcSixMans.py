@@ -225,10 +225,10 @@ class BCSixMans(commands.Cog):
         """view all accounts that have been registered to with your discord account in this guild."""
         accounts = await self._get_all_accounts(ctx, member)
         if not accounts:
-            await ctx.send("{}, you have not registered any accounts.".format(member.mention))
+            await ctx.send("**{}**, has not registered any accounts.".format(member.name))
             return
 
-        show_accounts = "{}, has registered the following accounts:\n - ".format(member.name) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
+        show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
         await ctx.send(show_accounts)
 
     @commands.command(aliases=['allaccs', 'allaccounts'])
