@@ -98,6 +98,17 @@ class BCSixMans(commands.Cog):
         url = "https://ballchasing.com/group/{}".format(group_code)
         await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
+    @commands.command(aliases=['bcpage', 'mybcpage', 'bcp', 'getBCPage'])
+    @commands.guild_only()
+    async def bcPage(self, ctx):
+        """Get the ballchasing pages for registered accounts"""
+        group_code = await self._get_top_level_group(ctx)
+        lines = []
+        for acc in await self._get_all_accounts(ctx, member):
+            lines.append("<https://ballchasing.com/player/{}/{}>".format())
+        show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
+        await ctx.send("Here are the ballchasing pages for your reigistered accounts: {}".format())
+
     @commands.command(aliases=['registeraccount', 'accountregister', 'accountRegister', 'addAccount', 'addaccount', 'addacc'])
     @commands.guild_only()
     async def registerAccount(self, ctx, platform:str, identifier:str):
