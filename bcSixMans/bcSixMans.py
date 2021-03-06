@@ -36,7 +36,7 @@ class BCSixMans(commands.Cog):
         time_cmp = "2021-03-02T01:19:00.272000-05:00"
         await ctx.send("time compare: {}".format(time_cmp))
         
-        for steam_id in await self._get_steam_ids(ctx, player.id):
+        for steam_id in await self._get_steam_ids(ctx, member.id):
             params = [
                 'uploader={}'.format(steam_id),
                 'playlist=private',
@@ -417,7 +417,7 @@ class BCSixMans(commands.Cog):
             return r.json()['steam_id']
         return None
 
-    async def _get_steam_ids(self, ctx, discord_id):
+    async def _get_steam_ids(self, ctx, discord_id:str):
         steam_accounts = []
         account_register = await self._get_account_register(ctx)
         if discord_id in account_register:
