@@ -36,20 +36,22 @@ class BCSixMans(commands.Cog):
         time_cmp = "2021-03-02T01:19:00.272000-05:00"
         await ctx.send("time compare: {}".format(time_cmp))
         
-        for steam_id in await self._get_steam_ids(ctx, member.id):
-            params = [
-                'uploader={}'.format(steam_id),
-                'playlist=private',
-                'replay-date-after={}'.format(time_cmp),
-                'count={}'.format(count),
-                # 'sort-by={}'.format(sort),
-                # 'sort-dir={}'.format(sort_dir)
-            ]
+        if member:
+            for steam_id in await self._get_steam_ids(ctx, member.id):
+                await ctx.send('here!')
+                params = [
+                    'uploader={}'.format(steam_id),
+                    'playlist=private',
+                    'replay-date-after={}'.format(time_cmp),
+                    'count={}'.format(count),
+                    # 'sort-by={}'.format(sort),
+                    # 'sort-dir={}'.format(sort_dir)
+                ]
 
-            r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
-            data = r.json()
+                r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
+                data = r.json()
 
-            await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
+                await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
