@@ -34,7 +34,14 @@ class BCSixMans(commands.Cog):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         member = ctx.message.author
-        game = self.six_mans_cog._get_game(ctx)
+        # game = self.six_mans_cog._get_game(ctx)
+        games = self.six_mans_cog.games
+        game = None
+        for g in games:
+            if member in g.blue or member in g.orange or game.textChannel == ctx.message.textChannel:
+                game = g
+                break
+
         if game is None or await self._get_top_level_group(ctx) or (winning_team and winning_team.lower() in ['blue', 'orange']):
             await ctx.send('game not found')
             return False
@@ -68,7 +75,6 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def findSixMansBot(self, ctx):
-        # await self.six_mans_cog._pre_load_queues(ctx)
         qs = self.six_mans_cog.queues
         if qs:
             # await ctx.send("Six Mans Queues ({}): **{}**".format(len(qs), ", ".join(q.name for q in qs)))
