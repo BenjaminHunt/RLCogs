@@ -33,11 +33,11 @@ class BCSixMans(commands.Cog):
         games = self.six_mans_cog.games
         for g in games:
             await ctx.send(g.id)
-            for player in g.blue
+            for player in g.blue:
                 await ctx.send(player.name)
-            for player in g.orange
+            for player in g.orange:
                 await ctx.send(player.name)
-                
+
         if not games:
             await ctx.send("no games found")
 
