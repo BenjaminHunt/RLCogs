@@ -68,11 +68,11 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def findSixMansBot(self, ctx):
-        qcat = await self.six_mans_cog._category(ctx)
-        if qcat:
-            await ctx.send("**{}** is the q category".format(qcat))
+        qs = await self.six_mans_cog._queues(ctx)
+        if qs:
+            await ctx.send("Six Mans Queues({}): **{}**".format(len(qs), qs))
         else:
-            await ctx.send("q category not found.")
+            await ctx.send("qs not found.")
 
     @commands.command(aliases=['setAuthKey'])
     @commands.guild_only()
@@ -465,7 +465,7 @@ class BCSixMans(commands.Cog):
         game_id = game.id
         blue_players = game.blue 
         oran_players = game.orange
-        queue_name = next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
+        queue_name = queue.name # next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
 
         ordered_subgroups = [
             queue_name,
