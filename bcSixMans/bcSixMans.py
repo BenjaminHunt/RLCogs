@@ -37,7 +37,8 @@ class BCSixMans(commands.Cog):
         await ctx.send("time compare: {}".format(time_cmp))
         
         if member:
-            for steam_id in await self._get_steam_ids(ctx, member.id):
+            accounts = await self._get_steam_ids(ctx, member.id)
+            for steam_id in accounts:
                 await ctx.send('here!')
                 params = [
                     'uploader={}'.format(steam_id),
@@ -52,6 +53,8 @@ class BCSixMans(commands.Cog):
                 data = r.json()
 
                 await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
+            if not accounts:
+                await ctx.send("No accounts found")
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
