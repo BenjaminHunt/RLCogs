@@ -70,11 +70,13 @@ class BCSixMans(commands.Cog):
                 six_mans_queue = q
                 await ctx.send("queue found: {}".format(six_mans_queue.id))
                 break
+        
+        if not six_mans_queue:
+            await ctx.send("queue not found.")
+            return False
 
-        return False
-
-        if game is None or await self._get_top_level_group(ctx) or (winning_team and winning_team.lower() in ['blue', 'orange']):
-            await ctx.send('game not found')
+        if not await self._get_top_level_group(ctx):
+            await ctx.send('ballchasing group group not found')
             return False
 
         replays_found = await self._find_series_replays(ctx, game, winning_team)
