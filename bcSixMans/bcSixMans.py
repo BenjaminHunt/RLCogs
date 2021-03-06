@@ -59,6 +59,10 @@ class BCSixMans(commands.Cog):
                 game = g
                 await ctx.send("game found: {}".format(game.id))
                 break
+        
+        if not game:
+            await ctx.send("game not found.")
+            return False
 
         six_mans_queue = None
         for q in self.six_mans_cog.queues:
