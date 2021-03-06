@@ -35,6 +35,7 @@ class BCSixMans(commands.Cog):
         await ctx.send("replay-date-after={}\n--".format(qpt))
         time_cmp = "2021-03-02T01:19:00.272000-05:00"
         await ctx.send("time compare: {}".format(time_cmp))
+        auth_token = await self._get_auth_token(ctx)
         
         if member:
             accounts = await self._get_steam_ids(ctx, member.id)
