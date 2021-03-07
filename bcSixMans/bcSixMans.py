@@ -536,7 +536,8 @@ class BCSixMans(commands.Cog):
         # Dynamically create sub-group
         current_subgroup_id = top_level_group
         next_subgroup_id = None
-        for str(next_group_name) in ordered_subgroups:
+        for next_group_name in ordered_subgroups:
+            next_group_name = str(next_group_name)
             if next_subgroup_id:
                 current_subgroup_id = next_subgroup_id
             next_subgroup_id = None 
