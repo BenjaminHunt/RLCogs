@@ -66,6 +66,7 @@ class BCSixMans(commands.Cog):
         member = ctx.message.author
         game = None
         for g in self.six_mans_cog.games:
+            await ctx.send(game.id)
             if member in g.blue or member in g.orange or g.textChannel == ctx.message.channel:
                 game = g
                 await ctx.send("game found: {}".format(game.id))
@@ -143,7 +144,7 @@ class BCSixMans(commands.Cog):
         else:
             await ctx.send(":x: Error setting auth token.")
 
-    @commands.command(aliases=["sbcg"])
+    @commands.command(aliases=["sbcg", "setTopLevelGroup"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def setBCGroup(self, ctx, top_level_group):
