@@ -35,7 +35,7 @@ class BCSixMans(commands.Cog):
         # self.six_mans_cog = self.bot.get_cog("SixMans")
         game = None
         for g in self.six_mans_cog.games:
-            await ctx.send(game.id)
+            await ctx.send(g.id)
 
         # queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
         # qpt = queue_pop_time[0:19] + queue_pop_time[-6:]
