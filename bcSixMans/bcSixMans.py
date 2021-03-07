@@ -361,7 +361,8 @@ class BCSixMans(commands.Cog):
         
         url = 'https://ballchasing.com/api'
         url += endpoint
-        params = '&'.join(urllib.parse.quote(params))
+        params = [urllib.parse.quote(p) for p in params]
+        params = '&'.join(params)
         if params:
             url += "?{}".format(params)
         
