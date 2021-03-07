@@ -5,6 +5,7 @@ import os
 import json
 import discord
 import asyncio
+import urllib
 
 from redbot.core import Config
 from redbot.core import commands
@@ -363,6 +364,8 @@ class BCSixMans(commands.Cog):
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
+        
+        url = urllib.urlencode(url)
         
         return requests.get(url, headers={'Authorization': auth_token})
 
