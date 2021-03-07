@@ -74,7 +74,7 @@ class BCSixMans(commands.Cog):
         self.six_mans_cog = self.bot.get_cog("SixMans")
         game = None
         for g in self.six_mans_cog.games:
-            await ctx.send(game.id)
+            await ctx.send(g.id)
             if member in g.blue or member in g.orange or g.textChannel == ctx.message.channel:
                 game = g
                 await ctx.send("game found: {}".format(game.id))
