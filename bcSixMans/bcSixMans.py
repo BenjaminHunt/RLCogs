@@ -58,7 +58,7 @@ class BCSixMans(commands.Cog):
                     'playlist=private',
                     # 'upload-date-after={}'.format(qpt),
                     'sort-dir=desc',
-                    'count={}'.format(5)
+                    'count={}'.format(1)
                 ]
 
                 r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
@@ -70,7 +70,10 @@ class BCSixMans(commands.Cog):
                         
                         if replay['date'] > qpt or True:
                             try:
-                                await ctx.send("**-\nscore:** {}-{}\n**created:** {}\n**date:** {}\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
+                                blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
+                                orange_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
+
+                                await ctx.send("**-\nscore:** blue {}-{} orange\n**created:** {}\n**date:** {}\n-".format(blue_goals, orange_goals, replay['created'], replay['date']))
                                 if qpt > replay['date']:
                                     await ctx.send("pop > replay\n")
                                 else:
