@@ -40,6 +40,7 @@ class BCSixMans(commands.Cog):
 
         qpt = ctx.channel.created_at.astimezone().isoformat()
         qpt = qpt[0:19] + qpt[-6:]
+        await ctx.send(qpt)
         auth_token = await self._get_auth_token(ctx)
         
         if member:
