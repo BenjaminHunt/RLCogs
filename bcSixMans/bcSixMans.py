@@ -51,7 +51,7 @@ class BCSixMans(commands.Cog):
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'replay-date-after={}'.format(qpt),
+                    'replay-date-after={}'.format(urllib.parse.quote_plus(qpt)),
                     'count={}'.format(5),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
@@ -363,7 +363,7 @@ class BCSixMans(commands.Cog):
         url += endpoint
         params = '&'.join(params)
         if params:
-            url += "?{}".format(urllib.parse.quote_plus(params))
+            url += "?{}".format(params)
         
         # url = urllib.parse.quote_plus(url)
         
