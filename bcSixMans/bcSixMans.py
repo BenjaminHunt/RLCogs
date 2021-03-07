@@ -39,6 +39,7 @@ class BCSixMans(commands.Cog):
                 game = g
 
         qpt = ctx.channel.created_at.astimezone().isoformat()
+        qpt = qpt[0:19] + qpt[-6:]
         auth_token = await self._get_auth_token(ctx)
         
         if member:
@@ -47,7 +48,7 @@ class BCSixMans(commands.Cog):
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    # 'replay-date-after={}'.format(qpt),
+                    'replay-date-after={}'.format(qpt),
                     'count={}'.format(5),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
