@@ -57,7 +57,7 @@ class BCSixMans(commands.Cog):
                     'uploader={}'.format(steam_id),
                     'playlist=private',
                     # 'upload-date-after={}'.format(qpt),
-                    'sort-dir=asc',
+                    'sort-dir=desc',
                     'count={}'.format(5)
                 ]
 
@@ -78,6 +78,8 @@ class BCSixMans(commands.Cog):
                     await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
             if not accounts:
                await ctx.send("No accounts found")
+
+        await ctx.send("Done")
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
