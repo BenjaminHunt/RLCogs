@@ -39,10 +39,14 @@ class BCSixMans(commands.Cog):
             if g.textChannel == ctx.channel:
                 game = g
 
-        qpt = ctx.channel.created_at.astimezone().isoformat()
         qpt_cmp = "2021-03-07T09:54:06.356000-01:00"
-        await ctx.send("qpt: `{}`".format(qpt))
         await ctx.send("cmp: `{}`".format(qpt_cmp))
+
+
+        qpt = ctx.channel.created_at.astimezone().isoformat()
+        await ctx.send("qpt: `{}`".format(qpt))
+        qpt = urllib.parse.quote(qpt)
+        await ctx.send('encoded: `{}`'.format(qpt))
         auth_token = await self._get_auth_token(ctx)
         
         if member:
@@ -52,7 +56,7 @@ class BCSixMans(commands.Cog):
                     'uploader={}'.format(steam_id),
                     'playlist=private',
                     'upload-date-after={}'.format(qpt),
-                    'count={}'.format(3),
+                    'count={}'.format(3)
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
                 ]
