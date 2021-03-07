@@ -363,7 +363,7 @@ class BCSixMans(commands.Cog):
         url += endpoint
         params = '&'.join(params)
         if params:
-            url += "?{}".format(params)
+            url += "?{}".format(urllib.parse.quote(params))
         
         # url = urllib.parse.quote_plus(url)
         
