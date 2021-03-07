@@ -366,6 +366,7 @@ class BCSixMans(commands.Cog):
             url += "?{}".format(urllib.parse.quote(params))
         
         # url = urllib.parse.quote_plus(url)
+        await ctx.send(">> {}".format(url))
         
         return requests.get(url, headers={'Authorization': auth_token})
 
