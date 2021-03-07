@@ -570,6 +570,7 @@ class BCSixMans(commands.Cog):
                 r = await self._bc_post_request(ctx, endpoint, auth_token=auth_token, json=payload)
                 data = r.json()
                 await ctx.send(data)
+                await ctx.send(payload)
                 
                 try:
                     next_subgroup_id = data['id']
