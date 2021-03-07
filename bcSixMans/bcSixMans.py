@@ -45,7 +45,7 @@ class BCSixMans(commands.Cog):
 
         qpt = ctx.channel.created_at.astimezone().isoformat()
         await ctx.send("qpt: `{}`".format(qpt))
-        qpt = urllib.parse.quote(qpt)
+        # qpt = urllib.parse.quote(qpt)
         await ctx.send('encoded: `{}`'.format(qpt))
         auth_token = await self._get_auth_token(ctx)
         
@@ -66,7 +66,9 @@ class BCSixMans(commands.Cog):
                 if 'list' in data:
                     await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
                     for replay in data['list']:
-                        await ctx.send(">>> {}\n> >{}".format(qpt, replay['date']))
+                        
+                        await ctx.send(">>> {}\n> >{}".format(type(qpt), type(replay['date'])))
+                        
                         if str(replay['date']) > str(qpt):
                             await ctx.send("**score:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
                         else:
