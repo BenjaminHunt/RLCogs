@@ -38,10 +38,8 @@ class BCSixMans(commands.Cog):
             if g.textChannel == ctx.channel:
                 game = g
 
-        queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
-        # qpt = queue_pop_time[0:19] + queue_pop_time[-6:]
+        qpt = ctx.channel.created_at.astimezone().isoformat()
         await ctx.send("replay-date-after={}\n--".format(qpt))
-        time_cmp = "2021-03-02T01:19:00.272000-05:00"
         await ctx.send("time compare: {}".format(time_cmp))
         auth_token = await self._get_auth_token(ctx)
         
@@ -51,7 +49,7 @@ class BCSixMans(commands.Cog):
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'replay-date-after={}'.format(time_cmp),
+                    'replay-date-after={}'.format(qpt),
                     'count={}'.format(5),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
