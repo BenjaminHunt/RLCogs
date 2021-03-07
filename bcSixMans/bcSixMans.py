@@ -65,8 +65,9 @@ class BCSixMans(commands.Cog):
                 data = r.json()
                 if 'list' in data:
                     await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
-                    for replay in data['list'] and data['date'] > qpt:
-                        await ctx.send("**score:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
+                    for replay in data['list']:
+                        if replay['date'] > qpt:
+                            await ctx.send("**score:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
                 else:
                     await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
             if not accounts:
