@@ -361,7 +361,7 @@ class BCSixMans(commands.Cog):
         
         url = 'https://ballchasing.com/api'
         url += endpoint
-        params = [urllib.parse.quote(p) for p in params]
+        # params = [urllib.parse.quote(p) for p in params]
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
@@ -610,7 +610,7 @@ class BCSixMans(commands.Cog):
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'replay-date-after={}'.format(queue_pop_time),
+                    'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
                     'count={}'.format(count),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
