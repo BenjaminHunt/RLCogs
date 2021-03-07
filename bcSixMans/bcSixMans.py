@@ -39,10 +39,10 @@ class BCSixMans(commands.Cog):
                 game = g
 
         qpt = ctx.channel.created_at.astimezone().isoformat()
-        qpt = qpt[0:19] + qpt[-6:]
+        # qpt = qpt[0:19] + qpt[-6:]
         qpt_cmp = "2021-03-02T01:19:00.272000-05:00"
-        await ctx.send("`{}`".format(qpt))
-        await ctx.send("`{}`".format(qpt_cmp))
+        await ctx.send("qpt: `{}`".format(qpt))
+        await ctx.send("cmp: `{}`".format(qpt_cmp))
         auth_token = await self._get_auth_token(ctx)
         
         if member:
