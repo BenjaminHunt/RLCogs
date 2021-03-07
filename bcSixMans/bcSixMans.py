@@ -41,7 +41,7 @@ class BCSixMans(commands.Cog):
 
         qpt = ctx.channel.created_at.astimezone().isoformat()
         qpt_cmp = "2021-03-07T09:54:06.356000-01:00"
-        await ctx.send("qpt: `{}`".format(urllib.parse.quote_plus(qpt)))
+        await ctx.send("qpt: `{}`".format(qpt))
         await ctx.send("cmp: `{}`".format(qpt_cmp))
         auth_token = await self._get_auth_token(ctx)
         
@@ -51,7 +51,7 @@ class BCSixMans(commands.Cog):
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'upload-date-after={}'.format(urllib.parse.quote_plus(qpt)),
+                    'upload-date-after={}'.format(qpt),
                     'count={}'.format(3),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
@@ -62,7 +62,7 @@ class BCSixMans(commands.Cog):
                 if 'list' in data:
                     await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
                     for replay in data['list']:
-                        await ctx.send("score: {}-{}\ncreated: {}\ndate:{}\n\n".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
+                        await ctx.send("score: {}-{}\ncreated: {}\ndate:{}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
                 else:
                     await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
             if not accounts:
