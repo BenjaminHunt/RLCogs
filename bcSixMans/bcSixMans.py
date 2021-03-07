@@ -57,8 +57,6 @@ class BCSixMans(commands.Cog):
                     'playlist=private',
                     'upload-date-after={}'.format(qpt),
                     'count={}'.format(3)
-                    # 'sort-by={}'.format(sort),
-                    # 'sort-dir={}'.format(sort_dir)
                 ]
 
                 r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
@@ -66,7 +64,7 @@ class BCSixMans(commands.Cog):
                 if 'list' in data:
                     await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
                     for replay in data['list']:
-                        await ctx.send("score: {}-{}\ncreated: {}\ndate:{}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
+                        await ctx.send("**score:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
                 else:
                     await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
             if not accounts:
