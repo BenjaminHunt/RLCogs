@@ -112,7 +112,7 @@ class BCSixMans(commands.Cog):
         series_subgroup_id = await self._get_replay_destination(ctx, six_mans_queue, game)
         # await ctx.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
-            await ctx.send(":x: series_subgroup_id not found.")
+            return await ctx.send(":x: series_subgroup_id not found.")
 
         replay_ids, summary = replays_found
         # await ctx.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
@@ -505,14 +505,11 @@ class BCSixMans(commands.Cog):
 
         return winner
 
-    async def _get_replay_destination(self, ctx, queue, game, top_level_group=None, group_owner_discord_id=None):
+    async def _get_replay_destination(self, ctx, queue, game):
         
         auth_token = await self._get_auth_token(ctx)
-
-        # needs both to override default -- TODO: Remove non-match params (derive logically)
-        if not group_owner_discord_id or not top_level_group:
-            bc_group_owner = await self._get_steam_id_from_token(ctx, auth_token)
-            top_level_group = await self._get_top_level_group(ctx)
+        bc_group_owner = await self._get_steam_id_from_token(ctx, auth_token)
+        top_level_group = await self._get_top_level_group(ctx)
 
         # /<top level group>/<queue name>/<game id>
         game_id = game.id
@@ -572,6 +569,7 @@ class BCSixMans(commands.Cog):
                 }
                 r = await self._bc_post_request(ctx, endpoint, auth_token=auth_token, json=payload)
                 data = r.json()
+                await ctx.send(data)
                 
                 try:
                     next_subgroup_id = data['id']
