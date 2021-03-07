@@ -40,7 +40,7 @@ class BCSixMans(commands.Cog):
                 game = g
 
         qpt = ctx.channel.created_at.astimezone().isoformat()
-        # qpt_cmp = "2021-03-07T09:54:06.356000-01:00"
+        qpt_cmp = "2021-03-07T09:54:06.356000-01:00"
         await ctx.send("qpt: `{}`".format(qpt))
         await ctx.send("cmp: `{}`".format(qpt_cmp))
         auth_token = await self._get_auth_token(ctx)
@@ -51,7 +51,7 @@ class BCSixMans(commands.Cog):
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'replay-date-after={}'.format(qpt_cmp),
+                    'replay-date-after={}'.format(qpt),
                     'count={}'.format(5),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
