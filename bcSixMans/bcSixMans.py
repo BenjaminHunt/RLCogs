@@ -361,9 +361,9 @@ class BCSixMans(commands.Cog):
         
         url = 'https://ballchasing.com/api'
         url += endpoint
-        params = '&'.join(params)
+        params = '&'.join(urllib.parse.quote(params))
         if params:
-            url += "?{}".format(urllib.parse.quote(params))
+            url += "?{}".format(params)
         
         # url = urllib.parse.quote_plus(url)
         await ctx.send(">> {}".format(url))
