@@ -49,7 +49,7 @@ class BCSixMans(commands.Cog):
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'replay-date-after={}'.format(qpt),
+                    'replay-date-after={}'.format(str(qpt)),
                     'count={}'.format(5),
                     # 'sort-by={}'.format(sort),
                     # 'sort-dir={}'.format(sort_dir)
