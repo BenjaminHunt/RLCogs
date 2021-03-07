@@ -572,11 +572,12 @@ class BCSixMans(commands.Cog):
                 await ctx.send(data)
                 await ctx.send(payload)
                 
-                try:
-                    next_subgroup_id = data['id']
-                except:
-                    await ctx.send(":x: Error creating Ballchasing group: {}".format(next_group_name))
-                    return False
+                if 'error' not in data:
+                    try:
+                        next_subgroup_id = data['id']
+                    except:
+                        await ctx.send(":x: Error creating Ballchasing group: {}".format(next_group_name))
+                        return False
             
         return next_subgroup_id
 
