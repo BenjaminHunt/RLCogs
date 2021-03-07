@@ -52,18 +52,20 @@ class BCSixMans(commands.Cog):
         if member:
             accounts = await self._get_steam_ids(ctx, member.id)
             for steam_id in accounts:
+                # TODO: date in request, not in _is_match_replay behavior
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
-                    'upload-date-after={}'.format(qpt),
-                    'count={}'.format(3)
+                    # 'upload-date-after={}'.format(qpt),
+                    'count={}'.format(5)
                 ]
 
                 r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
+                
                 data = r.json()
                 if 'list' in data:
                     await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
-                    for replay in data['list']:
+                    for replay in data['list'] and data['date'] > qpt:
                         await ctx.send("**score:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
                 else:
                     await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
