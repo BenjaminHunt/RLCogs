@@ -363,9 +363,9 @@ class BCSixMans(commands.Cog):
         url += endpoint
         params = '&'.join(params)
         if params:
-            url += "?{}".format(params)
+            url += "?{}".format(urllib.parse.quote_plus(params))
         
-        url = urllib.parse.quote_plus(url)
+        # url = urllib.parse.quote_plus(url)
         
         return requests.get(url, headers={'Authorization': auth_token})
 
