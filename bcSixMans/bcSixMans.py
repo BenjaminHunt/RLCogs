@@ -72,6 +72,9 @@ class BCSixMans(commands.Cog):
                 await ctx.send("game found: {}".format(game.id))
                 break
         
+        if len(self.six_mans_cog.games) == 0:
+            await ctx.send("no ongoing games")
+
         if not game:
             await ctx.send("game not found.")
             return False
