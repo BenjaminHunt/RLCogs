@@ -39,8 +39,6 @@ class BCSixMans(commands.Cog):
                 game = g
 
         qpt = ctx.channel.created_at.astimezone().isoformat()
-        await ctx.send("replay-date-after={}\n--".format(qpt))
-        await ctx.send("time compare: {}".format(time_cmp))
         auth_token = await self._get_auth_token(ctx)
         
         if member:
