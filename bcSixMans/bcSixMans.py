@@ -563,15 +563,13 @@ class BCSixMans(commands.Cog):
             # ## Creating next sub-group
             else:
                 payload = {
-                    'name': str(next_group_name),
+                    'name': next_group_name,
                     'parent': current_subgroup_id,
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
                 r = await self._bc_post_request(ctx, endpoint, auth_token=auth_token, json=payload)
                 data = r.json()
-                await ctx.send(data)
-                await ctx.send(payload)
                 
                 if 'error' not in data:
                     try:
@@ -601,6 +599,7 @@ class BCSixMans(commands.Cog):
 
         for player in game.players:
             for steam_id in await self._get_steam_ids(ctx, player.id):
+                await ctx.send(steam_id)
                 params = [
                     'uploader={}'.format(steam_id),
                     'playlist=private',
