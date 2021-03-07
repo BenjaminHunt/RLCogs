@@ -68,6 +68,8 @@ class BCSixMans(commands.Cog):
                     for replay in data['list']:
                         if replay['date'] > qpt:
                             await ctx.send("**score:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
+                        else:
+                            await ctx.send('...')
                 else:
                     await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
             if not accounts:
