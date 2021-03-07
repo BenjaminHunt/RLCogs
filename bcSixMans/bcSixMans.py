@@ -64,6 +64,7 @@ class BCSixMans(commands.Cog):
         """
         # Find Six Mans Game, Queue
         member = ctx.message.author
+        self.six_mans_cog = self.bot.get_cog("SixMans")
         game = None
         for g in self.six_mans_cog.games:
             await ctx.send(game.id)
