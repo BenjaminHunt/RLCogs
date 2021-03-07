@@ -30,31 +30,37 @@ class BCSixMans(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def g(self, ctx, member: discord.Member=None):
-        queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
-        qpt = queue_pop_time[0:19] + queue_pop_time[-6:]
-        await ctx.send("replay-date-after={}\n--".format(qpt))
-        time_cmp = "2021-03-02T01:19:00.272000-05:00"
-        await ctx.send("time compare: {}".format(time_cmp))
-        auth_token = await self._get_auth_token(ctx)
+        member = ctx.message.author
+        self.six_mans_cog = self.bot.get_cog("SixMans")
+        game = None
+        for g in self.six_mans_cog.games:
+            await ctx.send(game.id)
+            
+        # queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
+        # qpt = queue_pop_time[0:19] + queue_pop_time[-6:]
+        # await ctx.send("replay-date-after={}\n--".format(qpt))
+        # time_cmp = "2021-03-02T01:19:00.272000-05:00"
+        # await ctx.send("time compare: {}".format(time_cmp))
+        # auth_token = await self._get_auth_token(ctx)
         
-        if member:
-            accounts = await self._get_steam_ids(ctx, member.id)
-            for steam_id in accounts:
-                params = [
-                    'uploader={}'.format(steam_id),
-                    'playlist=private',
-                    'replay-date-after={}'.format(time_cmp),
-                    'count={}'.format(5),
-                    # 'sort-by={}'.format(sort),
-                    # 'sort-dir={}'.format(sort_dir)
-                ]
+        # if member:
+        #     accounts = await self._get_steam_ids(ctx, member.id)
+        #     for steam_id in accounts:
+        #         params = [
+        #             'uploader={}'.format(steam_id),
+        #             'playlist=private',
+        #             'replay-date-after={}'.format(time_cmp),
+        #             'count={}'.format(5),
+        #             # 'sort-by={}'.format(sort),
+        #             # 'sort-dir={}'.format(sort_dir)
+        #         ]
 
-                r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
-                data = r.json()
+        #         r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
+        #         data = r.json()
 
-                await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
-            if not accounts:
-                await ctx.send("No accounts found")
+        #         await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
+        #     if not accounts:
+        #        await ctx.send("No accounts found")
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
