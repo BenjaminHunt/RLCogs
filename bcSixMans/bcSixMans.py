@@ -70,15 +70,13 @@ class BCSixMans(commands.Cog):
                         
                         if replay['date'] > qpt or True:
                             try:
-                                await ctx.send("**-\nscore:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
+                                await ctx.send("**-\nscore:** {}-{}\n**created:** {}\n**date:** {}\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
                                 if qpt > replay['date']:
-                                    await ctx.send("pop > replay")
+                                    await ctx.send("pop > replay\n")
                                 else:
-                                    await ctx.send("replay > pop")
+                                    await ctx.send("replay > pop\n")
                             except:
                                 await ctx.send("bad data: {}".format(replay))
-                        else:
-                            await ctx.send('...')
                 else:
                     await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
             if not accounts:
