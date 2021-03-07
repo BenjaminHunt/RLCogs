@@ -57,7 +57,7 @@ class BCSixMans(commands.Cog):
                     'uploader={}'.format(steam_id),
                     'playlist=private',
                     # 'upload-date-after={}'.format(qpt),
-                    'count={}'.format(5)
+                    # 'count={}'.format(5)
                 ]
 
                 r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
