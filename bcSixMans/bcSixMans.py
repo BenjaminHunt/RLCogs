@@ -562,7 +562,7 @@ class BCSixMans(commands.Cog):
             # ## Creating next sub-group
             else:
                 payload = {
-                    'name': next_group_name,
+                    'name': str(next_group_name),
                     'parent': current_subgroup_id,
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
