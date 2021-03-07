@@ -70,7 +70,7 @@ class BCSixMans(commands.Cog):
                         
                         await ctx.send("pop \>\> {}\ngme \>\> {}".format(qpt, replay['date']))
                         
-                        if str(replay['date']) > str(qpt):
+                        if replay['date'] > qpt or True:
                             await ctx.send("**score:** {}-{}\n**created:** {}\n**date:** {}\n\n-".format(replay['blue']['goals'], replay['orange']['goals'], replay['created'], replay['date']))
                         else:
                             await ctx.send('...')
