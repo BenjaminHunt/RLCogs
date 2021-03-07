@@ -22,6 +22,7 @@ class BCSixMans(commands.Cog):
     """Manages aspects of Ballchasing Integrations with RSC"""
 
     def __init__(self, bot):
+        self.bot = bot
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
         self.six_mans_cog = bot.get_cog("SixMans")
@@ -31,11 +32,11 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     async def g(self, ctx, member: discord.Member=None):
         member = ctx.message.author
-        self.six_mans_cog = self.bot.get_cog("SixMans")
+        # self.six_mans_cog = self.bot.get_cog("SixMans")
         game = None
         for g in self.six_mans_cog.games:
             await ctx.send(game.id)
-            
+
         # queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
         # qpt = queue_pop_time[0:19] + queue_pop_time[-6:]
         # await ctx.send("replay-date-after={}\n--".format(qpt))
