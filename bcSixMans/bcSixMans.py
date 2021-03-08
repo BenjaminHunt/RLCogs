@@ -90,7 +90,7 @@ class BCSixMans(commands.Cog):
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
     @commands.guild_only()
-    async def gameOver(self, ctx, winning_team: str=None):
+    async def gameOver(self, ctx, games_played:int):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         # Find Six Mans Game, Queue
@@ -127,7 +127,7 @@ class BCSixMans(commands.Cog):
             return False
 
         # Find Series replays
-        replays_found = await self._find_series_replays(ctx, game, winning_team)
+        replays_found = await self._find_series_replays(ctx, game, games_played)
 
         if not replays_found:
             await ctx.send(":x: No matching replays found.")
@@ -608,15 +608,22 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    async def _find_series_replays(self, ctx, game, winner):
+    async def _find_series_replays(self, ctx, game, games_played: int=0): # Optional[int]=None => from typing import Optional
         # search for appearances in private matches
         endpoint = "/replays"
         sort = 'replay-date' # 'created
-        sort_dir = 'asc'
-        count = 7
+        sort_dir = 'desc'
+        count = games_played if games_played else 5
         queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
         auth_token = await self._get_auth_token(ctx)
         
+        params = [
+            'playlist=private',
+            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            'count={}'.format(count),
+            'sort-by={}'.format(sort),
+            'sort-dir={}'.format(sort_dir)
+        ]
         # players = []
         # for player in game.blue:
         #     players.append(player)
@@ -627,17 +634,10 @@ class BCSixMans(commands.Cog):
 
         for player in game.players:
             for steam_id in await self._get_steam_ids(ctx, player.id):
-                await ctx.send(steam_id)
-                params = [
-                    'uploader={}'.format(steam_id),
-                    'playlist=private',
-                    'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
-                    'count={}'.format(count),
-                    # 'sort-by={}'.format(sort),
-                    # 'sort-dir={}'.format(sort_dir)
-                ]
-
+                uploaded_by_param='uploader={}'.format(steam_id)
+                params.append(uploaded_by_param)
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
+                params.remove(uploaded_by_param)
                 data = r.json()
 
                 await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
