@@ -680,6 +680,8 @@ class BCSixMans(commands.Cog):
             endpoint = "/replays/{}/file".format(replay_id)
             r = await self._bc_get_request(ctx, endpoint, auth_token=auth_token)
 
+            await ctx.send(type(r.content))
+
             # if not os.path.exists("temp/"):
             #     os.mkdir("temp") # Make temp folder
 
@@ -691,11 +693,12 @@ class BCSixMans(commands.Cog):
             # f = open("temp/{}".format(tf), "wb")
             # f.write(r.content)
             # f.close()
-            tf = tempfile.NamedTemporaryFile()
-            tf.name += ".replay"
-            tf.write(bytes(r.content, 'UTF-8')) # here
-            tmp_replay_files.append(tf)
-            this_game += 1
+            
+            # tf = tempfile.NamedTemporaryFile()
+            # tf.name += ".replay"
+            # tf.write(bytes(r.content, 'UTF-8')) # here
+            # tmp_replay_files.append(tf)
+            # this_game += 1
 
         return tmp_replay_files
 
