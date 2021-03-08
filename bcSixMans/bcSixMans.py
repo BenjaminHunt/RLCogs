@@ -28,6 +28,7 @@ class BCSixMans(commands.Cog):
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
         self.six_mans_cog = bot.get_cog("SixMans")
+        # TODO: self.token = await self._auth_token # load on_ready
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
@@ -102,18 +103,6 @@ class BCSixMans(commands.Cog):
         except:
             pass
 
-    @commands.command(aliases=['smb'])
-    @commands.guild_only()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def findSixMansBot(self, ctx):
-        qs = self.six_mans_cog.queues
-        if qs:
-            # await ctx.send("Six Mans Queues ({}): **{}**".format(len(qs), ", ".join(q.name for q in qs)))
-            for q in qs:
-                await ctx.send(q.name)
-        else:
-            await ctx.send("qs not found.")
-
     @commands.command(aliases=['setAuthKey'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
@@ -130,10 +119,12 @@ class BCSixMans(commands.Cog):
     @commands.command(aliases=["sbcg", "setTopLevelGroup"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def setBCGroup(self, ctx, top_level_group):
+    async def setBCGroup(self, ctx, top_level_group_id):
         """Sets the Top Level Ballchasing Replay group for saving match replays.
         Note: Auth Token must be generated from the Ballchasing group owner
         """
+        # TODO: validate group
+        top_level_group_id = top_level_group_id.replace('https://', '').replace('ballchasing.com/group/', '')
         group_set = await self._save_top_level_group(ctx, top_level_group)
         if(group_set):
             await ctx.send("Done.")
@@ -148,9 +139,9 @@ class BCSixMans(commands.Cog):
         url = "https://ballchasing.com/group/{}".format(group_code)
         await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
 
-    @commands.command(aliases=['bcpage', 'mybcpage', 'bcp', 'getBCPage', 'ballchasingpage', 'bcpages'])
+    @commands.command(aliases=['bcpage', 'mybc', 'bcp', 'getBCPage', 'bcprofile', 'bcpages'])
     @commands.guild_only()
-    async def bcPage(self, ctx):
+    async def bcProfile(self, ctx):
         """Get the ballchasing pages for registered accounts"""
         group_code = await self._get_top_level_group(ctx)
         member = ctx.message.author
