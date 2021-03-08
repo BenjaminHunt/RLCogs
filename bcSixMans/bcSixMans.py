@@ -729,7 +729,7 @@ class BCSixMans(commands.Cog):
                     # await self._add_replay_to_group(ctx, data['id'], subgroup_id, auth_token=auth_token)
                     await ctx.send("Duplicate replay found.")
                     patch_endpoint = '/replays/{}/'.format(data['id'])
-                    r = await self._bc_patch_request(ctx, patch_endpoint, params, auth_token=auth_token, files=files)
+                    r = await self._bc_patch_request(ctx, patch_endpoint, auth_token=auth_token, json={'group': subgroup_id, 'visibility': config.visibility})
                     if r.status_code == 204:
                         await ctx.send(":white_check_mark: replay patched.")
                         replay_ids_in_group.append(data['id'])
