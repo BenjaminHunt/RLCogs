@@ -692,6 +692,7 @@ class BCSixMans(commands.Cog):
             # f.write(r.content)
             # f.close()
             tf = tempfile.NamedTemporaryFile()
+            tf.name += ".replay"
             tf.write(r.content)
             tmp_replay_files.append(tf)
             this_game += 1
