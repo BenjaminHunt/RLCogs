@@ -509,6 +509,7 @@ class BCSixMans(commands.Cog):
         # swap_teams covers the scenario where the teams join incorrectly, assumes group is correct (applies to score summary only)
         swap_teams = False
         for account in account_register[str(uploader.id)]:
+            platform, plat_id = account
             account_replay_team = self._get_account_replay_team(platform, plat_id, replay_data)
             if account_sm_team != account_replay_team:
                 swap_teams = True
