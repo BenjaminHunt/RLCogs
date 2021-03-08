@@ -479,7 +479,7 @@ class BCSixMans(commands.Cog):
         if replay_data['blue']['goals'] == replay_data['orange']['goals']:
             return False
         for team in ['blue', 'orange']:
-            for players in replay_data[team]['players']:
+            for player in replay_data[team]['players']:
                 if player['start_time'] == 0:
                     return True
         return False
