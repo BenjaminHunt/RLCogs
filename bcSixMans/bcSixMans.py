@@ -515,7 +515,7 @@ class BCSixMans(commands.Cog):
                 swap_teams = True
 
         # don't count incomplete replays
-        if not _is_full_replay(replay_data):
+        if not self._is_full_replay(replay_data):
             return False
 
         # determine winner
