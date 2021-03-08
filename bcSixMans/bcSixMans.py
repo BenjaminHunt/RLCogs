@@ -65,6 +65,9 @@ class BCSixMans(commands.Cog):
             await ctx.send('ballchasing group group not found.')
             return False
 
+        # Start Ballchasing Process:
+        await ctx.send("_Finding ballchasing replays..._")
+
         # Find Series replays
         replays_found = await self._find_series_replays(ctx, game, games_played)
 
@@ -80,7 +83,10 @@ class BCSixMans(commands.Cog):
         replay_ids, summary = replays_found
         # await ctx.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
-
+        try:
+            await ctx.send("_Processing {} replays..._".format(len(replay_ids)))
+        except:
+            pass
         tmp_replay_files = await self._download_replays(ctx, replay_ids)
         # await ctx.send("Temp replay files to upload ({}): {}".format(len(tmp_replay_files), ", ".join(tmp_replay_files)))
         
@@ -90,8 +96,11 @@ class BCSixMans(commands.Cog):
         renamed = await self._rename_replays(ctx, uploaded_ids)
         # await ctx.send("replays renamed: {}".format(renamed))
         
-        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
-        await ctx.send(message)
+        try:
+            message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
+            await ctx.send(message)
+        except:
+            pass
 
     @commands.command(aliases=['smb'])
     @commands.guild_only()
@@ -644,7 +653,6 @@ class BCSixMans(commands.Cog):
                     patch_endpoint = '/replays/{}/'.format(data['id'])
                     r = await self._bc_patch_request(ctx, patch_endpoint, auth_token=auth_token, json={'group': subgroup_id, 'visibility': config.visibility})
                     if r.status_code == 204:
-                        await ctx.send(":white_check_mark: duplicate replay patched.")
                         replay_ids_in_group.append(data['id'])
             except:
                 await ctx.send(":x: {} error: {}".format(status_code, data['error']))
