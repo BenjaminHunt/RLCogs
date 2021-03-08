@@ -641,8 +641,6 @@ class BCSixMans(commands.Cog):
                 data = r.json()
 
                 await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
-                if not len(data['list']):
-                    await ctx.send(data)
 
                 # checks for correct replays
                 oran_wins = 0
@@ -652,8 +650,11 @@ class BCSixMans(commands.Cog):
                     winner = await self._is_six_mans_replay(ctx, player, game, replay)
                     if winner == 'blue':
                         blue_wins += 1
-                    else:
+                    elif winner == 'orange':
                         oran_wins += 1
+                    else:
+                        break
+                    replay_ids.append(replay['id'])
 
                 series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
                     blue_wins = blue_wins, oran_wins = oran_wins
@@ -662,8 +663,9 @@ class BCSixMans(commands.Cog):
                 if replay_ids:
                     return replay_ids, series_summary
 
-        message = "No replay files could be found on ballchasing. Please use `[p]accountRegister` to make sure "
+        message = "No replay files could be found on ballchasing. Please use `{}accountRegister` to make sure "
         message += "auto-uploaded replays can be automatically added to a Six Mans ballchasing replay group."
+        message.format(ctx.prefix)
         await ctx.send(message)
             
         return None
