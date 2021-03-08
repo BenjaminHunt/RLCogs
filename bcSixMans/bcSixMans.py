@@ -148,7 +148,6 @@ class BCSixMans(commands.Cog):
         
         renamed = await self._rename_replays(ctx, uploaded_ids)
         await ctx.send("replays renamed: {}".format(renamed))
-        self._delete_temp_files(tmp_replay_files)
         
         message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
         await ctx.send(message)
@@ -738,20 +737,6 @@ class BCSixMans(commands.Cog):
 
             game_number += 1
         return renamed
-
-    def _delete_temp_files(self, files_to_upload):
-        for replay_filename in files_to_upload:
-            if os.path.exists("temp/{}".format(replay_filename)):
-                os.remove("temp/{}".format(replay_filename))
-        try:
-            os.rmdir("temp") # Remove Temp Folder
-        except OSError:
-            print("Can't remove populated folder.")
-            return False
-        except:
-            print("Uncaught error in delete_temp_files.")
-            return False
-        return True
 
     async def _get_auth_token(self, ctx):
         return await self.config.guild(ctx.guild).AuthToken()
