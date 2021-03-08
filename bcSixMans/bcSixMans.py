@@ -693,7 +693,7 @@ class BCSixMans(commands.Cog):
             # f.close()
             tf = tempfile.NamedTemporaryFile()
             tf.name += ".replay"
-            tf.write(r.content)
+            tf.write(bytes(r.content, 'UTF-8')) # here
             tmp_replay_files.append(tf)
             this_game += 1
 
