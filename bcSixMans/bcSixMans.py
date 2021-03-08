@@ -511,7 +511,7 @@ class BCSixMans(commands.Cog):
         for account in account_register[str(uploader.id)]:
             platform, plat_id = account
             account_replay_team = self._get_account_replay_team(platform, plat_id, replay_data)
-            if account_sm_team != account_replay_team:
+            if uploader_sm_team != account_replay_team:
                 swap_teams = True
 
         # don't count incomplete replays
