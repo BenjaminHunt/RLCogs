@@ -728,7 +728,8 @@ class BCSixMans(commands.Cog):
                 elif status_code == 409:
                     # await self._add_replay_to_group(ctx, data['id'], subgroup_id, auth_token=auth_token)
                     await ctx.send("Duplicate replay found.")
-                    r = await self._bc_patch_request(ctx, '/replays', params, auth_token=auth_token, files=files)
+                    patch_endpoint = '/replays/{}/'.format(data['id'])
+                    r = await self._bc_patch_request(ctx, patch_endpoint, params, auth_token=auth_token, files=files)
                     if r.status_code == 204:
                         await ctx.send(":white_check_mark: replay patched.")
                         replay_ids_in_group.append(data['id'])
