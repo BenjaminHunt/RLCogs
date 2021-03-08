@@ -658,7 +658,8 @@ class BCSixMans(commands.Cog):
                     blue_wins = blue_wins, oran_wins = oran_wins
                 )
 
-                return replay_ids, series_summary
+                if replay_ids:
+                    return replay_ids, series_summary
 
         message = "No replay files could be found on ballchasing. Please use `[p]accountRegister` to make sure "
         message += "auto-uploaded replays can be automatically added to a Six Mans ballchasing replay group."
