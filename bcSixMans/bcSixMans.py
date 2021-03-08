@@ -424,7 +424,11 @@ class BCSixMans(commands.Cog):
     def _is_full_replay(self, replay_data):
         if replay_data['duration'] < 300:
             return False
-        if replay_data['blue']['goals'] == replay_data['orange']['goals']:
+
+        orange_goals = replay_data['orange']['goals'] if 'goals' in replay['orange'] else 0
+        blue_goals = replay_data['blue']['goals'] if 'goals' in replay['blue'] else 0
+
+        if orange_goals == blue_goals:
             return False
         for team in ['blue', 'orange']:
             for player in replay_data[team]['players']:
