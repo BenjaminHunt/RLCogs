@@ -471,7 +471,9 @@ class BCSixMans(commands.Cog):
             return False
 
         # determine winner
-        if replay_data['blue']['goals'] > replay_data['orange']['goals']:
+        orange_goals = replay_data['orange']['goals'] if 'goals' in replay['orange'] else 0
+        blue_goals = replay_data['blue']['goals'] if 'goals' in replay['blue'] else 0
+        if blue_goals > orange_goals:
             winner = 'blue'
         else:
             winner = 'orange'
