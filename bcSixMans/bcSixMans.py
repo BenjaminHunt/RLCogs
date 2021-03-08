@@ -486,7 +486,7 @@ class BCSixMans(commands.Cog):
 
     def _get_account_replay_team(self, platform, plat_id, replay_data):
         for team in ['blue', 'orange']:
-            for player in replay_data['players']:
+            for player in replay_data[team]['players']:
                 if player['id']['platform'] == platform and player['id']['id'] == plat_id:
                     return team
         return None
