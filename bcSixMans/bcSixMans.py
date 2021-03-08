@@ -710,7 +710,7 @@ class BCSixMans(commands.Cog):
         replay_ids_in_group = []
         for replay_file in files_to_upload:
             # files = {'file': open("temp/{}".format(replay_file_name), 'rb')}
-            files = {'file': replay_file}
+            files = {'file': open(replay_file, 'rb')}
 
             r = await self._bc_post_request(ctx, endpoint, params, auth_token=auth_token, files=files)
         
