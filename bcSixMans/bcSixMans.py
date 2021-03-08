@@ -28,65 +28,6 @@ class BCSixMans(commands.Cog):
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
         self.six_mans_cog = bot.get_cog("SixMans")
-    
-
-    @commands.command()
-    @commands.guild_only()
-    async def g(self, ctx, member: discord.Member=None):
-        member = ctx.message.author
-        # self.six_mans_cog = self.bot.get_cog("SixMans")
-        game = None
-        for g in self.six_mans_cog.games:
-            if g.textChannel == ctx.channel:
-                game = g
-
-        qpt_cmp = "2021-03-07T09:54:06.356000-01:00"
-        await ctx.send("cmp: `{}`".format(qpt_cmp))
-
-
-        qpt = ctx.channel.created_at.astimezone().isoformat()
-        await ctx.send("qpt: `{}`".format(qpt))
-        # qpt = urllib.parse.quote(qpt)
-        await ctx.send('encoded: `{}`'.format(qpt))
-        auth_token = await self._get_auth_token(ctx)
-        
-        if member:
-            accounts = await self._get_steam_ids(ctx, member.id)
-            for steam_id in accounts:
-                # TODO: date in request, not in _is_match_replay behavior
-                params = [
-                    'uploader={}'.format(steam_id),
-                    'playlist=private',
-                    # 'upload-date-after={}'.format(qpt),
-                    'sort-dir=desc',
-                    'count={}'.format(1)
-                ]
-
-                r = await self._bc_get_request(ctx, '/replays', params=params, auth_token=auth_token)
-                
-                data = r.json()
-                if 'list' in data:
-                    await ctx.send("{} - {} | Request Code: {} ({} found)".format(member.name, steam_id[-3:], r.status_code, len(data['list'])))
-                    for replay in data['list']:
-                        
-                        if replay['date'] > qpt or True:
-                            try:
-                                blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
-                                orange_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
-
-                                await ctx.send("**-\nscore:** blue {}-{} orange\n**created:** {}\n**date:** {}\n-".format(blue_goals, orange_goals, replay['created'], replay['date']))
-                                if qpt > replay['date']:
-                                    await ctx.send("pop > replay\n")
-                                else:
-                                    await ctx.send("replay > pop\n")
-                            except:
-                                await ctx.send("bad data: {}".format(replay))
-                else:
-                    await ctx.send("{} - {} | Request Code: {} => {}".format(member.name, steam_id[-3:], r.status_code, data['error']))
-            if not accounts:
-               await ctx.send("No accounts found")
-
-        await ctx.send("Done")
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
@@ -147,7 +88,7 @@ class BCSixMans(commands.Cog):
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
         
         renamed = await self._rename_replays(ctx, uploaded_ids)
-        await ctx.send("replays renamed: {}".format(renamed))
+        # await ctx.send("replays renamed: {}".format(renamed))
         
         message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
         await ctx.send(message)
@@ -630,8 +571,6 @@ class BCSixMans(commands.Cog):
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
                 params.remove(uploaded_by_param)
                 data = r.json()
-
-                await ctx.send("{} - {} | Request Code: {} ({} found)".format(player.name, steam_id[-3:], r.status_code, len(data['list'])))
 
                 # checks for correct replays
                 oran_wins = 0
