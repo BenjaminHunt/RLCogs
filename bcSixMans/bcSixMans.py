@@ -1,7 +1,8 @@
 from .config import config
 import requests
 from datetime import datetime, timezone
-import os
+# import os
+import tempfile
 import json
 import discord
 import asyncio
@@ -141,17 +142,18 @@ class BCSixMans(commands.Cog):
         replay_ids, summary = replays_found
         # await ctx.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
+
         tmp_replay_files = await self._download_replays(ctx, replay_ids)
         # await ctx.send("Temp replay files to upload ({}): {}".format(len(tmp_replay_files), ", ".join(tmp_replay_files)))
         
         uploaded_ids = await self._upload_replays(ctx, series_subgroup_id, tmp_replay_files)
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
         
-        renamed = await self._rename_replays(ctx, uploaded_ids)
+        # renamed = await self._rename_replays(ctx, uploaded_ids)
         # await ctx.send("replays renamed: {}".format(renamed))
-        self._delete_temp_files(tmp_replay_files)
+        # self._delete_temp_files(tmp_replay_files)
         
-        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup: <https://ballchasing.com/group/{}>'.format(summary, series_subgroup_id)
+        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(upload_ids), series_subgroup_id)
         await ctx.send(message)
 
     @commands.command(aliases=['smb'])
@@ -678,15 +680,20 @@ class BCSixMans(commands.Cog):
             endpoint = "/replays/{}/file".format(replay_id)
             r = await self._bc_get_request(ctx, endpoint, auth_token=auth_token)
 
-            if not os.path.exists("temp/"):
-                os.mkdir("temp") # Make temp folder
+            # if not os.path.exists("temp/"):
+            #     os.mkdir("temp") # Make temp folder
+
             
             # replay_filename = "Game {}.replay".format(this_game)
             replay_filename = "{}.replay".format(replay_id)
-            f = open("temp/{}".format(replay_filename), "wb")
-            f.write(r.content)
-            f.close()
-            tmp_replay_files.append(replay_filename)
+            
+            # tf = tempfile.NamedTemporaryFile()
+            # f = open("temp/{}".format(tf), "wb")
+            # f.write(r.content)
+            # f.close()
+            tf = tempfile.NamedTemporaryFile()
+            tf.write(r.content)
+            tmp_replay_files.append(tf)
             this_game += 1
 
         return tmp_replay_files
@@ -700,8 +707,9 @@ class BCSixMans(commands.Cog):
         auth_token = await self._get_auth_token(ctx)
 
         replay_ids_in_group = []
-        for replay_file_name in files_to_upload:
-            files = {'file': open("temp/{}".format(replay_file_name), 'rb')}
+        for replay_file in files_to_upload:
+            # files = {'file': open("temp/{}".format(replay_file_name), 'rb')}
+            files = {'file': replay_file}
 
             r = await self._bc_post_request(ctx, endpoint, params, auth_token=auth_token, files=files)
         
@@ -709,10 +717,14 @@ class BCSixMans(commands.Cog):
             data = r.json()
 
             try:
-                if status_code == 201 or status_code == 409:
+                if status_code == 201:
                     replay_ids_in_group.append(data['id'])
+                elif status_code == 409:
+                    await ctx.send("Duplicate replay found.")
             except:
                 await ctx.send(":x: {} error: {}".format(status_code, data['error']))
+            
+            replay_file.close()
         
         return replay_ids_in_group
         
