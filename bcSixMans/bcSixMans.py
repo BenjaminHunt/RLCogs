@@ -716,6 +716,9 @@ class BCSixMans(commands.Cog):
             status_code = r.status_code
             data = r.json()
 
+            await ctx.send('--')
+            await ctx.send(data)
+            await ctx.send('--')
             try:
                 if status_code == 201:
                     replay_ids_in_group.append(data['id'])
