@@ -99,10 +99,8 @@ class BCSixMans(commands.Cog):
         self.six_mans_cog = self.bot.get_cog("SixMans")
         game = None
         for g in self.six_mans_cog.games:
-            await ctx.send(g.id)
             if member in g.blue or member in g.orange or g.textChannel == ctx.message.channel:
                 game = g
-                await ctx.send("game found: {}".format(game.id))
                 break
         
         if len(self.six_mans_cog.games) == 0:
@@ -116,7 +114,6 @@ class BCSixMans(commands.Cog):
         for q in self.six_mans_cog.queues:
             if game.queueId == q.id:
                 six_mans_queue = q
-                await ctx.send("queue found: {}".format(six_mans_queue.id))
                 break
         
         if not six_mans_queue:
@@ -149,9 +146,9 @@ class BCSixMans(commands.Cog):
         uploaded_ids = await self._upload_replays(ctx, series_subgroup_id, tmp_replay_files)
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
         
-        # renamed = await self._rename_replays(ctx, uploaded_ids)
-        # await ctx.send("replays renamed: {}".format(renamed))
-        # self._delete_temp_files(tmp_replay_files)
+        renamed = await self._rename_replays(ctx, uploaded_ids)
+        await ctx.send("replays renamed: {}".format(renamed))
+        self._delete_temp_files(tmp_replay_files)
         
         message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
         await ctx.send(message)
@@ -626,13 +623,6 @@ class BCSixMans(commands.Cog):
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
         ]
-        # players = []
-        # for player in game.blue:
-        #     players.append(player)
-        # for player in game.orange:
-        #     players.append(player)
-
-        await ctx.send("replay-date-after: {}".format(queue_pop_time))
 
         for player in game.players:
             for steam_id in await self._get_steam_ids(ctx, player.id):
@@ -679,18 +669,9 @@ class BCSixMans(commands.Cog):
         for replay_id in replay_ids[::-1]:
             endpoint = "/replays/{}/file".format(replay_id)
             r = await self._bc_get_request(ctx, endpoint, auth_token=auth_token)
-
-            # if not os.path.exists("temp/"):
-            #     os.mkdir("temp") # Make temp folder
-
             
             # replay_filename = "Game {}.replay".format(this_game)
             replay_filename = "{}.replay".format(replay_id)
-            
-            # tf = tempfile.NamedTemporaryFile()
-            # f = open("temp/{}".format(tf), "wb")
-            # f.write(r.content)
-            # f.close()
             
             tf = tempfile.NamedTemporaryFile()
             tf.name += ".replay"
@@ -710,7 +691,6 @@ class BCSixMans(commands.Cog):
 
         replay_ids_in_group = []
         for replay_file in files_to_upload:
-            # files = {'file': open("temp/{}".format(replay_file_name), 'rb')}
             replay_file.seek(0)
             files = {'file': replay_file}
 
@@ -718,20 +698,15 @@ class BCSixMans(commands.Cog):
         
             status_code = r.status_code
             data = r.json()
-
-            await ctx.send('--')
-            await ctx.send(data)
-            await ctx.send('--')
+            
             try:
                 if status_code == 201:
                     replay_ids_in_group.append(data['id'])
-                elif status_code == 409:
-                    # await self._add_replay_to_group(ctx, data['id'], subgroup_id, auth_token=auth_token)
-                    await ctx.send("Duplicate replay found.")
+                elif status_code == 409: # Handle duplicate replays
                     patch_endpoint = '/replays/{}/'.format(data['id'])
                     r = await self._bc_patch_request(ctx, patch_endpoint, auth_token=auth_token, json={'group': subgroup_id, 'visibility': config.visibility})
                     if r.status_code == 204:
-                        await ctx.send(":white_check_mark: replay patched.")
+                        await ctx.send(":white_check_mark: duplicate replay patched.")
                         replay_ids_in_group.append(data['id'])
             except:
                 await ctx.send(":x: {} error: {}".format(status_code, data['error']))
