@@ -153,7 +153,7 @@ class BCSixMans(commands.Cog):
         # await ctx.send("replays renamed: {}".format(renamed))
         # self._delete_temp_files(tmp_replay_files)
         
-        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(upload_ids), series_subgroup_id)
+        message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
         await ctx.send(message)
 
     @commands.command(aliases=['smb'])
