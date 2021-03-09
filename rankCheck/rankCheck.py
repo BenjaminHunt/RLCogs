@@ -42,10 +42,10 @@ class RankCheck(commands.Cog):
             handle, ranks = ranks_response
         else:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
-        title = "{}'s Rocket League ranks:".format(handle)
+        title = "**{}**'s Rocket League ranks:".format(handle)
         output = ""
         for playlist, data in ranks.items():
-            output = "\n{}: {} {} - {} (-{}/+{})".format(playlist, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
+            output += "\n**{}**: {} {} - {} (-{}/+{})".format(playlist, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
 
         await sent_msg.edit(content=title + output)
     
