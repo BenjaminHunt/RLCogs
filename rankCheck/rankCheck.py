@@ -76,7 +76,7 @@ class RankCheck(commands.Cog):
             rank_num = '2'
         elif rank_num == 'III':
             rank_num = '3'
-        return = ":{}{}:".format(rank_name, rank_num)
+        return ":{}{}:".format(rank_name, rank_num)
 
 
     def _get_rl_ranks(self, platform, plat_id, api_key):
