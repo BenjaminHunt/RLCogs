@@ -42,7 +42,8 @@ class RankCheck(commands.Cog):
 
         await sent_msg.edit(content=title + output)
     
-    def _get_ranks_embed()
+    def _get_ranks_embed():
+        pass
 
     def _get_rl_ranks(self, platform, plat_id, api_key):
         game = 'rocket-league'
