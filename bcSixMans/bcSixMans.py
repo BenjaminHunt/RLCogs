@@ -103,10 +103,10 @@ class BCSixMans(commands.Cog):
         except:
             pass
 
-    @commands.command(aliases=['setAuthKey'])
+    @commands.command(aliases=['setBCAuthKey'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def setAuthToken(self, ctx, auth_token):
+    async def setBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests.
         Note: Auth Token must be generated from the Ballchasing group owner
         """
