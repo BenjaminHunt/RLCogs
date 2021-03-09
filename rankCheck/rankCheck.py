@@ -56,7 +56,7 @@ class RankCheck(commands.Cog):
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         title = "__**{}**'s Rocket League ranks:__".format(handle)
         output = ""
-        include_rank_emoji = False
+        include_rank_emoji = await self._use_rank_emojis(ctx)
         for playlist, data in ranks.items():
             emoji = " {}".format(self._get_rank_emoji(data['rank'])) if include_rank_emoji else ""
             output += "\n**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
