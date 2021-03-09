@@ -32,7 +32,7 @@ class RankCheck(commands.Cog):
     async def rlrank(self, ctx, platform, platform_id):
         """Gets Rocket League Ranks for a given platform and id.
         """
-        sent_msg = await ctx.send("Loading **{}** Rocket League ranks.".format(platform_id))
+        sent_msg = await ctx.send("_Loading **{}** Rocket League ranks..._".format(platform_id))
         key = await self._get_api_key(ctx)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
@@ -42,7 +42,7 @@ class RankCheck(commands.Cog):
             handle, ranks = ranks_response
         else:
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
-        title = "__{}'s Rocket League ranks:__".format(handle)
+        title = "__**{}**'s Rocket League ranks:__".format(handle)
         output = ""
         for playlist, data in ranks.items():
             output += "\n**{}**: {} {} - {} (-{}/+{})".format(playlist, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
