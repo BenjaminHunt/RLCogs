@@ -4,7 +4,7 @@ from redbot.core import commands
 from redbot.core import checks
 import requests
 
-defaults =   {"AuthKey": None}
+defaults =   {"AuthKey": None, "IncludeRankEmojis": False}
 
 class RankCheck(commands.Cog):
     """Manages aspects of Ballchasing Integrations with RSC"""
@@ -27,6 +27,18 @@ class RankCheck(commands.Cog):
         else:
             await ctx.send(":x: Error setting auth token.")
 
+    @commands.guild_only()
+    @commands.command(aliases=['toggleUseRankEmojis'])
+    @checks.admin_or_permissions(manage_guild=True)
+    async def toggleRankEmojis(self, ctx):
+        """Toggle whether or not bot uses rank emojis in the `[p]rlrank` command."""
+        new_emoji_status = not await self._use_rank_emojis(ctx)
+        await self._save_use_rank_emojis(ctx, new_emoji_status)
+
+        action = "will" if emoji_status else "will not"
+        message = "The `{}rlrank` command **{}** include rank emojis.".format(ctx.prefix, action)
+        await ctx.send(message)
+
     @commands.command(aliases=['myrank'])
     @commands.guild_only()
     async def rlrank(self, ctx, platform, platform_id):
@@ -44,13 +56,28 @@ class RankCheck(commands.Cog):
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         title = "__**{}**'s Rocket League ranks:__".format(handle)
         output = ""
+        include_rank_emoji = False
         for playlist, data in ranks.items():
-            output += "\n**{}**: {} {} - {} (-{}/+{})".format(playlist, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
+            emoji = " {}".format(self._get_rank_emoji(data['rank'])) if include_rank_emoji else ""
+            output += "\n**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
 
         await sent_msg.edit(content=title + output)
     
     def _get_ranks_embed():
         pass
+
+    def _get_rank_emoji(self, rank):
+        rank_info = rank.split()
+        rank_name = ' '.join(rank_info[:-1])
+        rank_num = rank_info[-1]
+        if rank_num == 'I':
+            rank_num = '1'
+        elif rank_num == 'II':
+            rank_num = '2'
+        elif rank_num == 'III':
+            rank_num = '3'
+        return = ":{}{}:".format(rank_name, rank_num)
+
 
     def _get_rl_ranks(self, platform, plat_id, api_key):
         game = 'rocket-league'
@@ -85,3 +112,9 @@ class RankCheck(commands.Cog):
         await self.config.guild(ctx.guild).AuthKey.set(token)
         return True
 
+    async def _use_rank_emojis(self, ctx):
+        return await self.config.guild(ctx.guild).IncludeRankEmojis()
+    
+    async def _save_use_rank_emojis(self, ctx, status: bool):
+        await self.config.guild(ctx.guild).IncludeRankEmojis.set(status)
+    
