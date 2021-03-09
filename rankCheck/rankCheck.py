@@ -22,7 +22,7 @@ class RankCheck(commands.Cog):
         """
         token_set = await self._save_api_key(ctx, api_key)
         if(token_set):
-            await ctx.send("Done.")
+            await ctx.send(":white_check_mark: API Key has been set.")
             await ctx.message.delete()
         else:
             await ctx.send(":x: Error setting auth token.")
@@ -37,7 +37,7 @@ class RankCheck(commands.Cog):
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         
-        ranks_response = self._get_rl_ranks(platform, plat_id, key)
+        ranks_response = self._get_rl_ranks(platform, platform_id, key)
         if ranks_response:
             handle, ranks = ranks_response
         else:
