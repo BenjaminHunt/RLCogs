@@ -35,7 +35,7 @@ class RankCheck(commands.Cog):
         new_emoji_status = not await self._use_rank_emojis(ctx)
         await self._save_use_rank_emojis(ctx, new_emoji_status)
 
-        action = "will" if emoji_status else "will not"
+        action = "will" if new_emoji_status else "will not"
         message = "The `{}rlrank` command **{}** include rank emojis.".format(ctx.prefix, action)
         await ctx.send(message)
 
@@ -44,7 +44,7 @@ class RankCheck(commands.Cog):
     async def rlrank(self, ctx, platform, platform_id):
         """Gets Rocket League Ranks for a given platform and id.
         """
-        sent_msg = await ctx.send("_Loading **{}** Rocket League ranks..._".format(platform_id))
+        sent_msg = await ctx.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id))
         key = await self._get_api_key(ctx)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
