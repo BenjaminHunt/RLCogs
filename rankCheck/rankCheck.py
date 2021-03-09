@@ -17,10 +17,10 @@ class RankCheck(commands.Cog):
     @commands.command(aliases=['setTRNAuthKey'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def setAuthTRNToken(self, ctx, auth_token):
+    async def setAuthTRNToken(self, ctx, api_key):
         """Sets the Auth Key for Tracker Network API requests.
         """
-        token_set = await self._save_auth_token(ctx, auth_token)
+        token_set = await self._save_api_key(ctx, api_key)
         if(token_set):
             await ctx.send("Done.")
             await ctx.message.delete()
