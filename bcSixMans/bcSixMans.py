@@ -1,9 +1,7 @@
 from .config import config
 import requests
 from datetime import datetime, timezone
-# import os
 import tempfile
-import json
 import discord
 import asyncio
 import urllib.parse
@@ -13,9 +11,6 @@ from redbot.core import commands
 from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
-
-import sys
-import pprint as pp
 
 defaults =   {"AuthToken": None, "TopLevelGroup": None, "AccountRegister": {}}
 verify_timeout = 30
@@ -671,7 +666,7 @@ class BCSixMans(commands.Cog):
             payload = {
                 'title': 'Game {}'.format(game_number)
             }
-            r = await self._bc_patch_request(ctx, endpoint, auth_token=auth_token, json=payload)  # data=json.dumps(payload))
+            r = await self._bc_patch_request(ctx, endpoint, auth_token=auth_token, json=payload)
             status_code = r.status_code
 
             if status_code == 204:

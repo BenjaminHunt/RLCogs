@@ -1,6 +1,8 @@
+import discord
+from redbot.core import Config
+from redbot.core import commands
+from redbot.core import checks
 import requests
-import pprint as pp
-import sys
 
 defaults =   {"AuthKey": None}
 
@@ -34,7 +36,12 @@ class RankCheck(commands.Cog):
         key = await self._get_api_key(ctx)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
-        handle, ranks = self._get_rl_ranks(platform, plat_id, key)
+        
+        ranks_response = self._get_rl_ranks(platform, plat_id, key)
+        if ranks_response:
+            handle, ranks = ranks_response
+        else:
+            await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         title = "{}'s Rocket League ranks:".format(handle)
         output = ""
         for playlist, data in ranks.items():
@@ -54,8 +61,7 @@ class RankCheck(commands.Cog):
 
         r = requests.get(request_url, headers={'TRN-Api-Key': api_key})
         if r.status_code != 200:
-            print(data['error_code'])
-            sys.exit(0)
+            return False
 
         data = r.json()
         ranks = {}
