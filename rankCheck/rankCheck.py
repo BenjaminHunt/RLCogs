@@ -41,7 +41,7 @@ class RankCheck(commands.Cog):
         if ranks_response:
             handle, ranks = ranks_response
         else:
-            await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
+            return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         title = "__{}'s Rocket League ranks:__".format(handle)
         output = ""
         for playlist, data in ranks.items():
