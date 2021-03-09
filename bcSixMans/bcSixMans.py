@@ -34,7 +34,7 @@ class BCSixMans(commands.Cog):
     @commands.command(aliases=['ggs', 'gg'])
     @commands.guild_only()
     async def gameOver(self, ctx, games_played:int):
-        """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
+        """Finds replays from the six mans series based on the number of games played, and links a new ballchasing group for the series.
         """
         # Find Six Mans Game, Queue
         member = ctx.message.author
