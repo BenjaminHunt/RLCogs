@@ -46,7 +46,7 @@ class RankCheck(commands.Cog):
         
         Valid Platforms: epic, steam, xbl, psn, switch
         """
-        await return self._process_rlrank(ctx.channel, platform, platform_id)
+        return await self._process_rlrank(ctx.channel, platform, platform_id)
 
     @commands.Cog.listener("on_message")
     async def on_message(self, message):
