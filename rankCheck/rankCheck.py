@@ -73,7 +73,7 @@ class RankCheck(commands.Cog):
         
         embed = discord.Embed(
             title="{}'s Rocket League Ranks".format(player_info['handle']),
-            description="Casual MMR - {}".format(player_info['casualMMR'])
+            description="Casual MMR - {}".format(player_info['casualMMR']),
             color=discord.Colour.blurple()
         )
         embed.add_field(name="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)), inline=False)
