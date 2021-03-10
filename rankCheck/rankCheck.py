@@ -17,7 +17,7 @@ class RankCheck(commands.Cog):
     @commands.command(aliases=['setTRNAuthKey'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def setAuthTRNToken(self, ctx, api_key):
+    async def setTRNAuthToken(self, ctx, api_key):
         """Sets the Auth Key for Tracker Network API requests.
         """
         token_set = await self._save_api_key(ctx, api_key)
@@ -41,13 +41,23 @@ class RankCheck(commands.Cog):
 
     @commands.command(aliases=['myrank'])
     @commands.guild_only()
-    async def rlrank(self, ctx, platform, platform_id):
+    async def rlrank(self, ctx, platform, *, platform_id):
         """Gets Rocket League Ranks for a given platform and id.
         
         Valid Platforms: epic, steam, xbl, psn, switch
         """
-        sent_msg = await ctx.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id))
-        key = await self._get_api_key(ctx)
+        await return self._process_rlrank(ctx.channel, platform, platform_id)
+
+    @commands.Cog.listener("on_message")
+    async def on_message(self, message):
+        words = message.content.split()
+        if words[0] == 'rlrank':
+            return await self._process_rlrank(message.channel, words[1], ' '.join(words[2:]))
+
+
+    async def _process_rlrank(self, channel, platform, platform_id):
+        sent_msg = await channel.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id))
+        key = await self._get_api_key(guild)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         supported_platforms = ['epic', 'steam', 'xbl', 'psn', 'switch']
@@ -139,8 +149,8 @@ class RankCheck(commands.Cog):
         player_info = {'status': r.status_code, 'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
         return player_info
 
-    async def _get_api_key(self, ctx):
-        return await self.config.guild(ctx.guild).AuthKey()
+    async def _get_api_key(self, guild):
+        return await self.config.guild(guild).AuthKey()
     
     async def _save_api_key(self, ctx, token):
         await self.config.guild(ctx.guild).AuthKey.set(token)
