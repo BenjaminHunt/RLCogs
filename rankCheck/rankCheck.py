@@ -66,12 +66,7 @@ class RankCheck(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def emoji(self, ctx, emoji):
-        await ctx.send(":{}:".format(emoji))
-        await ctx.send("<:{}:>".format(emoji))
-        await ctx.send("<{}>".format(emoji))
-        await ctx.send("<:{}:>".format(emoji))
-        for e in ctx.guild.emojis:
-            await ctx.send(e)
+        await ctx.send(self._get_rank_emoji(ctx, emoji))
 
     def _get_ranks_embed():
         pass
