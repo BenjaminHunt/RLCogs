@@ -63,6 +63,11 @@ class RankCheck(commands.Cog):
 
         await sent_msg.edit(content=title + output)
     
+    @commands.command()
+    @commands.guild_only()
+    async def emoji(self, ctx, emoji):
+        await ctx.send(":{}:".format(emoji))
+
     def _get_ranks_embed():
         pass
 
