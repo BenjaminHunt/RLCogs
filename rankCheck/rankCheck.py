@@ -94,7 +94,6 @@ class RankCheck(commands.Cog):
         data = r.json()
         
         ranks = {}
-        handle = 
         for segment in data['data']['segments']:
             playlist = segment['metadata']['name']
             if segment['type'] == 'playlist' and playlist != 'Un-Ranked':
