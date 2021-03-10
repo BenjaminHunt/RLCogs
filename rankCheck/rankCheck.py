@@ -71,7 +71,7 @@ class RankCheck(commands.Cog):
                 extra_mode_ranks.append(rank_entry)
         
         embed = discord.Embed(
-            title="{}'s Rocket League Ranks".format(player_info['handle'])
+            title="{}'s Rocket League Ranks".format(player_info['handle']),
             color=discord.Colour.blurple()
         )
 
