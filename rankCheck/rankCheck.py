@@ -54,7 +54,7 @@ class RankCheck(commands.Cog):
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         
         include_rank_emojis = await self._use_rank_emojis(ctx)
-        embed = await self._get_ranks_embed(ctx, player_info, include_rank_emojis)
+        embed = self._get_ranks_embed(ctx, player_info, include_rank_emojis)
         await sent_msg.edit(content="", embed=embed)
 
     def _get_ranks_embed(self, ctx, player_info, include_rank_emojis=False):
