@@ -66,7 +66,7 @@ class RankCheck(commands.Cog):
         embed = discord.Embed(
             title="{}'s Rocket League Ranks".format(player_info['handle']),
             description=output,
-            color=discord.Color.blurple
+            color=discord.Colour.blurple
         )
         embed.set_thumbnail(url=self._get_server_emoji(ctx, "Rocket League").url)
 
