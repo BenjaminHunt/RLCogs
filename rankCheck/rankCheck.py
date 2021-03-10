@@ -76,7 +76,7 @@ class RankCheck(commands.Cog):
             color=discord.Colour.blurple()
         )
 
-        embed.add_field(title="Casual MMR", value=" - {}".format(player_info['CasualMMR']))
+        embed.add_field(title="Casual MMR", value=" - {}".format(player_info['casualMMR']))
         embed.add_field(title="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)))
         embed.add_field(title="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)))
         
@@ -114,6 +114,7 @@ class RankCheck(commands.Cog):
 
         data = r.json()
         
+        casual_mmr = 0
         ranks = {}
         for segment in data['data']['segments']:
             playlist = segment['metadata']['name']
@@ -126,10 +127,10 @@ class RankCheck(commands.Cog):
                 ranks[playlist]['delta_up'] = div_segment['deltaUp'] if 'deltaUp' in div_segment else 0
                 ranks[playlist]['delta_down'] = div_segment['deltaDown'] if 'deltaDown' in div_segment else 0
             elif segment['type'] == 'playlist' and playlist == 'Un-Ranked':
-                player_info['CasualMMR'] = segment['stats']['rating']['value']
+                casual_mmr = segment['stats']['rating']['value']
         
         rewards  = None
-        player_info = {'handle': data['data']['platformInfo']['platformUserHandle'], 'competitiveRanks': ranks, 'rewardLevel': rewards}
+        player_info = {'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
         return player_info
 
     async def _get_api_key(self, ctx):
