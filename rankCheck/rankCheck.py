@@ -75,9 +75,9 @@ class RankCheck(commands.Cog):
             color=discord.Colour.blurple()
         )
 
-        embed.add_field(name="Casual MMR", value=" - {}".format(player_info['casualMMR']))
-        embed.add_field(name="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)))
-        embed.add_field(name="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)))
+        embed.add_field(name="Casual MMR", value=" - {}".format(player_info['casualMMR']), inline=False)
+        embed.add_field(name="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)), inline=False)
+        embed.add_field(name="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)), inline=False)
         
         game = "Rocket League"
         rl_emoji = self._get_server_emoji(ctx, game)
