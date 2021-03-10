@@ -160,6 +160,6 @@ class RankCheck(commands.Cog):
     async def _use_rank_emojis(self, guild):
         return await self.config.guild(guild).IncludeRankEmojis()
     
-    async def _save_use_rank_emojis(self, ctx, status: bool):
-        await self.config.guild(ctx.guild).IncludeRankEmojis.set(status)
+    async def _save_use_rank_emojis(self, guild, status: bool):
+        await self.config.guild(guild).IncludeRankEmojis.set(status)
     
