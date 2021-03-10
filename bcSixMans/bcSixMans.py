@@ -28,7 +28,7 @@ class BCSixMans(commands.Cog):
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
     @commands.guild_only()
-    async def gameOver(self, ctx, games_played:int):
+    async def gameOver(self, ctx): # , games_played:int):
         """Finds replays from the six mans series based on the number of games played, and links a new ballchasing group for the series.
         """
         # Find Six Mans Game, Queue
@@ -65,7 +65,7 @@ class BCSixMans(commands.Cog):
         await ctx.send("_Finding ballchasing replays..._")
 
         # Find Series replays
-        replays_found = await self._find_series_replays(ctx, game, games_played)
+        replays_found = await self._find_series_replays(ctx, game) # , games_played)
 
         if not replays_found:
             await ctx.send(":x: No matching replays found.")
@@ -548,7 +548,7 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    async def _find_series_replays(self, ctx, game, games_played: int=0): # Optional[int]=None => from typing import Optional
+    async def _find_series_replays(self, ctx, game, games_played: int=7): # Optional[int]=None => from typing import Optional
         # search for appearances in private matches
         endpoint = "/replays"
         sort = 'replay-date' # 'created
@@ -559,7 +559,7 @@ class BCSixMans(commands.Cog):
         
         params = [
             'playlist=private',
-            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
             'count={}'.format(count),
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
