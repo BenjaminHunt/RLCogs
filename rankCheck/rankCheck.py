@@ -50,7 +50,9 @@ class RankCheck(commands.Cog):
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         
         player_info = self._get_rl_ranks(platform, platform_id, key)
-        if not player_info:
+        if player_info['status'] != 200:
+            if player_info['status'] == 429:
+                return await sent_msg.edit(content=":x: Rate Limit Exceeded. Please try again later.".format(platform_id))
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         
         include_rank_emojis = await self._use_rank_emojis(ctx)
@@ -109,10 +111,9 @@ class RankCheck(commands.Cog):
 
         r = requests.get(request_url, headers={'TRN-Api-Key': api_key})
         if r.status_code != 200:
-            return False
+            return {'status': r.status_code}
 
         data = r.json()
-        
         casual_mmr = 0
         ranks = {}
         for segment in data['data']['segments']:
@@ -129,7 +130,7 @@ class RankCheck(commands.Cog):
                 casual_mmr = segment['stats']['rating']['value']
         
         rewards  = None
-        player_info = {'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
+        player_info = {'status': r.status_code, 'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
         return player_info
 
     async def _get_api_key(self, ctx):
