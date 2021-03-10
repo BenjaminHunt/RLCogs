@@ -43,6 +43,7 @@ class RankCheck(commands.Cog):
     @commands.guild_only()
     async def rlrank(self, ctx, platform, platform_id):
         """Gets Rocket League Ranks for a given platform and id.
+        
         Valid Platforms: epic, steam, xbl, psn, switch
         """
         sent_msg = await ctx.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id))
