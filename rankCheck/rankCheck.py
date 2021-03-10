@@ -56,7 +56,7 @@ class RankCheck(commands.Cog):
         embed = await self._get_ranks_embed(ctx, player_info)
         await sent_msg.edit(content="", embed=embed)
 
-    def _get_ranks_embed(ctx, player_info):
+    def _get_ranks_embed(self, ctx, player_info):
         output = ""
         for playlist, data in player_info['ranks'].items():
             emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emoji else ""
