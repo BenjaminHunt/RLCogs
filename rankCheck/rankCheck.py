@@ -60,10 +60,11 @@ class RankCheck(commands.Cog):
         key = await self._get_api_key(channel.guild)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
-        supported_platforms = ['epic', 'steam', 'xbl', 'psn', 'switch']
+        supported_platforms = ['epic', 'steam', 'xbl', 'xbox', 'psn', 'switch']
         
-        if platform not in supported_platforms:
+        if platform.lower() not in supported_platforms:
             return await sent_msg.edit(content=":x: **{}** is not a supported platform.".format(platform))
+        platform = 'xbl' if platform.lower() == 'xbox' else platform.lower()
         
         player_info = self._get_rl_ranks(platform, platform_id, key)
         if player_info['status'] != 200:
