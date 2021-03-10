@@ -67,7 +67,7 @@ class RankCheck(commands.Cog):
             description=output,
             color=discord.Color.blurple
         )
-        embed.set_thumbnail=(url=self._get_server_emoji(ctx, "Rocket League").url)
+        embed.set_thumbnail(url=self._get_server_emoji(ctx, "Rocket League").url)
 
         return embed
 
