@@ -76,7 +76,7 @@ class RankCheck(commands.Cog):
         )
 
         embed.add_field(name="Casual MMR", value=" - {}".format(player_info['casualMMR']), inline=False)
-        embed.add_field(name="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)), inline=False)
+        embed.add_field(name="Standard Modes", value=standard_mode_ranks, inline=False)
         embed.add_field(name="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)), inline=False)
         
         game = "Rocket League"
