@@ -548,7 +548,7 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    async def _find_series_replays(self, ctx, game, games_played: int=7): # Optional[int]=None => from typing import Optional
+    async def _find_series_replays(self, ctx, game, games_played: int=7):
         # search for appearances in private matches
         endpoint = "/replays"
         sort = 'replay-date' # 'created
