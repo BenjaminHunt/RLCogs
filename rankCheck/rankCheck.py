@@ -68,8 +68,10 @@ class RankCheck(commands.Cog):
             description=output,
             color=discord.Colour.blurple()
         )
-        embed.set_thumbnail(url=self._get_server_emoji(ctx, "Rocket League").url)
-
+        try:
+            embed.set_thumbnail(url=self._get_server_emoji(ctx, "Rocket League").url)
+        except:
+            pass
         return embed
 
     def _get_rank_emoji(self, ctx, rank):
