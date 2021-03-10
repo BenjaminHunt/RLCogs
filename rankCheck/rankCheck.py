@@ -70,6 +70,8 @@ class RankCheck(commands.Cog):
         await ctx.send("<:{}:>".format(emoji))
         await ctx.send("<{}>".format(emoji))
         await ctx.send("<:{}:>".format(emoji))
+        for e in ctx.guild.emojis:
+            await ctx.send(e)
 
     def _get_ranks_embed():
         pass
