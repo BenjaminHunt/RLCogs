@@ -52,7 +52,7 @@ class RankCheck(commands.Cog):
         player_info = self._get_rl_ranks(platform, platform_id, key)
         if not player_info:
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
-        title = "__**{}**'s Rocket League ranks:__".format(handle)
+        title = "__**{}**'s Rocket League ranks:__".format(player_info['handle'])
         output = ""
         include_rank_emoji = await self._use_rank_emojis(ctx)
         
