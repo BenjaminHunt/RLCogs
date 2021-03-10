@@ -57,7 +57,7 @@ class RankCheck(commands.Cog):
 
     async def _process_rlrank(self, channel, platform, platform_id):
         sent_msg = await channel.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id))
-        key = await self._get_api_key(guild)
+        key = await self._get_api_key(channel.guild)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         supported_platforms = ['epic', 'steam', 'xbl', 'psn', 'switch']
@@ -71,17 +71,17 @@ class RankCheck(commands.Cog):
                 return await sent_msg.edit(content=":x: Rate Limit Exceeded. Please try again later.".format(platform_id))
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         
-        include_rank_emojis = await self._use_rank_emojis(ctx)
-        embed = self._get_ranks_embed(ctx, player_info, include_rank_emojis)
+        include_rank_emojis = await self._use_rank_emojis(channel.guild)
+        embed = self._get_ranks_embed(channel.guild, player_info, include_rank_emojis)
         await sent_msg.edit(content="", embed=embed)
 
-    def _get_ranks_embed(self, ctx, player_info, include_rank_emojis=False):
+    def _get_ranks_embed(self, guild, player_info, include_rank_emojis=False):
         standard_mode_names = ['Ranked Duel 1v1', 'Ranked Doubles 2v2', 'Ranked Standard 3v3', 'Tournament Matches']
         standard_mode_ranks = []
         extra_mode_names = ['Hoops', 'Rumble', 'Dropshot', 'Snowday']
         extra_mode_ranks = []
         for playlist, data in player_info['competitiveRanks'].items():
-            emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emojis else ""
+            emoji = " {}".format(self._get_rank_emoji(guild, data['rank'])) if include_rank_emojis else ""
             # rank_entry = "**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
             rank_entry = "**{}**:{} {} {} - {}".format(playlist, emoji, data['rank'], data['div'], data['mmr'])
             if playlist in standard_mode_names:
@@ -98,22 +98,22 @@ class RankCheck(commands.Cog):
         embed.add_field(name="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)), inline=False)
         
         game = "Rocket League"
-        rl_emoji = self._get_server_emoji(ctx, game)
+        rl_emoji = self._get_server_emoji(guild, game)
         if rl_emoji:
             embed.set_footer(icon_url=rl_emoji.url, text=game)
             embed.set_thumbnail(url=rl_emoji.url)
         return embed
 
-    def _get_rank_emoji(self, ctx, rank):
+    def _get_rank_emoji(self, guild, rank):
         rank_info = rank.split()
         rank_name = ''.join(rank_info[:-1])
         rank_num = rank_info[-1].replace('III', '3').replace('II', '2').replace('I', '1')
         emoji = "{}{}".format(rank_name, rank_num)
-        return self._get_server_emoji(ctx, emoji)
+        return self._get_server_emoji(guild, emoji)
     
-    def _get_server_emoji(self, ctx, emoji):
+    def _get_server_emoji(self, guild, emoji):
         emoji = emoji.replace(" ", "")
-        for e in ctx.guild.emojis:
+        for e in guild.emojis:
             if e.name == emoji:
                 return e
         return None
@@ -156,8 +156,8 @@ class RankCheck(commands.Cog):
         await self.config.guild(ctx.guild).AuthKey.set(token)
         return True
 
-    async def _use_rank_emojis(self, ctx):
-        return await self.config.guild(ctx.guild).IncludeRankEmojis()
+    async def _use_rank_emojis(self, guild):
+        return await self.config.guild(guild).IncludeRankEmojis()
     
     async def _save_use_rank_emojis(self, ctx, status: bool):
         await self.config.guild(ctx.guild).IncludeRankEmojis.set(status)
