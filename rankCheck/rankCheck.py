@@ -20,7 +20,7 @@ class RankCheck(commands.Cog):
     async def setTRNAuthToken(self, ctx, api_key):
         """Sets the Auth Key for Tracker Network API requests.
         """
-        token_set = await self._save_api_key(ctx.guild, api_key)
+        token_set = await self._save_api_key(ctx, api_key)
         if(token_set):
             await ctx.send(":white_check_mark: API Key has been set.")
             await ctx.message.delete()
