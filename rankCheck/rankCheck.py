@@ -53,13 +53,14 @@ class RankCheck(commands.Cog):
         if not player_info:
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         
-        embed = await self._get_ranks_embed(ctx, player_info)
+        include_rank_emojis = await self._use_rank_emojis(ctx)
+        embed = await self._get_ranks_embed(ctx, player_info, include_rank_emojis)
         await sent_msg.edit(content="", embed=embed)
 
-    def _get_ranks_embed(self, ctx, player_info):
+    def _get_ranks_embed(self, ctx, player_info, include_rank_emojis=False):
         output = ""
         for playlist, data in player_info['ranks'].items():
-            emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emoji else ""
+            emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emojis else ""
             output += "\n**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
         
         embed = discord.Embed(
