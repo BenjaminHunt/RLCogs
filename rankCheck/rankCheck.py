@@ -49,15 +49,14 @@ class RankCheck(commands.Cog):
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         
-        ranks_response = self._get_rl_ranks(platform, platform_id, key)
-        if ranks_response:
-            handle, ranks = ranks_response
-        else:
+        player_info = self._get_rl_ranks(platform, platform_id, key)
+        if not player_info:
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         title = "__**{}**'s Rocket League ranks:__".format(handle)
         output = ""
         include_rank_emoji = await self._use_rank_emojis(ctx)
-        for playlist, data in ranks.items():
+        
+        for playlist, data in player_info['ranks'].items():
             emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emoji else ""
             output += "\n**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
 
@@ -81,7 +80,6 @@ class RankCheck(commands.Cog):
                 return e
         return ""
 
-
     def _get_rl_ranks(self, platform, plat_id, api_key):
         game = 'rocket-league'
         url = 'https://public-api.tracker.gg/v2/{}/standard/profile'.format(game)
@@ -94,8 +92,9 @@ class RankCheck(commands.Cog):
             return False
 
         data = r.json()
+        
         ranks = {}
-        handle = data['data']['platformInfo']['platformUserHandle']
+        handle = 
         for segment in data['data']['segments']:
             playlist = segment['metadata']['name']
             if segment['type'] == 'playlist' and playlist != 'Un-Ranked':
@@ -106,7 +105,9 @@ class RankCheck(commands.Cog):
                 ranks[playlist]['div'] = div_segment['name']
                 ranks[playlist]['delta_up'] = div_segment['deltaUp'] if 'deltaUp' in div_segment else 0
                 ranks[playlist]['delta_down'] = div_segment['deltaDown'] if 'deltaDown' in div_segment else 0
-        return handle, ranks
+        rewards  = None
+        player_info = {'handle': data['data']['platformInfo']['platformUserHandle'], 'ranks': ranks, 'rewardLevel': rewards}
+        return player_info
 
     async def _get_api_key(self, ctx):
         return await self.config.guild(ctx.guild).AuthKey()
