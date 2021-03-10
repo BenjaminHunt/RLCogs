@@ -52,33 +52,38 @@ class RankCheck(commands.Cog):
         player_info = self._get_rl_ranks(platform, platform_id, key)
         if not player_info:
             return await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
-        title = "__**{}**'s Rocket League ranks:__".format(player_info['handle'])
-        output = ""
-        include_rank_emoji = await self._use_rank_emojis(ctx)
         
+        embed = await self._get_ranks_embed(ctx, player_info)
+        await sent_msg.edit(content="", embed=embed)
+
+    def _get_ranks_embed(ctx, player_info):
+        output = ""
         for playlist, data in player_info['ranks'].items():
             emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emoji else ""
             output += "\n**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
+        
+        embed = discord.Embed(
+            title="{}'s Rocket League Ranks".format(player_info['handle']),
+            description=output,
+            color=discord.Color.blurple
+        )
+        embed.set_thumbnail=(url=self._get_server_emoji(ctx, "Rocket League").url)
 
-        await sent_msg.edit(content=title + output)
-    
-    @commands.command()
-    @commands.guild_only()
-    async def emoji(self, ctx, emoji):
-        await ctx.send(self._get_rank_emoji(ctx, emoji))
-
-    def _get_ranks_embed():
-        pass
+        return embed
 
     def _get_rank_emoji(self, ctx, rank):
         rank_info = rank.split()
         rank_name = ''.join(rank_info[:-1])
         rank_num = rank_info[-1].replace('III', '3').replace('II', '2').replace('I', '1')
         emoji = "{}{}".format(rank_name, rank_num)
+        return self._get_server_emoji(ctx, emoji)
+    
+    def _get_server_emoji(self, ctx, emoji):
+        emoji = emoji.replace(" ", "")
         for e in ctx.guild.emojis:
             if e.name == emoji:
                 return e
-        return ""
+        return None
 
     def _get_rl_ranks(self, platform, plat_id, api_key):
         game = 'rocket-league'
