@@ -64,7 +64,8 @@ class RankCheck(commands.Cog):
         extra_mode_ranks = []
         for playlist, data in player_info['competitiveRanks'].items():
             emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emojis else ""
-            rank_entry = "**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr']) # , data['delta_down'], data['delta_up'])
+            # rank_entry = "**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
+            rank_entry = "**{}**:{} {} {} - {}".format(playlist, emoji, data['rank'], data['div'], data['mmr'])
             if playlist in standard_mode_names:
                 standard_mode_ranks.append(rank_entry)
             elif playlist in extra_mode_names:
