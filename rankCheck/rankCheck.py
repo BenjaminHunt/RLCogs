@@ -73,7 +73,7 @@ class RankCheck(commands.Cog):
 
     def _get_rank_emoji(self, ctx, rank):
         rank_info = rank.split()
-        rank_name = ' '.join(rank_info[:-1])
+        rank_name = ''.join(rank_info[:-1])
         rank_num = rank_info[-1].replace('III', '3').replace('II', '2').replace('I', '1')
         emoji = "{}{}".format(rank_name, rank_num)
         for e in ctx.guild.emojis:
