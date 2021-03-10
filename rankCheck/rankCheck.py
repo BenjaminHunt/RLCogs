@@ -64,7 +64,7 @@ class RankCheck(commands.Cog):
         extra_mode_ranks = []
         for playlist, data in player_info['competitiveRanks'].items():
             emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emojis else ""
-            rank_entry = "**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
+            rank_entry = "**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr']) # , data['delta_down'], data['delta_up'])
             if playlist in standard_mode_names:
                 standard_mode_ranks.append(rank_entry)
             elif playlist in extra_mode_names:
@@ -75,7 +75,7 @@ class RankCheck(commands.Cog):
             color=discord.Colour.blurple()
         )
 
-        embed.add_field(name="Casual MMR", value=" - {}".format(player_info['casualMMR']), inline=False)
+        embed.add_field(name="Casual MMR", value=" - {}".format(player_info['casualMMR']), inline=True)
         embed.add_field(name="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)), inline=False)
         embed.add_field(name="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)), inline=False)
         
