@@ -32,8 +32,8 @@ class RankCheck(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def toggleRankEmojis(self, ctx):
         """Toggle whether or not bot uses rank emojis in the `[p]rlrank` command."""
-        new_emoji_status = not await self._use_rank_emojis(ctx)
-        await self._save_use_rank_emojis(ctx, new_emoji_status)
+        new_emoji_status = not await self._use_rank_emojis(ctx.guild)
+        await self._save_use_rank_emojis(ctx.guild, new_emoji_status)
 
         action = "will" if new_emoji_status else "will not"
         message = "The `{}rlrank` command **{}** include rank emojis.".format(ctx.prefix, action)
