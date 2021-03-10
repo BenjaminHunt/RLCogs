@@ -58,20 +58,33 @@ class RankCheck(commands.Cog):
         await sent_msg.edit(content="", embed=embed)
 
     def _get_ranks_embed(self, ctx, player_info, include_rank_emojis=False):
-        output = ""
-        for playlist, data in player_info['ranks'].items():
+        standard_mode_names = ['Ranked Duel 1v1', 'Ranked Doubles 2v2', 'Ranked Standard 3v3', 'Tournament Matches']
+        standard_mode_ranks = []
+        extra_mode_names = ['Hoops', 'Rumble', 'Dropshot', 'Snowday']
+        extra_mode_ranks = []
+        for playlist, data in player_info['competitiveRanks'].items():
             emoji = " {}".format(self._get_rank_emoji(ctx, data['rank'])) if include_rank_emojis else ""
-            output += "\n**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
+            rank_entry = "\n**{}**:{} {} {} - {} (-{}/+{})".format(playlist, emoji, data['rank'], data['div'], data['mmr'], data['delta_down'], data['delta_up'])
+            if playlist in standard_mode_names:
+                standard_mode_ranks.append(rank_entry)
+            elif playlist in extra_mode_names:
+                extra_mode_ranks.append(rank_entry)
         
         embed = discord.Embed(
             title="{}'s Rocket League Ranks".format(player_info['handle']),
             description=output,
             color=discord.Colour.blurple()
         )
-        try:
-            embed.set_thumbnail(url=self._get_server_emoji(ctx, "Rocket League").url)
-        except:
-            pass
+
+        embed.add_field(title="Casual MMR", value=" - {}".format(player_info['CasualMMR']))
+        embed.add_field(title="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)))
+        embed.add_field(title="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)))
+        
+        game = "Rocket League"
+        rl_emoji = self._get_server_emoji(ctx, game)
+        if rl_emoji:
+            embed.set_footer(icon_url=rl_emoji.url, text=game)
+            embed.set_thumbnail(url=rl_emoji.url)
         return embed
 
     def _get_rank_emoji(self, ctx, rank):
@@ -112,8 +125,11 @@ class RankCheck(commands.Cog):
                 ranks[playlist]['div'] = div_segment['name']
                 ranks[playlist]['delta_up'] = div_segment['deltaUp'] if 'deltaUp' in div_segment else 0
                 ranks[playlist]['delta_down'] = div_segment['deltaDown'] if 'deltaDown' in div_segment else 0
+            elif segment['type'] == 'playlist' and playlist == 'Un-Ranked':
+                player_info['CasualMMR'] = segment['stats']['rating']['value']
+        
         rewards  = None
-        player_info = {'handle': data['data']['platformInfo']['platformUserHandle'], 'ranks': ranks, 'rewardLevel': rewards}
+        player_info = {'handle': data['data']['platformInfo']['platformUserHandle'], 'competitiveRanks': ranks, 'rewardLevel': rewards}
         return player_info
 
     async def _get_api_key(self, ctx):
