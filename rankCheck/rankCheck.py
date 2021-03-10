@@ -76,17 +76,15 @@ class RankCheck(commands.Cog):
     def _get_ranks_embed():
         pass
 
-    def _get_rank_emoji(self, rank):
+    def _get_rank_emoji(self, ctx, rank):
         rank_info = rank.split()
         rank_name = ' '.join(rank_info[:-1])
-        rank_num = rank_info[-1]
-        if rank_num == 'I':
-            rank_num = '1'
-        elif rank_num == 'II':
-            rank_num = '2'
-        elif rank_num == 'III':
-            rank_num = '3'
-        return ":{}{}:".format(rank_name, rank_num)
+        rank_num = rank_info[-1].replace('III', '3').replace('II', '2').replace('I', '1')
+        emoji = "{}{}".format(rank_name, rank_num)
+        for e in ctx.guild.emojis:
+            if e.name == emoji:
+                return e
+        return ""
 
 
     def _get_rl_ranks(self, platform, plat_id, api_key):
