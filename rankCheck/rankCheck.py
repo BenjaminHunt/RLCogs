@@ -124,10 +124,10 @@ class RankCheck(commands.Cog):
         game = 'rocket-league'
         url = 'https://public-api.tracker.gg/v2/{}/standard/profile'.format(game)
 
-        endpoint = '/{}/{}'.format(platform, plat_id)
+        endpoint = '/{}/{}'.format(platform, urllib.parse.quote(plat_id))
         request_url = url + endpoint
 
-        r = requests.get(urllib.parse.quote(request_url), headers={'TRN-Api-Key': api_key})
+        r = requests.get(request_url, headers={'TRN-Api-Key': api_key})
         if r.status_code != 200:
             return {'status': r.status_code}
 
