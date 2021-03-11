@@ -3,6 +3,7 @@ from redbot.core import Config
 from redbot.core import commands
 from redbot.core import checks
 import requests
+import urllib
 
 defaults =   {"AuthKey": None, "IncludeRankEmojis": False}
 
@@ -126,7 +127,7 @@ class RankCheck(commands.Cog):
         endpoint = '/{}/{}'.format(platform, plat_id)
         request_url = url + endpoint
 
-        r = requests.get(request_url, headers={'TRN-Api-Key': api_key})
+        r = requests.get(urllib.parse.quote(request_url), headers={'TRN-Api-Key': api_key})
         if r.status_code != 200:
             return {'status': r.status_code}
 
