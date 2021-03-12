@@ -40,6 +40,9 @@ class BCSixMans(commands.Cog):
                 game = g
                 break
         
+        if game.textChannel != ctx.channel:
+            return False
+
         if not len(self.six_mans_cog.games):
             await ctx.send("no ongoing games")
 
