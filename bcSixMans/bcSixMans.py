@@ -40,7 +40,7 @@ class BCSixMans(commands.Cog):
                 game = g
                 break
         
-        if len(self.six_mans_cog.games) == 0:
+        if not len(self.six_mans_cog.games):
             await ctx.send("no ongoing games")
 
         if not game:
@@ -298,6 +298,13 @@ class BCSixMans(commands.Cog):
                     members = ""
         await ctx.send(output + "```\n{}\n```".format(member_lines))
 
+    @commands.command(aliases=['gsids'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def getSteamIds(self, ctx):
+        steam_ids = await self._get_steam_ids(ctx, ctx.message.author.id)
+        for sid in steam_ids:
+            await ctx.send(sid)
 
     async def _get_all_accounts(self, ctx, member=None):
         if not member:
@@ -594,7 +601,7 @@ class BCSixMans(commands.Cog):
                 if replay_ids:
                     return replay_ids, series_summary
 
-        message = "No replay files could be found on ballchasing. Please use `{}accountRegister` to make sure "
+        message = "No replay files could be found on ballchasing. Please use `{}accountRegister` to make sure ".format(ctx.prefix)
         message += "auto-uploaded replays can be automatically added to a Six Mans ballchasing replay group."
         message.format(ctx.prefix)
         await ctx.send(message)
