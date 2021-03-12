@@ -569,7 +569,8 @@ class BCSixMans(commands.Cog):
         
         params = [
             'playlist=private',
-            'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            'replay-date-after={}'.format(queue_pop_time),
             'count={}'.format(count),
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
