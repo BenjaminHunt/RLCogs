@@ -558,12 +558,12 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    async def _find_series_replays(self, ctx, game, games_played: int=7):
+    async def _find_series_replays(self, ctx, game):
         # search for appearances in private matches
         endpoint = "/replays"
         sort = 'replay-date' # 'created
         sort_dir = 'desc'
-        count = games_played if games_played else 5
+        count = 7
         queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
         auth_token = await self._get_auth_token(ctx)
         
@@ -581,6 +581,9 @@ class BCSixMans(commands.Cog):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
+
+                await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
+
                 params.remove(uploaded_by_param)
                 data = r.json()
 
