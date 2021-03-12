@@ -573,6 +573,7 @@ class BCSixMans(commands.Cog):
         ]
 
         for player in game.players:
+            await ctx.send(player.name)
             for steam_id in await self._get_steam_ids(ctx, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
