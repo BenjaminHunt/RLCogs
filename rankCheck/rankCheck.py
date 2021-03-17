@@ -68,7 +68,7 @@ class RankCheck(commands.Cog):
             return await sent_msg.edit(content=":x: **{}** is not a supported platform.".format(platform))
         platform = 'xbl' if platform == 'xbox' else platform
         
-        player_info = self._get_rl_ranks(platform, platform_id, key)
+        player_info = await self._get_rl_ranks(platform, platform_id, key)
         if player_info['status'] != 200:
             if player_info['status'] == 429:
                 return await sent_msg.edit(content=":x: Rate Limit Exceeded. Please try again later.".format(platform_id))
@@ -133,7 +133,7 @@ class RankCheck(commands.Cog):
                 return e
         return None
 
-    def _get_rl_ranks(self, platform, plat_id, api_key):
+    async def _get_rl_ranks(self, platform, plat_id, api_key):
         game = 'rocket-league'
         url = 'https://public-api.tracker.gg/v2/{}/standard/profile'.format(game)
 
