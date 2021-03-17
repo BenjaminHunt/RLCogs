@@ -57,15 +57,16 @@ class RankCheck(commands.Cog):
 
 
     async def _process_rlrank(self, channel, platform, platform_id):
+        platform = platform.lower()
         sent_msg = await channel.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id))
         key = await self._get_api_key(channel.guild)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
         supported_platforms = ['epic', 'steam', 'xbl', 'xbox', 'psn', 'switch']
         
-        if platform.lower() not in supported_platforms:
+        if platform not in supported_platforms:
             return await sent_msg.edit(content=":x: **{}** is not a supported platform.".format(platform))
-        platform = 'xbl' if platform.lower() == 'xbox' else platform.lower()
+        platform = 'xbl' if platform == 'xbox' else platform
         
         player_info = self._get_rl_ranks(platform, platform_id, key)
         if player_info['status'] != 200:
@@ -91,9 +92,13 @@ class RankCheck(commands.Cog):
             elif playlist in extra_mode_names:
                 extra_mode_ranks.append(rank_entry)
         
+        reward_level = self._get_reward_level(guild, player_info['rewardLevel'], include_rank_emojis)
+        casual_mmr = "**Casual MMR** - {}".format(player_info['casualMMR'])
+        description = "{}\n**Season Reward Level: {}".format(casual_mmr, reward_level) if reward_level else casual_mmr
+
         embed = discord.Embed(
             title="{}'s Rocket League Ranks".format(player_info['handle']),
-            description="**Casual MMR** - {}".format(player_info['casualMMR']),
+            description=description,
             color=discord.Colour.blurple()
         )
         embed.add_field(name="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)), inline=False)
@@ -105,6 +110,14 @@ class RankCheck(commands.Cog):
             embed.set_footer(icon_url=rl_emoji.url, text=game)
             embed.set_thumbnail(url=rl_emoji.url)
         return embed
+
+    def _get_reward_level(self, guild, reward_level, include_rank_emojis):
+        try:
+            rank = "{}1".format(reward_level)
+            reward_emoji = self._get_rank_emoji(guild, rank) if include_rank_emojis else ""
+            return "{} {}".format(reward_emoji, player_info['rewardLevel'])
+        except:
+            return None
 
     def _get_rank_emoji(self, guild, rank):
         rank_info = rank.split()
@@ -146,6 +159,8 @@ class RankCheck(commands.Cog):
                 ranks[playlist]['delta_down'] = div_segment['deltaDown'] if 'deltaDown' in div_segment else 0
             elif segment['type'] == 'playlist' and playlist == 'Un-Ranked':
                 casual_mmr = segment['stats']['rating']['value']
+            elif segment['type'] == 'overview':
+                player_info['rewardLevel'] = segment['stats']['seasonRewardLevel']['metadata']['rankName']
         
         rewards  = None
         player_info = {'status': r.status_code, 'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
