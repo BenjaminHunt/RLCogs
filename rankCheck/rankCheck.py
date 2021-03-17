@@ -144,6 +144,8 @@ class RankCheck(commands.Cog):
         if r.status_code != 200:
             return {'status': r.status_code}
 
+        
+        rewards  = None
         data = r.json()
         casual_mmr = 0
         ranks = {}
@@ -160,9 +162,7 @@ class RankCheck(commands.Cog):
             elif segment['type'] == 'playlist' and playlist == 'Un-Ranked':
                 casual_mmr = segment['stats']['rating']['value']
             elif segment['type'] == 'overview':
-                player_info['rewardLevel'] = segment['stats']['seasonRewardLevel']['metadata']['rankName']
-        
-        rewards  = None
+                rewards = segment['stats']['seasonRewardLevel']['metadata']['rankName']
         player_info = {'status': r.status_code, 'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
         return player_info
 
