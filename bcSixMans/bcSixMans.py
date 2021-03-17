@@ -569,9 +569,9 @@ class BCSixMans(commands.Cog):
         
         params = [
             'playlist=private',
-            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
             # 'replay-date-after={}'.format(queue_pop_time),
-            'created-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            # 'created-after={}'.format(urllib.parse.quote(queue_pop_time)),
             # 'created-after={}'.format(queue_pop_time),
             'count={}'.format(count),
             'sort-by={}'.format(sort),
@@ -585,7 +585,7 @@ class BCSixMans(commands.Cog):
                 params.append(uploaded_by_param)
 
                 await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
-                
+
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
 
                 # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
