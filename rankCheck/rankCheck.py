@@ -163,6 +163,8 @@ class RankCheck(commands.Cog):
                 casual_mmr = segment['stats']['rating']['value']
             elif segment['type'] == 'overview':
                 rewards = segment['stats']['seasonRewardLevel']['metadata']['rankName']
+                await ctx.send(rewards)
+
         player_info = {'status': r.status_code, 'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
         return player_info
 
