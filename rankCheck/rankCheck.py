@@ -112,8 +112,12 @@ class RankCheck(commands.Cog):
         return embed
 
     def _get_reward_level(self, guild, reward_level, include_rank_emojis):
+        rank = "{}1".format(reward_level.title())
+        reward_emoji = self._get_rank_emoji(guild, rank) if include_rank_emojis else ""
+        return "{} {}".format(reward_emoji, player_info['rewardLevel'])
+
         try:
-            rank = "{}1".format(reward_level)
+            rank = "{}1".format(reward_level.title())
             reward_emoji = self._get_rank_emoji(guild, rank) if include_rank_emojis else ""
             return "{} {}".format(reward_emoji, player_info['rewardLevel'])
         except:
