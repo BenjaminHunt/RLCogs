@@ -68,7 +68,7 @@ class RankCheck(commands.Cog):
             return await sent_msg.edit(content=":x: **{}** is not a supported platform.".format(platform))
         platform = 'xbl' if platform == 'xbox' else platform
         
-        player_info = await self._get_rl_ranks(platform, platform_id, key, channel)
+        player_info = self._get_rl_ranks(platform, platform_id, key, channel)
         if player_info['status'] != 200:
             if player_info['status'] == 429:
                 return await sent_msg.edit(content=":x: Rate Limit Exceeded. Please try again later.".format(platform_id))
@@ -94,7 +94,7 @@ class RankCheck(commands.Cog):
         
         reward_level = self._get_reward_level(guild, player_info['rewardLevel'], include_rank_emojis)
         casual_mmr = "**Casual MMR** - {}".format(player_info['casualMMR'])
-        description = "{}\n**Season Reward Level: {}".format(casual_mmr, reward_level) if reward_level else casual_mmr
+        description = "{}\n**Season Reward Level:** {}".format(casual_mmr, reward_level) if reward_level else casual_mmr
 
         embed = discord.Embed(
             title="{}'s Rocket League Ranks".format(player_info['handle']),
@@ -112,17 +112,13 @@ class RankCheck(commands.Cog):
         return embed
 
     def _get_reward_level(self, guild, reward_level, include_rank_emojis):
-        if not include_rank_emojis:
-            return reward_level
-        
-        rank = "{}1".format(reward_level.title())
-        reward_emoji = self._get_rank_emoji(guild, rank)
-        return "{} {}".format(reward_emoji, reward_level)
-
         try:
+            if not include_rank_emojis:
+                return reward_level
+            
             rank = "{}1".format(reward_level.title())
-            reward_emoji = self._get_rank_emoji(guild, rank) if include_rank_emojis else ""
-            return "{} {}".format(reward_emoji, player_info['rewardLevel'])
+            reward_emoji = self._get_rank_emoji(guild, rank)
+            return "{} {}".format(reward_emoji, reward_level)
         except:
             return None
 
@@ -140,7 +136,7 @@ class RankCheck(commands.Cog):
                 return e
         return None
 
-    async def _get_rl_ranks(self, platform, plat_id, api_key, channel=None):
+    def _get_rl_ranks(self, platform, plat_id, api_key, channel=None):
         game = 'rocket-league'
         url = 'https://public-api.tracker.gg/v2/{}/standard/profile'.format(game)
 
@@ -170,10 +166,6 @@ class RankCheck(commands.Cog):
                 casual_mmr = segment['stats']['rating']['value']
             elif segment['type'] == 'overview':
                 rewards = segment['stats']['seasonRewardLevel']['metadata']['rankName']
-                try:
-                    await channel.send(rewards)
-                except:
-                    pass
 
         player_info = {'status': r.status_code, 'handle': data['data']['platformInfo']['platformUserHandle'], 'casualMMR': casual_mmr, 'competitiveRanks': ranks, 'rewardLevel': rewards}
         return player_info
