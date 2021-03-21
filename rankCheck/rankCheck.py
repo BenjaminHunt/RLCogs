@@ -96,10 +96,13 @@ class RankCheck(commands.Cog):
         casual_mmr = "**Casual MMR** - {}".format(player_info['casualMMR'])
         description = "{}\n**Season Reward Level:** {}".format(casual_mmr, reward_level) if reward_level else casual_mmr
 
+
+        color = self._get_rank_color(reward_level)
+
         embed = discord.Embed(
             title="{}'s Rocket League Ranks".format(player_info['handle']),
             description=description,
-            color=discord.Colour.blurple()
+            color=color
         )
         embed.add_field(name="Standard Modes", value="\n{}".format('\n'.join(standard_mode_ranks)), inline=False)
         embed.add_field(name="Extra Modes", value="\n{}".format('\n'.join(extra_mode_ranks)), inline=False)
@@ -110,6 +113,30 @@ class RankCheck(commands.Cog):
             embed.set_footer(icon_url=rl_emoji.url, text=game)
             embed.set_thumbnail(url=rl_emoji.url)
         return embed
+
+    def _get_rank_color(self, rank):
+        try:
+            if rank == 'Supersonic Legend':
+                return discord.Color(0xb99aff)
+            if rank == 'Grand Champion':
+                return discord.Color.red()
+            if rank == 'Champion':
+                return discord.Color(0x6d2aff)
+            if rank == 'Diamond':
+                return discord.Color(0x0da2ff)
+            if rank == 'Platinum':
+                return discord.Color(0x8cd3ff)
+            if rank == 'Gold':
+                return discord.Color.gold()
+            if rank == 'Silver':
+                return discord.Color.lighter_gray()
+            if rank == 'Bronze':
+                return discord.Color.Color(0xf9a44c)
+            if rank == 'Unranked':
+                return discord.Color.dark_theme()
+            return discord.Colour.blurple()
+        except:
+            return discord.Colour.blurple()
 
     def _get_reward_level(self, guild, reward_level, include_rank_emojis):
         try:
