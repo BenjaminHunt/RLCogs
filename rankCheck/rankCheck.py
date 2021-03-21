@@ -97,7 +97,7 @@ class RankCheck(commands.Cog):
         description = "{}\n**Season Reward Level:** {}".format(casual_mmr, reward_level) if reward_level else casual_mmr
 
 
-        color = self._get_rank_color(reward_level)
+        color = self._get_rank_color(player_info['rewardLevel'])
 
         embed = discord.Embed(
             title="{}'s Rocket League Ranks".format(player_info['handle']),
