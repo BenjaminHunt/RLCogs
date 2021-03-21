@@ -123,9 +123,9 @@ class RankCheck(commands.Cog):
             if rank == 'Champion':
                 return discord.Color(0x6d2aff)
             if rank == 'Diamond':
-                return discord.Color.dark_blue()
+                return discord.Color(0x0276fe)
             if rank == 'Platinum':
-                return discord.Color(0x8cd3ff)
+                return discord.Color(0x0da2ff)  # (0x8cd3ff)
             if rank == 'Gold':
                 return discord.Color.gold()
             if rank == 'Silver':
