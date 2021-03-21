@@ -119,7 +119,7 @@ class RankCheck(commands.Cog):
             if rank == 'Supersonic Legend':
                 return discord.Color(0xb99aff)
             if rank == 'Grand Champion':
-                return discord.Color(0xe3001e)
+                return discord.Color(0xe31a00) # (0xe3001e)
             if rank == 'Champion':
                 return discord.Color(0x6d2aff)
             if rank == 'Diamond':
