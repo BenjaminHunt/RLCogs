@@ -136,7 +136,7 @@ class RankCheck(commands.Cog):
                 return discord.Color.dark_theme()
             return discord.Colour.blurple()
         except:
-            return discord.Colour.blurple()
+            return discord.Colour.red()
 
     def _get_reward_level(self, guild, reward_level, include_rank_emojis):
         try:
