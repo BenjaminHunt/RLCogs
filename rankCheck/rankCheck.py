@@ -58,7 +58,7 @@ class RankCheck(commands.Cog):
 
     async def _process_rlrank(self, channel, platform, platform_id):
         platform = platform.lower()
-        sent_msg = await channel.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id))
+        sent_msg = await channel.send("_Loading **{}**'s Rocket League ranks..._".format(platform_id.replace('_', '\_').replace('*', '\*')))
         key = await self._get_api_key(channel.guild)
         if not key:
             await sent_msg.edit(content=":x: **{}**'s ranks could not be found.".format(platform_id))
