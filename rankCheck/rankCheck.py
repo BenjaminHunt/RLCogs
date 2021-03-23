@@ -117,7 +117,7 @@ class RankCheck(commands.Cog):
     def _get_rank_color(self, rank):
         try:
             if rank == 'Supersonic Legend':
-                return discord.Color(0xfcfcfc) # .Color(0xb99aff) # discord.Color.purple()
+                return discord.Color(0xe8deff) # (0xfcfcfc) # .Color(0xb99aff) # discord.Color.purple()
             if rank == 'Grand Champion':
                 return discord.Color(0xe31a00) # (0xe3001e)
             if rank == 'Champion':
