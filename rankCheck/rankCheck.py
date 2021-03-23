@@ -151,7 +151,6 @@ class RankCheck(commands.Cog):
         except:
             return None
 
-    # here
     def _get_rank_emoji(self, guild, rank):
         rank_info = rank.split()
         rank_name = ''.join(rank_info[:-1])
