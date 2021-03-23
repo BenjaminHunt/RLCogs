@@ -117,7 +117,8 @@ class RankCheck(commands.Cog):
     def _get_rank_color(self, rank):
         try:
             if rank == 'Supersonic Legend':
-                return discord.Color(0xb99aff)
+                # return discord.Color(0xb99aff)
+                return discord.Color.purple()
             if rank == 'Grand Champion':
                 return discord.Color(0xe31a00) # (0xe3001e)
             if rank == 'Champion':
@@ -145,18 +146,13 @@ class RankCheck(commands.Cog):
             
             rank = "{} I".format(reward_level.title())
             reward_emoji = self._get_rank_emoji(guild, rank)
+            if reward_emoji == None:
+                reward_emoji = reward_emoji = self._get_rank_emoji(guild, reward_level)
             return "{} {}".format(reward_emoji, reward_level)
         except:
-            try:
-                if not include_rank_emojis:
-                    return reward_level
-                
-                rank = reward_level
-                reward_emoji = self._get_rank_emoji(guild, rank)
-                return "{} {}".format(reward_emoji, reward_level)
-            except:
-                return None
+            return None
 
+    # here
     def _get_rank_emoji(self, guild, rank):
         rank_info = rank.split()
         rank_name = ''.join(rank_info[:-1])
