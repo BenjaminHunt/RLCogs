@@ -147,13 +147,21 @@ class RankCheck(commands.Cog):
             reward_emoji = self._get_rank_emoji(guild, rank)
             return "{} {}".format(reward_emoji, reward_level)
         except:
-            return None
+            try:
+                if not include_rank_emojis:
+                    return reward_level
+                
+                rank = "{}".format(reward_level.title())
+                reward_emoji = self._get_rank_emoji(guild, rank)
+                return "{} {}".format(reward_emoji, reward_level)
+            except:
+                return None
 
     def _get_rank_emoji(self, guild, rank):
         rank_info = rank.split()
         rank_name = ''.join(rank_info[:-1])
         rank_num = rank_info[-1].replace('III', '3').replace('II', '2').replace('I', '1')
-        emoji = "{}{}".format(rank_name, rank_num) if rank_num else rank_name
+        emoji = "{}{}".format(rank_name, rank_num)
         return self._get_server_emoji(guild, emoji)
     
     def _get_server_emoji(self, guild, emoji):
