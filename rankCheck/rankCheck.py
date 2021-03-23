@@ -153,7 +153,7 @@ class RankCheck(commands.Cog):
         rank_info = rank.split()
         rank_name = ''.join(rank_info[:-1])
         rank_num = rank_info[-1].replace('III', '3').replace('II', '2').replace('I', '1')
-        emoji = "{}{}".format(rank_name, rank_num)
+        emoji = "{}{}".format(rank_name, rank_num) if rank_num else rank_name
         return self._get_server_emoji(guild, emoji)
     
     def _get_server_emoji(self, guild, emoji):
