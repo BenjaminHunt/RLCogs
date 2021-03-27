@@ -569,7 +569,8 @@ class BCSixMans(commands.Cog):
         
         params = [
             'playlist=private',
-            'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            'replay-date-after={}'.format(queue_pop_time),
             # 'replay-date-after={}'.format(queue_pop_time),
             # 'created-after={}'.format(urllib.parse.quote(queue_pop_time)),
             # 'created-after={}'.format(queue_pop_time),
@@ -581,7 +582,6 @@ class BCSixMans(commands.Cog):
         await ctx.send("params: {}".format("&".join(params)))
 
         for player in game.players:
-            await ctx.send(player.name)
             for steam_id in await self._get_steam_ids(ctx, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
