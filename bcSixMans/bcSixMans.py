@@ -599,22 +599,23 @@ class BCSixMans(commands.Cog):
                 oran_wins = 0
                 blue_wins = 0
                 replay_ids = []
-                for replay in data['list']:
-                    winner = await self._is_six_mans_replay(ctx, player, game, replay)
-                    if winner == 'blue':
-                        blue_wins += 1
-                    elif winner == 'orange':
-                        oran_wins += 1
-                    else:
-                        break
-                    replay_ids.append(replay['id'])
+                if 'list' in data:
+                    for replay in data['list']:
+                        winner = await self._is_six_mans_replay(ctx, player, game, replay)
+                        if winner == 'blue':
+                            blue_wins += 1
+                        elif winner == 'orange':
+                            oran_wins += 1
+                        else:
+                            break
+                        replay_ids.append(replay['id'])
 
-                series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
-                    blue_wins = blue_wins, oran_wins = oran_wins
-                )
+                    series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
+                        blue_wins = blue_wins, oran_wins = oran_wins
+                    )
 
-                if replay_ids:
-                    return replay_ids, series_summary
+                    if replay_ids:
+                        return replay_ids, series_summary
 
         message = "No replay files could be found on ballchasing. Please use `{}accountRegister` to make sure ".format(ctx.prefix)
         message += "auto-uploaded replays can be automatically added to a Six Mans ballchasing replay group."
