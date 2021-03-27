@@ -577,6 +577,8 @@ class BCSixMans(commands.Cog):
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
         ]
+        # here
+        await ctx.send("params: {}".format("&".join(params)))
 
         for player in game.players:
             await ctx.send(player.name)
@@ -584,7 +586,7 @@ class BCSixMans(commands.Cog):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
 
-                await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
+               #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
 
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
 
