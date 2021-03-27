@@ -572,13 +572,14 @@ class BCSixMans(commands.Cog):
         sort_dir = 'desc'
         count = 7
         # queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
-        queue_pop_time = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
+        # queue_pop_time = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
+        queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
         auth_token = await self._get_auth_token(ctx)
         
         params = [
             'playlist=private',
             # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
-            'replay-date-after={}'.format(queue_pop_time.replace("+", "-")),
+            'replay-date-after={}'.format(queue_pop_time),
             # 'replay-date-after={}'.format(queue_pop_time),
             # 'created-after={}'.format(urllib.parse.quote(queue_pop_time)),
             # 'created-after={}'.format(queue_pop_time),
