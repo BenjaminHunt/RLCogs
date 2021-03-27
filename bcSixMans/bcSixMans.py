@@ -569,26 +569,19 @@ class BCSixMans(commands.Cog):
     async def _find_series_replays(self, ctx, game):
         # search for appearances in private matches
         endpoint = "/replays"
-        sort = 'replay-date' # 'created
+        sort = 'replay-date'
         sort_dir = 'desc'
         count = 7
-        # queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
-        # queue_pop_time = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
-        queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
+        # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
         auth_token = await self._get_auth_token(ctx)
         
         params = [
             'playlist=private',
-            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
-            'replay-date-after={}'.format(queue_pop_time),
-            # 'replay-date-after={}'.format(queue_pop_time),
-            # 'created-after={}'.format(urllib.parse.quote(queue_pop_time)),
-            # 'created-after={}'.format(queue_pop_time),
+            'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
             'count={}'.format(count),
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
         ]
-        # here
         
 
         for player in game.players:
