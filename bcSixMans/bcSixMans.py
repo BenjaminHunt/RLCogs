@@ -570,7 +570,7 @@ class BCSixMans(commands.Cog):
         params = [
             'playlist=private',
             # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
-            'replay-date-after={}'.format(queue_pop_time),
+            'replay-date-after={}'.format(queue_pop_time.replace("+", "-")),
             # 'replay-date-after={}'.format(queue_pop_time),
             # 'created-after={}'.format(urllib.parse.quote(queue_pop_time)),
             # 'created-after={}'.format(queue_pop_time),
