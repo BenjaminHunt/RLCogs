@@ -571,8 +571,8 @@ class BCSixMans(commands.Cog):
         sort = 'replay-date' # 'created
         sort_dir = 'desc'
         count = 7
-        # queue_pop_time = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
-        queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
+        # queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
+        queue_pop_time = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
         auth_token = await self._get_auth_token(ctx)
         
         params = [
