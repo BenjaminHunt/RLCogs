@@ -483,6 +483,7 @@ class BCSixMans(commands.Cog):
         
         # swap teams if necessary
         if swap_teams:
+            await ctx.send("swapped teams")
             if winner == 'orange':
                 winner = 'blue'
             elif winner == 'blue':
@@ -596,8 +597,6 @@ class BCSixMans(commands.Cog):
                 params.append(uploaded_by_param)
 
                #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
-                
-                await ctx.send("params: {}".format("&".join(params)))
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
 
                 # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
