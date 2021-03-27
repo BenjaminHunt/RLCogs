@@ -309,6 +309,13 @@ class BCSixMans(commands.Cog):
         for sid in steam_ids:
             await ctx.send(sid)
 
+    @commands.command(aliases=['cw'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def whenCreated(self, ctx):
+        created = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
+        await ctx.send("Channel created: {}".format(created))
+
     async def _get_all_accounts(self, ctx, member=None):
         if not member:
             member = ctx.message.author
@@ -564,7 +571,8 @@ class BCSixMans(commands.Cog):
         sort = 'replay-date' # 'created
         sort_dir = 'desc'
         count = 7
-        queue_pop_time = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
+        # queue_pop_time = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
+        queue_pop_time = ctx.channel.created_at.astimezone().isoformat()
         auth_token = await self._get_auth_token(ctx)
         
         params = [
@@ -579,7 +587,7 @@ class BCSixMans(commands.Cog):
             'sort-dir={}'.format(sort_dir)
         ]
         # here
-        await ctx.send("params: {}".format("&".join(params)))
+        
 
         for player in game.players:
             for steam_id in await self._get_steam_ids(ctx, player.id):
@@ -587,7 +595,8 @@ class BCSixMans(commands.Cog):
                 params.append(uploaded_by_param)
 
                #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
-
+                
+                await ctx.send("params: {}".format("&".join(params)))
                 r = await self._bc_get_request(ctx, endpoint, params=params, auth_token=auth_token)
 
                 # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
