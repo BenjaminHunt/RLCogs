@@ -39,7 +39,7 @@ class BCSixMans(commands.Cog):
             if g.textChannel == ctx.message.channel:
                 game = g
                 break
-        await self._process_six_mans_replays(ctx.guild, game_text_channel)
+        await self._process_six_mans_replays(ctx.guild, g.textChannel)
 
     @commands.command(aliases=['setBCAuthKey'])
     @commands.guild_only()
