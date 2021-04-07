@@ -628,7 +628,6 @@ class BCSixMans(commands.Cog):
                 blue_wins = 0
                 replay_ids = []
                 if 'list' in data:
-                    await game.textChannel.send("...")
                     for replay in data['list']:
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner == 'blue':
@@ -638,6 +637,8 @@ class BCSixMans(commands.Cog):
                         else:
                             break
                         replay_ids.append(replay['id'])
+                        await game.textChannel.send("...")
+
 
                     series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
                         blue_wins=blue_wins, oran_wins=oran_wins
