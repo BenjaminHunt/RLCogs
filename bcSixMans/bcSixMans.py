@@ -39,6 +39,16 @@ class BCSixMans(commands.Cog):
             if g.textChannel == ctx.message.channel:
                 game = g
                 break
+        
+
+        if not len(self.six_mans_cog.games):
+            return
+            # await game_text_channel.send("no ongoing games")
+
+        if not game:
+            await ctx.send("game not found.")
+            return False
+
         await self._process_six_mans_replays(ctx.guild, game)
 
     @commands.command(aliases=['setBCAuthKey'])
@@ -269,14 +279,6 @@ class BCSixMans(commands.Cog):
     # TODO: there's a lot to change. just go by one method at a time and replace ctx with parameters of what it needs. good luck king.
     async def _process_six_mans_replays(self, guild, game):
 
-        if not len(self.six_mans_cog.games):
-            return
-            # await game_text_channel.send("no ongoing games")
-
-        if not game:
-            await text_channel.send("game not found.")
-            return False
-
         six_mans_queue = None
         for q in self.six_mans_cog.queues:
             if game.queueId == q.id:
@@ -295,7 +297,7 @@ class BCSixMans(commands.Cog):
         await game.textChannel.send("_Finding ballchasing replays..._")
 
         # Find Series replays
-        replays_found = await self._find_series_replays(guild, game) # , games_played)
+        replays_found = await self._find_series_replays(guild, game) 
 
         if not replays_found:
             await game.textChannel.send(":x: No matching replays found.")
