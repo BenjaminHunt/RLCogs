@@ -629,6 +629,7 @@ class BCSixMans(commands.Cog):
                 replay_ids = []
                 if 'list' in data:
                     for replay in data['list']:
+                        await sm_game.textChannel.send("{} replays found.".format(len(replay_ids))
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner == 'blue':
                             blue_wins += 1
@@ -645,6 +646,7 @@ class BCSixMans(commands.Cog):
                     )
 
                     if replay_ids:
+                        await sm_game.textChannel.send(":)")
                         return replay_ids, series_summary
             
         return None
