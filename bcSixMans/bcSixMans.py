@@ -639,9 +639,10 @@ class BCSixMans(commands.Cog):
                         elif winner == 'orange':
                             oran_wins += 1
                         else:
+                            await game.textChannel.send("Winner not defined :/")
                             break
                         replay_ids.append(replay['id'])
-                        await game.textChannel.send("...")
+                        
 
 
                     series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
