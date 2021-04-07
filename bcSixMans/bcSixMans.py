@@ -94,7 +94,7 @@ class BCSixMans(commands.Cog):
         group_code = await self._get_top_level_group(ctx.guild)
         member = ctx.message.author
         lines = []
-        for acc in await self._get_all_accounts(ctx, member):
+        for acc in await self._get_all_accounts(ctx.guild, member):
             lines.append("<https://ballchasing.com/player/{}/{}>".format(acc[0], acc[1]))
         show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
         await ctx.send(show_accounts)
