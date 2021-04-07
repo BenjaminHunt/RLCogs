@@ -284,33 +284,33 @@ class BCSixMans(commands.Cog):
                 break
         
         if not six_mans_queue:
-            await text_channel.send("queue not found.")
+            await game.textChannel.send("queue not found.")
             return False
 
         if not await self._get_top_level_group(guild):
-            await text_channel.send('ballchasing group group not found.')
+            await game.textChannel.send('ballchasing group group not found.')
             return False
 
         # Start Ballchasing Process:
-        await text_channel.send("_Finding ballchasing replays..._")
+        await game.textChannel.send("_Finding ballchasing replays..._")
 
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game) # , games_played)
 
         if not replays_found:
-            await text_channel.send(":x: No matching replays found.")
+            await game.textChannel.send(":x: No matching replays found.")
             return False
 
         series_subgroup_id = await self._get_replay_destination(guild, six_mans_queue, game)
         # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
-            return await text_channel.send(":x: series_subgroup_id not found.")
+            return await game.textChannel.send(":x: series_subgroup_id not found.")
 
         replay_ids, summary = replays_found
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
         try:
-            await text_channel.send("_Processing {} replays..._".format(len(replay_ids)))
+            await game.textChannel.send("_Processing {} replays..._".format(len(replay_ids)))
         except:
             pass
         tmp_replay_files = await self._download_replays(guild, replay_ids)
@@ -324,7 +324,7 @@ class BCSixMans(commands.Cog):
         
         try:
             message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
-            await text_channel.send(message)
+            await game.textChannel.send(message)
         except:
             pass
 
