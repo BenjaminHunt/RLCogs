@@ -300,6 +300,7 @@ class BCSixMans(commands.Cog):
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game) 
 
+        # here
         if not replays_found:
             await game.textChannel.send(":x: No matching replays found.")
             return False
@@ -616,7 +617,7 @@ class BCSixMans(commands.Cog):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
 
-               #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
+                #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
                 r = await self._bc_get_request(guild, endpoint, params=params, auth_token=auth_token)
 
                 # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
@@ -629,6 +630,7 @@ class BCSixMans(commands.Cog):
                 blue_wins = 0
                 replay_ids = []
                 if 'list' in data:
+                    await game.textChannel.send("{} has {} replays uploaded...".format(player.name, len(data['list'])))
                     for replay in data['list']:
                         await sm_game.textChannel.send("{} replays found.".format(len(replay_ids)))
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
