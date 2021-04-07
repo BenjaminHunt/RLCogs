@@ -89,10 +89,11 @@ class BCSixMans(commands.Cog):
 
     @commands.command(aliases=['bcpage', 'mybc', 'bcp', 'getBCPage', 'bcprofile', 'bcpages'])
     @commands.guild_only()
-    async def bcProfile(self, ctx):
+    async def bcProfile(self, ctx, member:discord.Member=None):
         """Get the ballchasing pages for registered accounts"""
         group_code = await self._get_top_level_group(ctx.guild)
-        member = ctx.message.author
+        if not member:
+            member = ctx.message.author
         lines = []
         for acc in await self._get_all_accounts(ctx.guild, member):
             lines.append("<https://ballchasing.com/player/{}/{}>".format(acc[0], acc[1]))
