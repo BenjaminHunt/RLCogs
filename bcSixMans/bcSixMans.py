@@ -224,7 +224,7 @@ class BCSixMans(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def memberAccounts(self, ctx, *, member: discord.Member):
         """view all accounts that have been registered to with your discord account in this guild."""
-        accounts = await self._get_all_accounts(ctx, member)
+        accounts = await self._get_all_accounts(ctx.guild, member)
         if not accounts:
             await ctx.send("**{}**, has not registered any accounts.".format(member.name))
             return
