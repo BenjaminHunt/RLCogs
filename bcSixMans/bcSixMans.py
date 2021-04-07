@@ -39,7 +39,7 @@ class BCSixMans(commands.Cog):
             if g.textChannel == ctx.message.channel:
                 game = g
                 break
-        await self._process_six_mans_replays(ctx.guild, g.textChannel)
+        await self._process_six_mans_replays(ctx.guild, game)
 
     @commands.command(aliases=['setBCAuthKey'])
     @commands.guild_only()
@@ -257,22 +257,21 @@ class BCSixMans(commands.Cog):
         await ctx.send("Channel created: {}".format(created))
 
 
-    @commands.Cog.listener("on_guild_channel_delete")
-    async def on_guild_channel_delete(self, channel):
-        self.six_mans_cog = self.bot.get_cog("SixMans")
-        game = None
-        for g in self.six_mans_cog.games:
-            if g.textChannel == channel:
-                await self._process_six_mans_replays(channel.guild, channel)
+    # @commands.Cog.listener("on_guild_channel_delete")
+    # async def on_guild_channel_delete(self, channel):
+    #     self.six_mans_cog = self.bot.get_cog("SixMans")
+    #     game = None
+    #     for g in self.six_mans_cog.games:
+    #         if g.textChannel == channel:
+    #             return await self._process_six_mans_replays(channel.guild, channel)
 
 
     # TODO: there's a lot to change. just go by one method at a time and replace ctx with parameters of what it needs. good luck king.
-    async def _process_six_mans_replays(self, guild, game_text_channel):
-        if game.textChannel != game_text_channel:
-            return False
+    async def _process_six_mans_replays(self, guild, game):
 
         if not len(self.six_mans_cog.games):
-            await game_text_channel.send("no ongoing games")
+            return
+            # await game_text_channel.send("no ongoing games")
 
         if not game:
             await text_channel.send("game not found.")
