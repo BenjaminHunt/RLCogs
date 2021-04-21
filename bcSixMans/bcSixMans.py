@@ -16,7 +16,7 @@ from redbot.core.utils.menus import start_adding_reactions
 defaults =   {"AuthToken": None, "TopLevelGroup": None, "AccountRegister": {}}
 verify_timeout = 30
 
-class BCSixMans(commands.Cog, Observer):
+class BCSixMans(commands.Cog):
     """Manages aspects of Ballchasing Integrations with RSC"""
 
     def __init__(self, bot):
