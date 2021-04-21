@@ -286,7 +286,7 @@ class BCSixMans(commands.Cog):
         self.observe_six_mans()
 
     def observe_six_mans(self):
-        if self not in self.six_mans_cog.observers:
+        if not self.six_mans_cog.is_observing(self):
             self.six_mans_cog.add_observer(self)
             return True
         return False
