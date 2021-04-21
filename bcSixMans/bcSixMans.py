@@ -286,6 +286,7 @@ class BCSixMans(commands.Cog):
         self.observe_six_mans()
 
     def observe_six_mans(self):
+        self.six_mans_cog = bot.get_cog("SixMans")
         if not self.six_mans_cog.is_observing(self):
             self.six_mans_cog.add_observer(self)
             return True
