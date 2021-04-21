@@ -272,9 +272,8 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def observe(self, ctx):
-        if True:
-            self.observe_six_mans()
-            await ctx.send("Observing!")
+        self.observe_six_mans():
+        # await ctx.send("Observing.")
 
     @commands.guild_only()
     @commands.Cog.listener("on_ready")
@@ -287,12 +286,7 @@ class BCSixMans(commands.Cog):
         self.observe_six_mans()
 
     def observe_six_mans(self):
-        self.six_mans_cog = self.bot.get_cog("SixMans")
-        if True: # not self.six_mans_cog.is_observing(self):
-            self.six_mans_cog.add_observer(self)
-            return True
-        return False
-
+        self.six_mans_cog.add_observer(self)
 
     async def update(self, game):
         if game.game_state == "game over":
