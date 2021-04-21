@@ -269,6 +269,13 @@ class BCSixMans(commands.Cog):
         await ctx.send("Channel created: {}".format(created))
 
 
+    @commands.command(aliases=['cw'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def observe(self, ctx):
+        self.observe_six_mans()
+        await ctx.send("There are {} observers.".format(len(self.observers)))
+
     @commands.guild_only()
     @commands.Cog.listener("on_ready")
     async def on_ready(self):
@@ -278,7 +285,7 @@ class BCSixMans(commands.Cog):
     @commands.Cog.listener("on_resumed")
     async def on_resumed(self):
         self.observe_six_mans()
-    
+
     def observe_six_mans(self):
         if self not in self.six_mans_cog.observers:
             self.six_mans_cog.add_observer(self)
