@@ -269,6 +269,21 @@ class BCSixMans(commands.Cog, Observer):
         await ctx.send("Channel created: {}".format(created))
 
 
+    @commands.guild_only()
+    @commands.Cog.listener("on_ready")
+    async def on_ready(self):
+        self.observe_six_mans()
+
+    @commands.guild_only()
+    @commands.Cog.listener("on_resumed")
+    async def on_resumed(self):
+        self.observe_six_mans()
+    
+    def observe_six_mans(self):
+        if self not in self.six_mans_cog.observers:
+            self.six_mans_cog.add_observer(self)
+
+
     async def update(self, game):
         if game.game_state == "game over":
             await game.textChannel.send("Hey! The game is over kek")
