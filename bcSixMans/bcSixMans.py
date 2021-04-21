@@ -272,7 +272,7 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def observe(self, ctx):
-        self.observe_six_mans():
+        self.observe_six_mans()
         # await ctx.send("Observing.")
 
     @commands.guild_only()
