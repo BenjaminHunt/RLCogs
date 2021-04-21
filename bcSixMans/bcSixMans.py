@@ -1,3 +1,4 @@
+import abc
 from .config import config
 import requests
 from datetime import datetime, timezone
@@ -15,7 +16,7 @@ from redbot.core.utils.menus import start_adding_reactions
 defaults =   {"AuthToken": None, "TopLevelGroup": None, "AccountRegister": {}}
 verify_timeout = 30
 
-class BCSixMans(commands.Cog):
+class BCSixMans(commands.Cog, Observer):
     """Manages aspects of Ballchasing Integrations with RSC"""
 
     def __init__(self, bot):
@@ -268,13 +269,9 @@ class BCSixMans(commands.Cog):
         await ctx.send("Channel created: {}".format(created))
 
 
-    # @commands.Cog.listener("on_guild_channel_delete")
-    # async def on_guild_channel_delete(self, channel):
-    #     self.six_mans_cog = self.bot.get_cog("SixMans")
-    #     game = None
-    #     for g in self.six_mans_cog.games:
-    #         if g.textChannel == channel:
-    #             return await self._process_six_mans_replays(channel.guild, channel)
+    async def update(self, game):
+        if game.game_state == "game over":
+            await game.textChannel.send("Hey! The game is over kek")
 
 
     # TODO: there's a lot to change. just go by one method at a time and replace ctx with parameters of what it needs. good luck king.
@@ -642,8 +639,6 @@ class BCSixMans(commands.Cog):
                             await game.textChannel.send("Winner not defined :/")
                             break
                         replay_ids.append(replay['id'])
-                        
-
 
                     series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
                         blue_wins=blue_wins, oran_wins=oran_wins
@@ -755,3 +750,13 @@ class BCSixMans(commands.Cog):
     async def _save_account_register(self, guild, account_register):
         await self.config.guild(guild).AccountRegister.set(account_register)
         return True
+
+
+class Observer(metaclass=abc.ABCMeta):
+    def __init__(self):
+        pass
+    
+    @abc.abstractmethod
+    def update(self, arg):
+        pass
+    
