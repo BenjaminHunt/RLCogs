@@ -268,13 +268,12 @@ class BCSixMans(commands.Cog):
         created = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
         await ctx.send("Channel created: {}".format(created))
 
-
-    @commands.command(aliases=['cw'])
+    @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def observe(self, ctx):
-        self.observe_six_mans()
-        await ctx.send("There are {} observers.".format(len(self.observers)))
+        if self.observe_six_mans():
+            await ctx.send("Observing!")
 
     @commands.guild_only()
     @commands.Cog.listener("on_ready")
@@ -289,6 +288,8 @@ class BCSixMans(commands.Cog):
     def observe_six_mans(self):
         if self not in self.six_mans_cog.observers:
             self.six_mans_cog.add_observer(self)
+            return True
+        return False
 
 
     async def update(self, game):
