@@ -96,7 +96,26 @@ class AccountManager(commands.Cog):
                     found = True
             
             if not found:
-                await ctx.send(":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=identifier, platform=platform))
+                endpoint = '/replays'
+                params = ['player-name={}'.format(identifier), 'count=5']
+                r = await self._bc_get_request(ctx.guild, endpoint, params=params)
+                data = r.json()
+                for replay in data['list']:
+                    for team in ['blue', 'orange']:
+                        for player in replay[team]['players']:
+                            if player['name'] == identifier and player['id']['platform'] == platform:
+                                identifier = player['id']['id']
+                                valid_account = await self._validate_account(ctx, platform, identifier)
+                                if valid_account:
+                                    username, appearances = valid_account
+                                    found = True
+                                    break
+
+            if not found:
+                message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=identifier, platform=platform)
+                if platform == 'epic':
+                    message += "\nTry finding the ballchasing ID for this epic account by searching for the account manually."
+                await ctx.send(message)
                 return False
 
         account_register = await self._get_account_register()
@@ -237,7 +256,6 @@ class AccountManager(commands.Cog):
 
         rewards = None
         data = r.json()
-        print(data['data']['platformInfo'])
         try:
             return data['data']['platformInfo']['platformUserIdentifier']
         except:
