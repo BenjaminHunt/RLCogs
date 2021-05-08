@@ -1,10 +1,10 @@
 import abc
 from .config import config
-import requests
 from datetime import datetime, timezone
 import tempfile
 import discord
 import asyncio
+import requests
 import urllib.parse
 
 from redbot.core import Config
@@ -13,7 +13,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults =   {"AuthToken": None, "TopLevelGroup": None, "AccountRegister": {}}
+defaults = {"TopLevelGroup": None}
 verify_timeout = 30
 
 class BCSixMans(commands.Cog):
@@ -24,6 +24,7 @@ class BCSixMans(commands.Cog):
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
         self.six_mans_cog = bot.get_cog("SixMans")
+        self.account_manager_cog = bot.get_cog("AccountManager")
         # TODO: self.token = await self._auth_token # load on_ready
 
     # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
@@ -52,19 +53,6 @@ class BCSixMans(commands.Cog):
 
         await self._process_six_mans_replays(ctx.guild, game)
 
-    @commands.command(aliases=['setBCAuthKey'])
-    @commands.guild_only()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def setBCAuthToken(self, ctx, auth_token):
-        """Sets the Auth Key for Ballchasing API requests.
-        Note: Auth Token must be generated from the Ballchasing group owner
-        """
-        token_set = await self._save_auth_token(ctx, auth_token)
-        if(token_set):
-            await ctx.send("Done.")
-        else:
-            await ctx.send(":x: Error setting auth token.")
-
     @commands.command(aliases=["sbcg", "setTopLevelGroup"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
@@ -74,11 +62,8 @@ class BCSixMans(commands.Cog):
         """
         # TODO: validate group
         top_level_group_id = top_level_group_id.replace('https://', '').replace('ballchasing.com/group/', '')
-        group_set = await self._save_top_level_group(ctx, top_level_group)
-        if(group_set):
-            await ctx.send("Done.")
-        else:
-            await ctx.send(":x: Error setting top level group.")
+        await self._save_top_level_group(ctx, top_level_group_id)
+        await ctx.send("Done.")
     
     @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
     @commands.guild_only()
@@ -87,171 +72,6 @@ class BCSixMans(commands.Cog):
         group_code = await self._get_top_level_group(ctx.guild)
         url = "https://ballchasing.com/group/{}".format(group_code)
         await ctx.send("See all season replays in the top level ballchasing group: {}".format(url))
-
-    @commands.command(aliases=['bcpage', 'mybc', 'bcp', 'getBCPage', 'bcprofile', 'bcpages'])
-    @commands.guild_only()
-    async def bcProfile(self, ctx, member:discord.Member=None):
-        """Get the ballchasing pages for registered accounts"""
-        group_code = await self._get_top_level_group(ctx.guild)
-        if not member:
-            member = ctx.message.author
-        lines = []
-        for acc in await self._get_all_accounts(ctx.guild, member):
-            lines.append("<https://ballchasing.com/player/{}/{}>".format(acc[0], acc[1]))
-        show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
-        await ctx.send(show_accounts)
-
-    @commands.command(aliases=['registeraccount', 'accountregister', 'accountRegister', 'addAccount', 'addaccount', 'addacc'])
-    @commands.guild_only()
-    async def registerAccount(self, ctx, platform:str, identifier:str):
-        """Allows user to register account for ballchasing requests. This may be found by searching your appearances on ballchasing.com
-
-        Examples:
-            [p]registerAccount steam 76561199096013422
-            [p]registerAccount xbox e4b17b0000000900
-            [p]registerAccount ps4 touchetupac2
-            [p]registerAccount epic 76edd61bd58841028a8ee27373ae307a
-            [p]registerAccount steam
-        """
-        # Check platform
-        platform = platform.lower()
-        if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
-            await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
-            return False
-        
-
-        member = ctx.message.author
-        # Profile can't be seen from bots :/
-        # if not identifier:
-        #     return 
-        #     if platform.lower() in ['ps4', 'ps5']:
-        #         await ctx.send(":x: Discord does not support linking to **{}** accounts. Auto-detection failed.".format(platform))
-        #         return False
-
-        #     identifier = await self._auto_link_account(member, platform)
-
-        # Validate account -- check for public ballchasing appearances
-        valid_account = await self._validate_account(ctx, platform, identifier)
-
-        if valid_account:
-            username, appearances = valid_account
-        else:
-            await ctx.send(":x: No ballchasing replays found for user: {identifier} ({platform}) ".format(identifier=identifier, platform=platform))
-            return False
-
-        account_register = await self._get_account_register(ctx.guild)
-        
-        # Make sure not a repeat account
-        if str(member.id) in account_register and [platform, identifier] in account_register[str(member.id)]:
-            await ctx.send("{}, you have already registered this account.".format(member.mention))
-            return False
-
-        # React to confirm account registration
-        prompt = "**{username}** ({platform}) appears in **{count}** ballchasing replays.".format(username=username, platform=platform, count=appearances)
-        prompt += "\n\nWould you like to register this account?"
-        nvm_message = "Registration cancelled."
-        if not await self._react_prompt(ctx, prompt, nvm_message):
-            return False
-            
-        if str(member.id) in account_register:
-            account_register[str(member.id)].append([platform, identifier])
-        else:
-            account_register[str(member.id)] = [[platform, identifier]]
-        
-        # Register account
-        if await self._save_account_register(ctx.guild, account_register):
-            await ctx.send("Done")
-
-    @commands.command(aliases=['rmaccount', 'removeAccount'])
-    @commands.guild_only()
-    async def unregisterAccount(self, ctx, platform, identifier=None):
-        remove_accs = []
-        account_register = await self._get_account_register(ctx.guild)
-        member = ctx.message.author
-        if str(member.id) in account_register:
-            for account in account_register[str(member.id)]:
-                if account[0] == platform:
-                    if not identifier or account[1] == identifier:
-                        remove_accs.append(account)
-        
-        if not remove_accs:
-            await ctx.send(":x: No matching account has been found.")
-            return False
-        
-        prompt = "React to confirm removal of the following account(s):\n - " + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in remove_accs)
-        if not await self._react_prompt(ctx, prompt, "No accounts have been removed."):
-            return False
-        
-        count = 0
-        for acc in remove_accs:
-            account_register[str(member.id)].remove(acc)
-            count += 1
-        
-        await self._save_account_register(ctx.guild, account_register)
-        await ctx.send(":white_check_mark: Removed **{}** account(s).".format(count))
-
-    @commands.command(aliases=['rmaccounts', 'clearaccounts', 'clearAccounts'])
-    @commands.guild_only()
-    async def unregisterAccounts(self, ctx):
-        """Unlinks registered account for ballchasing requests."""
-        account_register = await self._get_account_register(ctx.guild)
-        discord_id = str(ctx.message.author.id)
-        if discord_id in account_register:
-            count = len(account_register[discord_id])
-            accounts = await self._get_all_accounts(ctx, ctx.message.author)
-            prompt = "React to confirm removal of the following accounts ({}):\n - ".format(len(accounts)) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
-            if not await self._react_prompt(ctx, prompt, "No accounts have been removed."):
-                return False
-            
-            del account_register[discord_id]
-            await ctx.send(":white_check_mark: Removed **{}** account(s).".format(count))
-        else:
-            await ctx.send("No account found.")
-
-    @commands.command(aliases=['accs', 'myAccounts', 'registeredAccounts'])
-    @commands.guild_only()
-    async def accounts(self, ctx):
-        """view all accounts that have been registered to with your discord account in this guild."""
-        member = ctx.message.author
-        accounts = await self._get_all_accounts(ctx, member)
-        if not accounts:
-            await ctx.send("{}, you have not registered any accounts.".format(member.mention))
-            return
-
-        show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
-        await ctx.send(show_accounts)
-
-    @commands.command(aliases=['getAccounts', 'getRegisteredAccounts', 'getAccountsRegistered', 'viewAccounts', 'showAccounts'])
-    @commands.guild_only()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def memberAccounts(self, ctx, *, member: discord.Member):
-        """view all accounts that have been registered to with your discord account in this guild."""
-        accounts = await self._get_all_accounts(ctx.guild, member)
-        if not accounts:
-            await ctx.send("**{}**, has not registered any accounts.".format(member.name))
-            return
-
-        show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
-        await ctx.send(show_accounts)
-
-    @commands.command(aliases=['allaccs', 'allaccounts'])
-    @commands.guild_only()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def getAllAccounts(self, ctx):
-        """lists all accounts registered for troubleshooting purposes"""
-        account_register = await self._get_account_register(ctx.guild)
-        if not account_register:
-            return await ctx.send("No accounts have been registered.")
-        output = "All Accounts:\n"
-        member_lines = "discord id:         platform - id"
-        for member, accs in account_register.items():
-            for acc in accs:
-                member_lines += "\n{}: {} - {}".format(member, acc[0], acc[1])
-                if len(member_lines) > 1800:
-                    await ctx.send(output + "\n```{}```".format(member_lines))
-                    output = ""
-                    members = ""
-        await ctx.send(output + "```\n{}\n```".format(member_lines))
 
     @commands.command(aliases=['gsids'])
     @commands.guild_only()
@@ -271,9 +91,17 @@ class BCSixMans(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
+    async def bct(self, ctx):
+        key = await self.account_manager
+
+## OBSERVER PATTERN IMPLEMENTATION ########################
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
     async def observe(self, ctx):
         self.observe_six_mans()
-        # await ctx.send("Observing.")
+        await ctx.send("Observing.")
 
     @commands.guild_only()
     @commands.Cog.listener("on_ready")
@@ -286,12 +114,17 @@ class BCSixMans(commands.Cog):
         self.observe_six_mans()
 
     def observe_six_mans(self):
+        self.six_mans_cog = self.bot.get_cog("SixMans")
         self.six_mans_cog.add_observer(self)
 
     async def update(self, game):
         if game.game_state == "game over":
             await game.textChannel.send("Hey! The game is over kek")
+            await self._process_six_mans_replays(game.textChannel.guild, game)
+        else:
+            await game.textChannel.send("State: {}".format(game.game_state))
 
+###########################################################
 
     # TODO: there's a lot to change. just go by one method at a time and replace ctx with parameters of what it needs. good luck king.
     async def _process_six_mans_replays(self, guild, game):
@@ -307,30 +140,30 @@ class BCSixMans(commands.Cog):
             return False
 
         if not await self._get_top_level_group(guild):
-            await game.textChannel.send('ballchasing group group not found.')
+            await six_mans_queue.channels[0].send('ballchasing group group not found.')
             return False
 
         # Start Ballchasing Process:
-        await game.textChannel.send("_Finding ballchasing replays..._")
+        await six_mans_queue.channels[0].send("_Finding ballchasing replays..._")
 
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game) 
 
         # here
         if not replays_found:
-            await game.textChannel.send(":x: No matching replays found.")
+            await six_mans_queue.channels[0].send(":x: No matching replays found.")
             return False
 
         series_subgroup_id = await self._get_replay_destination(guild, six_mans_queue, game)
         # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
-            return await game.textChannel.send(":x: series_subgroup_id not found.")
+            return await six_mans_queue.channels[0].send(":x: series_subgroup_id not found.")
 
         replay_ids, summary = replays_found
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
         try:
-            await game.textChannel.send("_Processing {} replays..._".format(len(replay_ids)))
+            await six_mans_queue.channels[0].send("_Processing {} replays..._".format(len(replay_ids)))
         except:
             pass
         tmp_replay_files = await self._download_replays(guild, replay_ids)
@@ -344,14 +177,14 @@ class BCSixMans(commands.Cog):
         
         try:
             message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
-            await game.textChannel.send(message)
+            await six_mans_queue.channels[0].send(message)
         except:
             pass
 
     # good
     async def _get_all_accounts(self, guild, member):
         accs = []
-        account_register = await self._get_account_register(guild)
+        account_register = await self._get_account_register()
         discord_id = str(member.id)
         if discord_id in account_register:
             for account in account_register[discord_id]:
@@ -451,11 +284,14 @@ class BCSixMans(commands.Cog):
             return r.json()['steam_id']
         return None
 
-    # good
+    async def _get_account_register(self):
+        return await self.account_manager_cog.get_account_register()
+
+    # bad
     async def _get_steam_ids(self, guild, discord_id):
         discord_id = str(discord_id)
         steam_accounts = []
-        account_register = await self._get_account_register(guild)
+        account_register = await self._get_account_register()
         if discord_id in account_register:
             for account in account_register[discord_id]:
                 if account[0] == 'steam':
@@ -463,6 +299,7 @@ class BCSixMans(commands.Cog):
         return steam_accounts
 
     def _is_full_replay(self, replay_data):
+        return True
         if replay_data['duration'] < 300:
             return False
 
@@ -480,7 +317,7 @@ class BCSixMans(commands.Cog):
     def _get_account_replay_team(self, platform, plat_id, replay_data):
         for team in ['blue', 'orange']:
             for player in replay_data[team]['players']:
-                if player['id']['platform'] == platform and player['id']['id'] == str(plat_id):
+                if player['id'] and player['id']['platform'] == platform and player['id']['id'] == str(plat_id):
                     return team
         return None
 
@@ -490,7 +327,7 @@ class BCSixMans(commands.Cog):
         if use_account:
             account_register = {uploader.id: [account]}
         else:
-            account_register = await self._get_account_register(guild)
+            account_register = await self._get_account_register()
         
         # which team is the uploader supposed to be on
         if uploader in sm_game.blue:
@@ -507,7 +344,7 @@ class BCSixMans(commands.Cog):
             
             # error here
             account_replay_team = self._get_account_replay_team(platform, plat_id, replay_data)
-            await sm_game.textChannel.send("uploader team: {}\naccount team: {}".format(uploader_sm_team))
+            # await sm_game.textChannel.send("uploader team: {}\naccount team: {}".format(uploader_sm_team))
 
             if account_replay_team and uploader_sm_team != account_replay_team:
                 swap_teams = True
@@ -526,7 +363,7 @@ class BCSixMans(commands.Cog):
         
         # swap teams if necessary
         if swap_teams and False:
-            await sm_game.textChannel.send("swapped teams")
+            # await sm_game.textChannel.send("swapped teams")
             if winner == 'orange':
                 winner = 'blue'
             elif winner == 'blue':
@@ -617,12 +454,15 @@ class BCSixMans(commands.Cog):
         sort_dir = 'desc'
         count = 7
         # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
-        queue_pop_time = game.textChannel.created_at.astimezone(tz=timezone.utc).isoformat()
+        queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
+        queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
+        print(">> {}".format(queue_pop_time))
         auth_token = await self._get_auth_token(guild)
         
         params = [
             'playlist=private',
-            'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            'replay-date-after={}'.format(queue_pop_time),
             'count={}'.format(count),
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
@@ -634,7 +474,10 @@ class BCSixMans(commands.Cog):
                 params.append(uploaded_by_param)
 
                 #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
+                print('--------------------------------')
+                print('{}?{}'.format(endpoint, '&'.join(params)))
                 r = await self._bc_get_request(guild, endpoint, params=params, auth_token=auth_token)
+                print('--------------------------------')
 
                 # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
 
@@ -648,7 +491,7 @@ class BCSixMans(commands.Cog):
                 if 'list' in data:
                     await game.textChannel.send("{} has {} replays uploaded...".format(player.name, len(data['list'])))
                     for replay in data['list']:
-                        await sm_game.textChannel.send("{} replays found.".format(len(replay_ids)))
+                        await game.textChannel.send("{} replays found.".format(len(replay_ids)))
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner == 'blue':
                             blue_wins += 1
@@ -664,7 +507,7 @@ class BCSixMans(commands.Cog):
                     )
 
                     if replay_ids:
-                        await sm_game.textChannel.send(":)")
+                        await game.textChannel.send(":)")
                         return replay_ids, series_summary
             
         return None
@@ -749,26 +592,14 @@ class BCSixMans(commands.Cog):
             game_number += 1
         return renamed
 
-    async def _get_auth_token(self, guild):
-        return await self.config.guild(guild).AuthToken()
-    
-    async def _save_auth_token(self, ctx, token):
-        await self.config.guild(ctx.guild).AuthToken.set(token)
-        return True
-
     async def _get_top_level_group(self, guild):
         return await self.config.guild(guild).TopLevelGroup()
     
-    async def _save_top_level_group(self, guild, group_id):
-        await self.config.guild(guild).TopLevelGroup.set(group_id)
-        return True
-    
-    async def _get_account_register(self, guild):
-        return await self.config.guild(guild).AccountRegister()
-    
-    async def _save_account_register(self, guild, account_register):
-        await self.config.guild(guild).AccountRegister.set(account_register)
-        return True
+    async def _save_top_level_group(self, ctx, group_id):
+        await self.config.guild(ctx.guild).TopLevelGroup.set(group_id)
+
+    async def _get_auth_token(self, guild):
+        return await self.account_manager_cog.get_bc_auth_token(guild)
 
 
 class Observer(metaclass=abc.ABCMeta):

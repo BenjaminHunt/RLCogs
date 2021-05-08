@@ -118,7 +118,7 @@ class AccountManager(commands.Cog):
                 await ctx.send(message)
                 return False
 
-        account_register = await self._get_account_register()
+        account_register = await self.get_account_register()
         
         # Make sure not a repeat account
         if str(member.id) in account_register and [platform, identifier] in account_register[str(member.id)]:
@@ -145,7 +145,7 @@ class AccountManager(commands.Cog):
     @commands.guild_only()
     async def unregisterAccount(self, ctx, platform, identifier=None):
         remove_accs = []
-        account_register = await self._get_account_register()
+        account_register = await self.get_account_register()
         member = ctx.message.author
         if str(member.id) in account_register:
             for account in account_register[str(member.id)]:
@@ -173,7 +173,7 @@ class AccountManager(commands.Cog):
     @commands.guild_only()
     async def unregisterAccounts(self, ctx):
         """Unlinks registered account for ballchasing requests."""
-        account_register = await self._get_account_register(ctx.guild)
+        account_register = await self.get_account_register(ctx.guild)
         discord_id = str(ctx.message.author.id)
         if discord_id in account_register:
             count = len(account_register[discord_id])
@@ -218,7 +218,7 @@ class AccountManager(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def getAllAccounts(self, ctx):
         """lists all accounts registered for troubleshooting purposes"""
-        account_register = await self._get_account_register()
+        account_register = await self.get_account_register()
         if not account_register:
             return await ctx.send("No accounts have been registered.")
         output = "All Accounts:\n"
@@ -235,7 +235,7 @@ class AccountManager(commands.Cog):
 
     async def _get_member_accounts(self, member):
         accs = []
-        account_register = await self._get_account_register()
+        account_register = await self.get_account_register()
         discord_id = str(member.id)
         if discord_id in account_register:
             for account in account_register[discord_id]:
@@ -264,7 +264,7 @@ class AccountManager(commands.Cog):
 
     async def _bc_get_request(self, guild, endpoint, params=[], auth_token=None):
         if not auth_token:
-            auth_token = await self._get_bc_auth_token(guild)
+            auth_token = await self.get_bc_auth_token(guild)
         
         url = 'https://ballchasing.com/api'
         url += endpoint
@@ -279,7 +279,7 @@ class AccountManager(commands.Cog):
 
     async def _bc_post_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None, files=None):
         if not auth_token:
-            auth_token = await self._get_bc_auth_token(guild)
+            auth_token = await self.get_bc_auth_token(guild)
         
         url = 'https://ballchasing.com/api'
         url += endpoint
@@ -291,7 +291,7 @@ class AccountManager(commands.Cog):
 
     async def _bc_patch_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None):
         if not auth_token:
-            auth_token = await self._get_bc_auth_token(guild)
+            auth_token = await self.get_bc_auth_token(guild)
 
         url = 'https://ballchasing.com/api'
         url += endpoint
@@ -319,7 +319,7 @@ class AccountManager(commands.Cog):
 
     async def _validate_account(self, ctx, platform, identifier):
         # auth_token = config.auth_token
-        auth_token = await self._get_bc_auth_token(ctx.guild)
+        auth_token = await self.get_bc_auth_token(ctx.guild)
         endpoint = '/replays'
         params = [
             'player-id={platform}:{identifier}'.format(platform=platform, identifier=identifier),
@@ -343,7 +343,7 @@ class AccountManager(commands.Cog):
 
     async def _get_steam_id_from_token(self, guild, auth_token=None):
         if not auth_token:
-            auth_token = await self._get_bc_auth_token(guild)
+            auth_token = await self.get_bc_auth_token(guild)
         r = await self._bc_get_request(guild, "")
         if r.status_code == 200:
             return r.json()['steam_id']
@@ -352,7 +352,7 @@ class AccountManager(commands.Cog):
     async def _get_steam_ids(self, guild, discord_id):
         discord_id = str(discord_id)
         steam_accounts = []
-        account_register = await self._get_account_register(guild)
+        account_register = await self.get_account_register(guild)
         if discord_id in account_register:
             for account in account_register[discord_id]:
                 if account[0] == 'steam':
@@ -360,7 +360,7 @@ class AccountManager(commands.Cog):
         return steam_accounts
 
     # json db
-    async def _get_bc_auth_token(self, guild):
+    async def get_bc_auth_token(self, guild):
         return await self.config.guild(guild).BCAuthToken()
     
     async def _save_bc_auth_token(self, ctx, token):
@@ -372,7 +372,7 @@ class AccountManager(commands.Cog):
     async def _save_trn_auth_token(self, ctx, token):
         await self.config.guild(ctx.guild).TRNAuthToken.set(token)
 
-    async def _get_account_register(self):
+    async def get_account_register(self):
         return await self.config.AccountRegister()
     
     async def _save_account_register(self, account_register):
