@@ -87,7 +87,7 @@ class BCMatchGroups(commands.Cog):
                 return await ctx.send(":x: Couldn't find your team")
         await self._save_season_group(ctx.guild, team_role, member, group_code)
         message = ":white_check_mark: Done.\n"
-        message += "You may view the {} replay group here:\nhttps://ballchasing.com/groups/{}".format(
+        message += "You may view the {} replay group here:\nhttps://ballchasing.com/group/{}".format(
             team_role.mention,
             group_code
         )

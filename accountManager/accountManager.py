@@ -129,7 +129,7 @@ class AccountManager(commands.Cog):
             return False
 
         # React to confirm account registration
-        appearance = "10000+" if str(appearance) == "10000" else appearances
+        appearances = "10000+" if str(appearances) == "10000" else appearances
         prompt = "**{username}** ({platform}) appears in **{count}** ballchasing replays.".format(username=username, platform=platform, count=appearances)
         prompt += "\n\nWould you like to register this account?"
         nvm_message = "Registration cancelled."
