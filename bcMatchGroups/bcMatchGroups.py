@@ -102,6 +102,7 @@ class BCMatchGroups(commands.Cog):
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
+        #TODO: derive player/captain, team from owner of ballchasing group upon lookup
         member = ctx.message.author
         if not team_role:
             team_roles = (await self._get_member_team_roles(ctx.guild, member))
