@@ -552,7 +552,8 @@ class BCMatchGroups(commands.Cog):
         await self.config.guild(guild).MatchDay.set(match_day)
 
     async def _get_team_roles(self, guild):
-        return await self.config.guild(guild).TeamRoles()
+        team_role_ids = await self.config.guild(guild).TeamRoles()
+        return [guild.get_role(role_id) for role_id in team_role_ids]
     
     async def _save_season_group(self, guild, team_role, captain, group_code):
         groups = await self.config.guild(guild).ReplayGroups()
