@@ -14,7 +14,7 @@ from redbot.core.utils.menus import start_adding_reactions
 
 defaults = {"BCAuthToken": None, "TRNAuthToken": None}
 global_defaults = {"AccountRegister": {}}
-verify_timeout = 30
+verify_timeout = 15
 
 class AccountManager(commands.Cog):
     """Manages aspects of Ballchasing Integrations with RSC"""
@@ -64,6 +64,7 @@ class AccountManager(commands.Cog):
         show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
         await ctx.send(show_accounts)
 
+    # TODO: enable use of finding accounts by name with tracker network lookup
     @commands.command(aliases=['registeraccount', 'accountregister', 'accountRegister', 'addAccount', 'addaccount', 'addacc'])
     @commands.guild_only()
     async def registerAccount(self, ctx, platform:str, identifier:str):
@@ -128,6 +129,7 @@ class AccountManager(commands.Cog):
             return False
 
         # React to confirm account registration
+        appearance = "10000+" if str(appearance) == "10000" else appearances
         prompt = "**{username}** ({platform}) appears in **{count}** ballchasing replays.".format(username=username, platform=platform, count=appearances)
         prompt += "\n\nWould you like to register this account?"
         nvm_message = "Registration cancelled."

@@ -77,7 +77,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, team_role=None):
 
-    @commands.command(aliases=['bcr', 'bcpull', 'bcgroup'])
+    @commands.command(aliases=['bcr', 'bcpull'])
     @commands.guild_only()
     async def bcreport(self, ctx, opposing_team=None, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
