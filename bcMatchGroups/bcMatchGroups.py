@@ -27,6 +27,23 @@ class BCMatchGroups(commands.Cog):
         self.config.register_guild(**defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
 
+    
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
+    async def setMatchDay(self, ctx, match_day):
+        await self.config.guild(ctx.guild).MatchDay.set(match_day)
+        await ctx.send("Done")
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
+    async def nextMatchDay(self, ctx):
+        match_day = await self.config.guild(ctx.guild).MatchDay()
+        match_day = int(match_day) + 1
+        await self.config.guild(ctx.guild).MatchDay.set(match_day)
+        await ctx.send(":white_check_mark: It is now **match day {}**.".format(match_day))
+
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
