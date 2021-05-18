@@ -190,7 +190,7 @@ class AccountManager(commands.Cog):
     @commands.command(aliases=['accs', 'myAccounts', 'registeredAccounts'])
     @commands.guild_only()
     async def accounts(self, ctx):
-        """view all accounts that have been registered to with your discord account in this guild."""
+        """View all accounts that have been registered to with your discord account in this guild."""
         member = ctx.message.author
         accounts = await self._get_member_accounts(member)
         if not accounts:
@@ -204,7 +204,7 @@ class AccountManager(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def memberAccounts(self, ctx, *, member: discord.Member):
-        """view all accounts that have been registered to with your discord account in this guild."""
+        """View all accounts that have been registered to with your discord account in this guild."""
         accounts = await self._get_member_accounts(member)
         if not accounts:
             await ctx.send("**{}**, has not registered any accounts.".format(member.name))
