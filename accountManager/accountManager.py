@@ -207,7 +207,7 @@ class AccountManager(commands.Cog):
     @commands.command(aliases=['addMemberAccount', 'addmemberaccount', 'addmemberacc'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def registerMemberAccount(self, ctx, member: discord.member, platform:str, identifier:str):
+    async def registerMemberAccount(self, ctx, member: discord.Member, platform:str, identifier:str):
         """Allows user to register account for ballchasing requests. This may be found by searching your appearances on ballchasing.com
 
         Examples:
