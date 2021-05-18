@@ -396,7 +396,7 @@ class BCMatchGroups(commands.Cog):
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
 
-        await ctx.send(await self.config.guild(guild).ReplayGroups())
+        await ctx.send(await self.config.guild(ctx.guild).ReplayGroups())
         bc_group_owner = top_level_group_info[0]
         top_group_code = top_level_group_info[1]
         
