@@ -95,15 +95,15 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command(aliases=['bcr', 'bcpull'])
     @commands.guild_only()
-    async def bcreport(self, ctx, opposing_team=None, match_day=None):
+    async def bcreport(self, ctx, opposing_team, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         member = ctx.message.author
-        team_role = (await self._get_member_team_roles(guild, member))[0]
+        team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
         team_name = self._get_team_name(role)
 
         # Get team/tier information
-        match_day = await self._get_match_day(guild)
+        match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
         embed = discord.Embed(
