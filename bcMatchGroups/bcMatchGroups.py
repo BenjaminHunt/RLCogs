@@ -78,8 +78,9 @@ class BCMatchGroups(commands.Cog):
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
+        member = ctx.message.author
         team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
-        await self._save_season_group(ctx.guild, team_role, ctx.message.author, group_code)
+        await self._save_season_group(ctx.guild, team_role, member, group_code)
         message = ":white_check_mark: Done.\n"
         message += "You may view the {} replay group here:\nhttps://ballchasing.com/groups/{}".format(
             team_role.mention,
