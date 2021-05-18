@@ -77,7 +77,7 @@ class BCMatchGroups(commands.Cog):
         except:
             pass
         await self._save_member_bc_token(member, auth_token)
-        await ctx.send("{} :white_check_mark: Ballchasing Auth Token added.")
+        await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token added.".format(member.name))
     
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
