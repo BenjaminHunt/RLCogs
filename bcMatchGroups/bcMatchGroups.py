@@ -44,7 +44,7 @@ class BCMatchGroups(commands.Cog):
         await self.config.guild(ctx.guild).MatchDay.set(match_day)
         await ctx.send(":white_check_mark: It is now **match day {}**.".format(match_day))
 
-    @commands.command()
+    @commands.command(aliases=['md'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def getMatchDay(self, ctx):
