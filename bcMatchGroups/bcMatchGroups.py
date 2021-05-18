@@ -395,6 +395,8 @@ class BCMatchGroups(commands.Cog):
     async def _get_replay_destination(self, ctx, match):
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
+
+        await ctx.send(await self.config.guild(guild).ReplayGroups())
         bc_group_owner = top_level_group_info[0]
         top_group_code = top_level_group_info[1]
         
@@ -562,7 +564,7 @@ class BCMatchGroups(commands.Cog):
 
     async def _get_top_level_group(self, guild, team_role):
         try:
-            return await self.config.guild(guild).ReplayGroups()[str(team_role.id)]
+            return (await self.config.guild(guild).ReplayGroups())[str(team_role.id)]
         except:
             return None 
         
@@ -577,7 +579,7 @@ class BCMatchGroups(commands.Cog):
             return (await self.config.BCTokens())[str(member.id)]
         except:
             try:
-                return await self.config.BCTokens()[member.id]
+                return (await self.config.BCTokens())[member.id]
             except:
                 return None
     
