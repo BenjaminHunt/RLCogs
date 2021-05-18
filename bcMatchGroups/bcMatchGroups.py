@@ -222,8 +222,8 @@ class BCMatchGroups(commands.Cog):
         params = [
             # 'uploader={}'.format(uploader),
             'playlist=private',
-            'replay-date-after={}'.format(start_match_date_rfc3339),  # Filters by matches played on this day
-            'replay-date-before={}'.format(end_match_date_rfc3339),
+            # 'replay-date-after={}'.format(start_match_date_rfc3339),  # Filters by matches played on this day
+            # 'replay-date-before={}'.format(end_match_date_rfc3339),
             'count={}'.format(config.search_count),
             'sort-by={}'.format(config.sort_by),
             'sort-dir={}'.format(config.sort_dir)
