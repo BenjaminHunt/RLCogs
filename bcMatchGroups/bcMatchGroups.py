@@ -71,15 +71,14 @@ class BCMatchGroups(commands.Cog):
             except:
                 pass
             await self._save_member_bc_token(member, auth_token)
-            await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token added.".format(member.name))
+            await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been set.".format(member.name))
         except:
             await ctx.send(":x: Error setting auth token.")
         
-    
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
-        team_role = (await self._get_member_team_roles(guild, member))[0]
+        team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
         await self._save_season_group(ctx.guild, team_role, ctx.message.author, group_code)
         message = ":white_check_mark: Done.\n"
         message += "You may view the {} replay group here:\nhttps://ballchasing.com/groups/{}".format(
