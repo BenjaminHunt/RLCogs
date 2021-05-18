@@ -251,6 +251,7 @@ class BCMatchGroups(commands.Cog):
                 home_wins = 0
                 away_wins = 0
                 replay_ids = []
+                await ctx.send(data)
                 if 'list' in data:
                     for replay in data['list']:
                         if self.is_match_replay(match, replay):
@@ -309,7 +310,6 @@ class BCMatchGroups(commands.Cog):
         return role.name
 
     def is_match_replay(self, match, replay_data):
-        match_day = match['matchDay']   # match cog
         home_team = match['home']       # match cog
         away_team = match['away']       # match cog
 
