@@ -159,6 +159,8 @@ class BCMatchGroups(commands.Cog):
         
         # Find or create ballchasing subgroup
         match_subgroup_id = await self._get_replay_destination(ctx, match)
+        if not match_subgroup_id:
+            return False
 
         # Download and upload replays
         bc_group_owner = (await self._get_top_level_group(ctx.guild, team_role))[0]
@@ -394,10 +396,8 @@ class BCMatchGroups(commands.Cog):
     
     async def _get_replay_destination(self, ctx, match):
         team_role = await self._get_team_role(ctx.guild, match['home'])
-        await ctx.send(team_role)
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
-
-        await ctx.send(await self.config.guild(ctx.guild).ReplayGroups())
+        
         bc_group_owner = top_level_group_info[0]
         top_group_code = top_level_group_info[1]
         
@@ -453,11 +453,11 @@ class BCMatchGroups(commands.Cog):
                 }
                 r = await self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
-                
                 try:
                     next_subgroup_id = data['id']
                 except:
                     await ctx.send(":x: Error creating Ballchasing group: {}".format(next_group_name))
+                    await ctx.send(data)
                     return False
             
         return next_subgroup_id
