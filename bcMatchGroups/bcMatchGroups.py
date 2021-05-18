@@ -245,6 +245,7 @@ class BCMatchGroups(commands.Cog):
                 r = await self._bc_get_request(auth_token, endpoint, params=params)
                 data = r.json()
                 params.remove(uploaded_by_param)
+                await ctx.send('&'.join(params))
 
                 # checks for correct replays
                 home_wins = 0
