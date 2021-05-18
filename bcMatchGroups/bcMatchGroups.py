@@ -576,10 +576,10 @@ class BCMatchGroups(commands.Cog):
 
     async def _get_member_bc_token(self, member: discord.Member):
         try:
-            return await self.config.BCTokens()[member.id]
+            return (await self.config.BCTokens())[str(member.id)]
         except:
             try:
-                return await self.config.BCTokens()[str(member.id)]
+                return await self.config.BCTokens()[member.id]
             except:
                 return None
     
