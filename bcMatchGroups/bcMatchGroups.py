@@ -241,11 +241,11 @@ class BCMatchGroups(commands.Cog):
             for steam_id in await self._get_steam_ids(player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
+                await ctx.send('&'.join(params))
 
                 r = await self._bc_get_request(auth_token, endpoint, params=params)
                 data = r.json()
                 params.remove(uploaded_by_param)
-                await ctx.send('&'.join(params))
 
                 # checks for correct replays
                 home_wins = 0
