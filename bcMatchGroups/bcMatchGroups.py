@@ -13,7 +13,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults = {"Emoji": None, "MatchDay": 1, "TeamRoles": [], "ReplayGroups": {123: [nullidea, xxx]}, "Schedule": {}}
+defaults = {"Emoji": None, "MatchDay": 1, "TeamRoles": [], "ReplayGroups": {}, "Schedule": {}}
 global_defaults = {"BCTokens": {}}
 verify_timeout = 30
 
@@ -77,7 +77,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
         team_role = (await self._get_member_team_roles(guild, member))[0]
-        await self._save_season_group(ctx.guild, ctx.message.author, team_role)
+        await self._save_season_group(ctx.guild, team_role, ctx.message.author, group_code)
         message = ":white_check_mark: Done.\n"
         message += "You may view the {} replay group here:\nhttps://ballchasing.com/groups/{}".format(
             team_role.mention,
@@ -543,9 +543,9 @@ class BCMatchGroups(commands.Cog):
     async def _get_team_roles(self, guild):
         return await self.config.guild(guild).TeamRoles()
     
-    async def _save_season_group(self, guild, captain, team_role):
+    async def _save_season_group(self, guild, team_role, captain, group_code):
         groups = await self.config.guild(guild).ReplayGroups()
-        groups[str(team_role.id)] = [captain.id, team_role]
+        groups[str(team_role.id)] = [captain.id, group_code]
         await self._save_top_level_groups(groups)
 
     async def _get_top_level_group(self, guild, team_role):
