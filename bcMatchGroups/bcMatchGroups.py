@@ -100,7 +100,7 @@ class BCMatchGroups(commands.Cog):
         """
         member = ctx.message.author
         team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
-        team_name = self._get_team_name(role)
+        team_name = self._get_team_name(team_role)
 
         # Get team/tier information
         match_day = await self._get_match_day(ctx.guild)
