@@ -33,6 +33,7 @@ class AccountManager(commands.Cog):
         """Sets the Auth Key for Ballchasing API requests.
         Note: Auth Token must be generated from the Ballchasing group owner
         """
+        await ctx.message.delete()
         try:
             await self._save_bc_auth_token(ctx, auth_token)
             await ctx.send("Done.")
@@ -45,6 +46,7 @@ class AccountManager(commands.Cog):
     async def setTRNAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Tracker Network API requests.
         """
+        await ctx.message.delete()
         try:
             await self._save_trn_auth_token(ctx, auth_token)
             await ctx.send("Done.")
