@@ -163,7 +163,7 @@ class BCMatchGroups(commands.Cog):
             return False
 
         # Download and upload replays
-        bc_group_owner = (await self._get_top_level_group(ctx.guild, team_role))[0]
+        bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
         auth_token = await self._get_member_bc_token(bc_group_owner)
 
         tmp_replay_files = await self._download_replays(auth_token, replay_ids)
@@ -414,8 +414,6 @@ class BCMatchGroups(commands.Cog):
         ]
 
         auth_token = await self._get_member_bc_token(bc_group_owner)
-        await ctx.send(bc_group_owner)
-        await ctx.send("auth token: {}".format(auth_token))
         r = await self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
 
