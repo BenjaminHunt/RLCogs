@@ -204,6 +204,85 @@ class AccountManager(commands.Cog):
         show_accounts = "{}, you have registered the following accounts:\n - ".format(member.mention) + "\n - ".join("{}: {}".format(acc[0], acc[1]) for acc in accounts)
         await ctx.send(show_accounts)
 
+    @commands.command(aliases=['addMemberAccount', 'addmemberaccount', 'addmemberacc'])
+    @commands.guild_only()
+    async def registerMemberAccount(self, ctx, member: discord.member, platform:str, identifier:str):
+        """Allows user to register account for ballchasing requests. This may be found by searching your appearances on ballchasing.com
+
+        Examples:
+            [p]registerAccount nullidea steam 76561199096013422
+            [p]registerAccount noobz xbox e4b17b0000000900
+        """
+        # Check platform
+        platform = platform.lower()
+        if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
+            await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
+            return False
+        
+        valid_account = await self._validate_account(ctx, platform, identifier)
+
+        if valid_account:
+            username, appearances = valid_account
+        else:
+            found = False
+            identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
+            if identifier:
+                valid_account = await self._validate_account(ctx, platform, identifier)
+                if valid_account:
+                    username, appearances = valid_account
+                    found = True
+            
+            if not found:
+                endpoint = '/replays'
+                params = ['player-name={}'.format(identifier), 'count=5']
+                r = await self._bc_get_request(ctx.guild, endpoint, params=params)
+                data = r.json()
+                for replay in data['list']:
+                    for team in ['blue', 'orange']:
+                        for player in replay[team]['players']:
+                            if player['name'] == identifier and player['id']['platform'] == platform:
+                                identifier = player['id']['id']
+                                valid_account = await self._validate_account(ctx, platform, identifier)
+                                if valid_account:
+                                    username, appearances = valid_account
+                                    found = True
+                                    break
+
+            if not found:
+                message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=identifier, platform=platform)
+                if platform == 'epic':
+                    message += "\nTry finding the ballchasing ID for this epic account by searching for the account manually."
+                await ctx.send(message)
+                return False
+
+        account_register = await self.get_account_register()
+        
+        # Make sure not a repeat account
+        if str(member.id) in account_register and [platform, identifier] in account_register[str(member.id)]:
+            await ctx.send("{}, you have already registered this account.".format(member.mention))
+            return False
+
+        # React to confirm account registration
+        appearances = "10000+" if str(appearances) == "10000" else appearances
+        try:
+            member_name = member.nick
+        except:
+            member_name = member.name
+        prompt = "**{username}** ({platform}) appears in **{count}** ballchasing replays.".format(username=username, platform=platform, count=appearances)
+        prompt += "\n\nWould you like to register this account for **{}**?".format(member_name)
+        nvm_message = "Registration cancelled."
+        if not await self._react_prompt(ctx, prompt, nvm_message):
+            return False
+            
+        if str(member.id) in account_register:
+            account_register[str(member.id)].append([platform, identifier])
+        else:
+            account_register[str(member.id)] = [[platform, identifier]]
+        
+        # Register account
+        await self._save_account_register(account_register)
+        await ctx.send("Done")
+    
     @commands.command(aliases=['getAccounts', 'getRegisteredAccounts', 'getAccountsRegistered', 'viewAccounts', 'showAccounts'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
