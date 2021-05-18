@@ -213,8 +213,9 @@ class BCMatchGroups(commands.Cog):
         endpoint = "/replays"
 
         zone_adj = '-04:00'
-        date_string = match['matchDate']
-        match_date = datetime.strptime(date_string, '%B %d, %Y').strftime('%Y-%m-%d')
+        # date_string = match['matchDate']
+        # match_date = datetime.strptime(date_string, '%B %d, %Y').strftime('%Y-%m-%d')
+        match_date = match['matchDate']
         start_match_date_rfc3339 = "{}T00:00:00{}".format(match_date - timedelta(days=1), zone_adj)
         end_match_date_rfc3339 = "{}T23:59:59{}".format(match_date, zone_adj)
 
