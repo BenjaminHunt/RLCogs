@@ -562,7 +562,7 @@ class BCMatchGroups(commands.Cog):
 
     async def _get_top_level_group(self, guild, team_role):
         try:
-            await self.config.guild(guild).ReplayGroups()[str(team_role.id)]
+            return await self.config.guild(guild).ReplayGroups()[str(team_role.id)]
         except:
             return None 
         
