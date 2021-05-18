@@ -164,7 +164,7 @@ class BCMatchGroups(commands.Cog):
         bc_group_owner = (await self._get_top_level_group(ctx.guild, team_role))[0]
         auth_token = await self._get_member_bc_token(bc_group_owner)
 
-        tmp_replay_files = await self._download_replays(ctx, auth_token, replay_ids)
+        tmp_replay_files = await self._download_replays(auth_token, replay_ids)
         uploaded_ids = await self._upload_replays(ctx, auth_token, match_subgroup_id, tmp_replay_files)
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
         
