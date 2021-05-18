@@ -330,7 +330,7 @@ class AccountManager(commands.Cog):
 
         appearances = 0
         username = None
-        if data['list']:
+        if 'list' in data:
             for team_color in ['blue', 'orange']:
                 for player in data['list'][0][team_color]['players']:
                     if player['id']['platform'] == platform and player['id']['id'] == identifier:
