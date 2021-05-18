@@ -568,12 +568,12 @@ class BCMatchGroups(commands.Cog):
 
     async def _get_member_bc_token(self, member: discord.Member):
         try:
-            return await self.config.AccountRegister()[str(member.id)]
+            return await self.config.BCTokens()[str(member.id)]
         except:
             return None
     
     async def _save_member_bc_token(self, member: discord.Member, token):
-        account_register = await self.config.AccountRegister()
-        account_register[str(member.id)] = token
-        await self.config.AccountRegister.set(account_register)
+        tokens = await self.config.BCTokens()
+        tokens[str(member.id)] = token
+        await self.config.BCTokens.set(token)
     
