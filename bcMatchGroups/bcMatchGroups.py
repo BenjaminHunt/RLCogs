@@ -250,37 +250,38 @@ class BCMatchGroups(commands.Cog):
                 home_wins = 0
                 away_wins = 0
                 replay_ids = []
-                for replay in data['list']:
-                    if self.is_match_replay(match, replay):
-                        replay_ids.append(replay['id'])
-                        if replay['blue']['name'].lower() in match['home'].lower():
-                            home = 'blue'
-                            away = 'orange'
-                        else:
-                            home = 'orange'
-                            away = 'blue'
-                        
-                        home_goals = replay[home]['goals'] if 'goals' in replay[home] else 0
-                        away_goals = replay[away]['goals'] if 'goals' in replay[away] else 0
-                        if home_goals > away_goals:
-                            home_wins += 1
-                        else:
-                            away_wins += 1
+                if 'list' in replay:
+                    for replay in data['list']:
+                        if self.is_match_replay(match, replay):
+                            replay_ids.append(replay['id'])
+                            if replay['blue']['name'].lower() in match['home'].lower():
+                                home = 'blue'
+                                away = 'orange'
+                            else:
+                                home = 'orange'
+                                away = 'blue'
+                            
+                            home_goals = replay[home]['goals'] if 'goals' in replay[home] else 0
+                            away_goals = replay[away]['goals'] if 'goals' in replay[away] else 0
+                            if home_goals > away_goals:
+                                home_wins += 1
+                            else:
+                                away_wins += 1
 
-                series_summary = "**{home_team}** {home_wins} - {away_wins} **{away_team}**".format(
-                    home_team = match['home'],
-                    home_wins = home_wins,
-                    away_wins = away_wins,
-                    away_team = match['away']
-                )
-                winner = None
-                if home_wins > away_wins:
-                    winner = match['home']
-                elif home_wins < away_wins:
-                    winner = match['away']
+                    series_summary = "**{home_team}** {home_wins} - {away_wins} **{away_team}**".format(
+                        home_team = match['home'],
+                        home_wins = home_wins,
+                        away_wins = away_wins,
+                        away_team = match['away']
+                    )
+                    winner = None
+                    if home_wins > away_wins:
+                        winner = match['home']
+                    elif home_wins < away_wins:
+                        winner = match['away']
 
-                if replay_ids:
-                    return replay_ids, series_summary, winner
+                    if replay_ids:
+                        return replay_ids, series_summary, winner
         return None
     
     async def _get_steam_ids(self, discord_id):
@@ -301,7 +302,7 @@ class BCMatchGroups(commands.Cog):
                 player_team_roles.append(role)
         return player_team_roles
     
-    async def _get_team_name(self, role):
+    def _get_team_name(self, role):
         if role.name[-1] == ')' and ' (' in role.name:
             return (role.name).split()[:-1]
         return role.name
