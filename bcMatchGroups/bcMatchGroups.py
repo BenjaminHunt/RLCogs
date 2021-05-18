@@ -554,7 +554,7 @@ class BCMatchGroups(commands.Cog):
     async def _save_season_group(self, guild, team_role, captain, group_code):
         groups = await self.config.guild(guild).ReplayGroups()
         groups[str(team_role.id)] = [captain.id, group_code]
-        await self._save_top_level_groups(groups)
+        await self._save_top_level_groups(guild, groups)
 
     async def _get_top_level_group(self, guild, team_role):
         try:
