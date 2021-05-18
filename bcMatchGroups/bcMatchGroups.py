@@ -60,9 +60,9 @@ class BCMatchGroups(commands.Cog):
         
         await ctx.send(":x: No roles provided.")
 
-    @commands.command(aliases=['setBCAuthKey'])
+    @commands.command(aliases=['setMyBCAuthKey'])
     @commands.guild_only()
-    async def setBCAuthToken(self, ctx, auth_token):
+    async def setMyBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests for the given user.
         """
         try:
@@ -75,7 +75,15 @@ class BCMatchGroups(commands.Cog):
     
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
-    async def setSeasonGroup(self, ctx, group_code, team_role=None):
+    async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
+        team_role = (await self._get_member_team_roles(guild, member))[0]
+        await self._save_season_group(ctx.guild, ctx.message.author, team_role)
+        message = ":white_check_mark: Done.\n"
+        message += "You may view the {} replay group here:\nhttps://ballchasing.com/groups/{}".format(
+            team_role.mention,
+            group_code
+        )
+        await ctx.send(message)
 
     @commands.command(aliases=['bcr', 'bcpull'])
     @commands.guild_only()
@@ -83,7 +91,7 @@ class BCMatchGroups(commands.Cog):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         member = ctx.message.author
-        team_role = await self._get_member_team_roles(guild, member)[0]
+        team_role = (await self._get_member_team_roles(guild, member))[0]
         team_name = self._get_team_name(role)
 
         # Get team/tier information
@@ -535,6 +543,11 @@ class BCMatchGroups(commands.Cog):
     async def _get_team_roles(self, guild):
         return await self.config.guild(guild).TeamRoles()
     
+    async def _save_season_group(self, guild, captain, team_role):
+        groups = await self.config.guild(guild).ReplayGroups()
+        groups[str(team_role.id)] = [captain.id, team_role]
+        await self._save_top_level_groups(groups)
+
     async def _get_top_level_group(self, guild, team_role):
         try:
             await self.config.guild(guild).ReplayGroups()[str(team_role.id)]
