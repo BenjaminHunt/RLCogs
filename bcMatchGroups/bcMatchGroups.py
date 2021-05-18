@@ -64,13 +64,17 @@ class BCMatchGroups(commands.Cog):
     async def setMyBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests for the given user.
         """
-        try:
-            member = ctx.message.author
-            await ctx.message.delete()
-            await self._save_member_bc_token(member, auth_token)
-            await ctx.send("{} :white_check_mark: Ballchasing Auth Token added.")
-        except:
-            await ctx.send(":x: Error setting auth token.")
+        # try:
+        #     member = ctx.message.author
+        #     await ctx.message.delete()
+        #     await self._save_member_bc_token(member, auth_token)
+        #     await ctx.send("{} :white_check_mark: Ballchasing Auth Token added.")
+        # except:
+        #     await ctx.send(":x: Error setting auth token.")
+        member = ctx.message.author
+        await ctx.message.delete()
+        await self._save_member_bc_token(member, auth_token)
+        await ctx.send("{} :white_check_mark: Ballchasing Auth Token added.")
     
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
