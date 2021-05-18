@@ -61,7 +61,6 @@ class BCMatchGroups(commands.Cog):
         await ctx.send(":x: No roles provided.")
 
     @commands.command(aliases=['setMyBCAuthKey'])
-    @commands.guild_only()
     async def setMyBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests for the given user.
         """
