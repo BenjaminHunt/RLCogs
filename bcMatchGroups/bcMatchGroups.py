@@ -106,6 +106,7 @@ class BCMatchGroups(commands.Cog):
         match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
+        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
         embed = discord.Embed(
             title="Match Day {}: {} vs {}".format(match_day, team_name, opposing_team),
             description="Searching https://ballchasing.com for publicly uploaded replays of this match...",
