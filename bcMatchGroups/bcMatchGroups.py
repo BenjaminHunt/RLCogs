@@ -414,6 +414,8 @@ class BCMatchGroups(commands.Cog):
         ]
 
         auth_token = await self._get_member_bc_token(bc_group_owner)
+        await ctx.send(bc_group_owner)
+        await ctx.send("auth token: {}".format(auth_token))
         r = await self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
 
