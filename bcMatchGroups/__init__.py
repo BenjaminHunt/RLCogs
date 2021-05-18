@@ -1,4 +1,4 @@
-from .BCMatchGroups import BCMatchGroups
+from .bcMatchGroups import BCMatchGroups
 from .config import config
 
 def setup(bot):
