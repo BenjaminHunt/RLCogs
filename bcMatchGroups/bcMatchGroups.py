@@ -229,6 +229,7 @@ class BCMatchGroups(commands.Cog):
             'sort-dir={}'.format(config.sort_dir)
         ]
 
+        await ctx.send("all tokens: {}".format(await self.config.BCTokens()))
         auth_token = await self._get_member_bc_token(member)
 
         await ctx.send("token: {}".format(auth_token))
