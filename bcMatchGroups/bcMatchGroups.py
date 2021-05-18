@@ -47,6 +47,13 @@ class BCMatchGroups(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
+    async def getMatchDay(self, ctx):
+        match_day = await self.config.guild(ctx.guild).MatchDay()
+        await ctx.send("Match Day {}.".format(match_day))
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
     async def addTeamRoles(self, ctx, *roleList):
         """Adds the role to every member that can be found from the userList"""
         team_roles = await self._get_team_roles(ctx.guild)
