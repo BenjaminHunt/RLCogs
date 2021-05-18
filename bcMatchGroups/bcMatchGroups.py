@@ -229,11 +229,8 @@ class BCMatchGroups(commands.Cog):
             'sort-dir={}'.format(config.sort_dir)
         ]
 
-        await ctx.send("all tokens: {}".format(await self.config.BCTokens()))
         auth_token = await self._get_member_bc_token(member)
 
-        await ctx.send("token: {}".format(auth_token))
-        
         # Search invoker's replay uploads first
         if member in team_players:
             team_players.remove(member)
@@ -254,7 +251,6 @@ class BCMatchGroups(commands.Cog):
                 home_wins = 0
                 away_wins = 0
                 replay_ids = []
-                await ctx.send(data)
                 if 'list' in data:
                     for replay in data['list']:
                         if self.is_match_replay(match, replay):
