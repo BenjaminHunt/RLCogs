@@ -15,10 +15,10 @@ class RankCheck(commands.Cog):
         self.config.register_guild(**defaults)
         # TODO: self.token = await self._auth_token # load on_ready
 
-    @commands.command(aliases=['setTRNAuthKey'])
+    @commands.command(aliases=['setTrackerAuthKey'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def setTRNAuthToken(self, ctx, api_key):
+    async def setTrackerAuthToken(self, ctx, api_key):
         """Sets the Auth Key for Tracker Network API requests.
         """
         token_set = await self._save_api_key(ctx, api_key)
