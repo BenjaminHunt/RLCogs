@@ -575,5 +575,5 @@ class BCMatchGroups(commands.Cog):
     async def _save_member_bc_token(self, member: discord.Member, token):
         tokens = await self.config.BCTokens()
         tokens[str(member.id)] = token
-        await self.config.BCTokens.set(token)
+        await self.config.BCTokens.set(tokens)
     
