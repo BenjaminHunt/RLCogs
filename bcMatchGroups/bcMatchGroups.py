@@ -72,7 +72,10 @@ class BCMatchGroups(commands.Cog):
         # except:
         #     await ctx.send(":x: Error setting auth token.")
         member = ctx.message.author
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except:
+            pass
         await self._save_member_bc_token(member, auth_token)
         await ctx.send("{} :white_check_mark: Ballchasing Auth Token added.")
     
