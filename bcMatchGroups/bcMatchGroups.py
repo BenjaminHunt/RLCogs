@@ -418,7 +418,7 @@ class BCMatchGroups(commands.Cog):
         data = r.json()
 
         # Dynamically create sub-group
-        current_subgroup_id = top_level_group
+        current_subgroup_id = top_group_code
         next_subgroup_id = None
         for next_group_name in ordered_subgroups:
             if next_subgroup_id:
