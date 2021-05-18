@@ -230,6 +230,8 @@ class BCMatchGroups(commands.Cog):
         ]
 
         auth_token = await self._get_member_bc_token(member)
+
+        await ctx.send("token: {}".format(auth_token))
         
         # Search invoker's replay uploads first
         if member in team_players:
@@ -241,7 +243,7 @@ class BCMatchGroups(commands.Cog):
             for steam_id in await self._get_steam_ids(player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
-                await ctx.send('&'.join(params))
+                # await ctx.send('&'.join(params))
 
                 r = await self._bc_get_request(auth_token, endpoint, params=params)
                 data = r.json()
