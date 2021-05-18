@@ -250,7 +250,7 @@ class BCMatchGroups(commands.Cog):
                 home_wins = 0
                 away_wins = 0
                 replay_ids = []
-                if 'list' in replay:
+                if 'list' in data:
                     for replay in data['list']:
                         if self.is_match_replay(match, replay):
                             replay_ids.append(replay['id'])
@@ -304,7 +304,7 @@ class BCMatchGroups(commands.Cog):
     
     def _get_team_name(self, role):
         if role.name[-1] == ')' and ' (' in role.name:
-            return (role.name).split()[:-1]
+            return ' '.join((role.name).split()[:-1])
         return role.name
 
     def is_match_replay(self, match, replay_data):
