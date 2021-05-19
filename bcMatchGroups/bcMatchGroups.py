@@ -128,7 +128,8 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
 
         # Get team/tier information
-        match_day = await self._get_match_day(ctx.guild)
+        if not match_day:
+            match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
         opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
