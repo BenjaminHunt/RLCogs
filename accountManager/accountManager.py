@@ -233,9 +233,6 @@ class AccountManager(commands.Cog):
         platform = platform.lower()
         if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
-            return False
-        
-        valid_account = await self._validate_account(ctx, platform, identifier)
 
         try:
             valid_account = await self._validate_account(ctx, platform, identifier)
