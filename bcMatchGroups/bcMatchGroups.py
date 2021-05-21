@@ -129,19 +129,20 @@ class BCMatchGroups(commands.Cog):
         team_role = None
         if team_name:
             for role in team_roles:
-                if team_name in role.name.split() or team_name == role.name.split()[-1][1:-1]:
+                if team_name in role.name.split() or team_name == (role.name.split()[-1])[1][1:-1]:
                     team_role = role
         else:
             for role in team_roles:
                 if role in member.roles:
                     team_role = role
-                    
+
         group_code = await self._get_top_level_group(ctx.guild, team_role)
-        message = "{} replay group:\nhttps://ballchasing.com/group/{}".format(
-            team_role.mention,
-            group_code
-        )
-        await ctx.send(message)
+        message = "https://ballchasing.com/group/{}".format(group_code)
+        embed = discord.Embed(title = "{} Replay Group".format(team_role.name), description=message, color=team_role.color)
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        await ctx.send(embed=embed)
 
 
     @commands.command(aliases=['bcr', 'bcpull'])
