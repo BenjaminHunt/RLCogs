@@ -118,6 +118,31 @@ class BCMatchGroups(commands.Cog):
         )
         await ctx.send(message)
 
+    @commands.command(aliases=['seasonGroup', 'myGroup', 'mygroup'])
+    @commands.guild_only()
+    async def getSeasonGroup(self, ctx, team_name=None):
+        """Views this season's ballchasing group for your team"""
+        #TODO: derive player/captain, team from owner of ballchasing group upon lookup
+        member = ctx.message.author
+        
+        team_roles = await self._get_team_roles(ctx.guild)
+        team_role = None
+        if team_name:
+            for role in team_roles:
+                if team_name in role:
+                    team_role = role
+        else:
+            for role in team_roles:
+                if role in member.roles:
+                    team_role = role
+        
+        message = "{} replay group:\nhttps://ballchasing.com/group/{}".format(
+            team_role.mention,
+            group_code
+        )
+        await ctx.send(message)
+
+
     @commands.command(aliases=['bcr', 'bcpull'])
     @commands.guild_only()
     async def bcreport(self, ctx, opposing_team, match_day=None):
