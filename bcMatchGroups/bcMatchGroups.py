@@ -135,7 +135,8 @@ class BCMatchGroups(commands.Cog):
             for role in team_roles:
                 if role in member.roles:
                     team_role = role
-        
+                    
+        group_code = await self._get_top_level_group(ctx.guild, team_role)
         message = "{} replay group:\nhttps://ballchasing.com/group/{}".format(
             team_role.mention,
             group_code
