@@ -129,12 +129,15 @@ class BCMatchGroups(commands.Cog):
         team_role = None
         if team_name:
             for role in team_roles:
-                if team_name in role.name.split() or (if len(role.name.split()) > 1 and team_name == role.name.split()[-1][1:-1]):
+                if team_name in role.name.split() or (len(role.name.split()) > 1 and team_name == role.name.split()[-1][1:-1]):
                     team_role = role
         else:
             for role in team_roles:
                 if role in member.roles:
                     team_role = role
+        
+        if not team_role:
+            return await ctx.send(":x: Team not found.")
 
         group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
         message = "https://ballchasing.com/group/{}".format(group_code)
