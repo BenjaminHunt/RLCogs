@@ -170,7 +170,6 @@ class BCMatchGroups(commands.Cog):
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         bc_status_msg = await ctx.send(embed=embed)
-        
 
         # Find replays from ballchasing
         match = {
@@ -179,6 +178,19 @@ class BCMatchGroups(commands.Cog):
             "matchDay": match_day,
             "matchDate": datetime.today()
         }
+
+        
+        bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
+        auth_token = await self._get_member_bc_token(bc_group_owner)
+        match_reported = await self._check_if_reported(ctx.guild, match['home'], match['matchDay'], auth_token)
+
+        if match_reported:
+            summary, code = match_reported
+            link = "https://ballchasing.com/group/{}".format(code)
+            embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
+            await bc_status_msg.edit(embed)
+            return
+
         replays_found = await self._find_match_replays(ctx, member, match)
 
         ## Not found:
@@ -194,7 +206,6 @@ class BCMatchGroups(commands.Cog):
             pass
             # TODO: check for team emoji
         
-
         # Prepare embed edits for score confirmation
         prompt_embed = discord.Embed.from_dict(embed.to_dict())
         prompt_embed.description = "Match summary:\n{}".format(summary)
@@ -218,9 +229,6 @@ class BCMatchGroups(commands.Cog):
             return False
 
         # Download and upload replays
-        bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
-        auth_token = await self._get_member_bc_token(bc_group_owner)
-
         tmp_replay_files = await self._download_replays(auth_token, replay_ids)
         uploaded_ids = await self._upload_replays(ctx, auth_token, match_subgroup_id, tmp_replay_files)
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
@@ -233,7 +241,7 @@ class BCMatchGroups(commands.Cog):
 
 
     # ballchasing functions
-    async def _bc_get_request(self, auth_token, endpoint, params=[]):
+    def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
@@ -245,7 +253,7 @@ class BCMatchGroups(commands.Cog):
         
         return requests.get(url, headers={'Authorization': auth_token})
 
-    async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
+    def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
@@ -254,7 +262,7 @@ class BCMatchGroups(commands.Cog):
         
         return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
 
-    async def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
+    def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
@@ -264,6 +272,48 @@ class BCMatchGroups(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
     # other functions
+    async def _check_if_reported(self, guild, franchise_team, match_day, auth_token):
+        team_role = await self._get_team_role(guild, franchise_team)
+        top_level_group_info = await self._get_top_level_group(guild, team_role)
+
+        data = self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
+        if 'list' not in data:
+            return None
+
+        match_group_code = ''
+        opposing_team = ''
+        for group in data['list']:
+            if '{}'.format(match_day).zfill(2) in group['name']
+                match_group_code = group['id']
+                opposing_team = group['name'].split(' vs ')[-1]
+                break 
+        
+        data = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
+        if 'list' not in data:
+            return None
+
+        franchise_wins = 0
+        franchise_losses = 0
+        for replay in data['list']:
+            is_blue = franchise_team.lower() in replay['blue']['name'].lower()
+            blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
+            orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
+
+            if is_blue:
+                if blue_goals > orange_goals:
+                    franchise_wins += 1
+                else:
+                    franchise_losses += 1
+            else:
+                if blue_goals > orange_goals:
+                    franchise_losses += 1
+                else:
+                    franchise_wins += 1
+        
+        summary = "**{}** {} - {} **{}**".format(franchise_team, franchise_wins, franchise_losses, opposing_team)
+        return summary, match_group_code
+
+            
     async def _find_match_replays(self, ctx, member, match, team_players=None):
         if not team_players:
             team_players = [member]
@@ -301,7 +351,7 @@ class BCMatchGroups(commands.Cog):
                 params.append(uploaded_by_param)
                 # await ctx.send('&'.join(params))
 
-                r = await self._bc_get_request(auth_token, endpoint, params=params)
+                r = self._bc_get_request(auth_token, endpoint, params=params)
                 data = r.json()
                 params.remove(uploaded_by_param)
 
@@ -469,7 +519,7 @@ class BCMatchGroups(commands.Cog):
         ]
 
         auth_token = await self._get_member_bc_token(bc_group_owner)
-        r = await self._bc_get_request(auth_token, endpoint, params)
+        r = self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
 
         # Dynamically create sub-group
@@ -495,7 +545,7 @@ class BCMatchGroups(commands.Cog):
                     'group={}'.format(next_subgroup_id)
                 ]
 
-                r = await self._bc_get_request(auth_token, endpoint, params)
+                r = self._bc_get_request(auth_token, endpoint, params)
                 data = r.json()
 
             # ## Creating next sub-group
@@ -506,7 +556,7 @@ class BCMatchGroups(commands.Cog):
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
-                r = await self._bc_post_request(auth_token, endpoint, json=payload)
+                r = self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 try:
                     next_subgroup_id = data['id']
@@ -522,7 +572,7 @@ class BCMatchGroups(commands.Cog):
         this_game = 1
         for replay_id in replay_ids[::-1]:
             endpoint = "/replays/{}/file".format(replay_id)
-            r = await self._bc_get_request(auth_token, endpoint)
+            r = self._bc_get_request(auth_token, endpoint)
             
             # replay_filename = "Game {}.replay".format(this_game)
             replay_filename = "{}.replay".format(replay_id)
@@ -547,7 +597,7 @@ class BCMatchGroups(commands.Cog):
             replay_file.seek(0)
             files = {'file': replay_file}
 
-            r = await self._bc_post_request(auth_token, endpoint, params=params, files=files)
+            r = self._bc_post_request(auth_token, endpoint, params=params, files=files)
         
             status_code = r.status_code
             data = r.json()
@@ -559,7 +609,7 @@ class BCMatchGroups(commands.Cog):
                     payload = {
                         'group': subgroup_id
                     }
-                    r = await self._bc_patch_request(auth_token, '/replays/{}'.format(data['id']), json=payload)
+                    r = self._bc_patch_request(auth_token, '/replays/{}'.format(data['id']), json=payload)
                     if r.status_code == 204:
                         replay_ids_in_group.append(data['id'])
                     else:
@@ -578,7 +628,7 @@ class BCMatchGroups(commands.Cog):
             payload = {
                 'title': 'Game {}'.format(game_number)
             }
-            r = await self._bc_patch_request(auth_token, endpoint, json=payload)
+            r = self._bc_patch_request(auth_token, endpoint, json=payload)
             status_code = r.status_code
 
             if status_code == 204:
