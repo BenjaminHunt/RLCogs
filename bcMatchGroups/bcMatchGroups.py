@@ -188,7 +188,7 @@ class BCMatchGroups(commands.Cog):
             summary, code = match_reported
             link = "https://ballchasing.com/group/{}".format(code)
             embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
-            await bc_status_msg.edit(embed)
+            await bc_status_msg.edit(embed=embed)
             return
 
         replays_found = await self._find_match_replays(ctx, member, match)
