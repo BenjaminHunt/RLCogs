@@ -282,8 +282,6 @@ class BCMatchGroups(commands.Cog):
         if 'list' not in data:
             return None
 
-        await ctx.send()
-
         match_group_code = ''
         opposing_team = ''
         for group in data['list']:
