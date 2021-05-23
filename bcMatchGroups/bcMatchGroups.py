@@ -182,7 +182,7 @@ class BCMatchGroups(commands.Cog):
         
         bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
         auth_token = await self._get_member_bc_token(bc_group_owner)
-        match_reported = await self._check_if_reported(ctx.guild, match['home'], match['matchDay'], auth_token)
+        match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
 
         if match_reported:
             summary, code = match_reported
@@ -272,13 +272,17 @@ class BCMatchGroups(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
     # other functions
-    async def _check_if_reported(self, guild, franchise_team, match_day, auth_token):
+    async def _check_if_reported(self, ctx, franchise_team, match_day, auth_token):
+        guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
         top_level_group_info = await self._get_top_level_group(guild, team_role)
 
-        data = self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
+        r = self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
+        data = r.json()
         if 'list' not in data:
             return None
+
+        await ctx.send()
 
         match_group_code = ''
         opposing_team = ''
@@ -288,7 +292,8 @@ class BCMatchGroups(commands.Cog):
                 opposing_team = group['name'].split(' vs ')[-1]
                 break 
         
-        data = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
+        r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
+        data = r.json()
         if 'list' not in data:
             return None
 
