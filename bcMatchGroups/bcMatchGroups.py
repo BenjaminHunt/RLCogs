@@ -283,7 +283,7 @@ class BCMatchGroups(commands.Cog):
         match_group_code = ''
         opposing_team = ''
         for group in data['list']:
-            if '{}'.format(match_day).zfill(2) in group['name']
+            if '{}'.format(match_day).zfill(2) in group['name']:
                 match_group_code = group['id']
                 opposing_team = group['name'].split(' vs ')[-1]
                 break 
