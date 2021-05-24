@@ -101,6 +101,7 @@ class AccountManager(commands.Cog):
                 await self._save_account_register(account_register)
                 await ctx.send("Done.")
                 return
+            valid_account = False
 
         if valid_account:
             username, appearances = valid_account
