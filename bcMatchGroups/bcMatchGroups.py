@@ -288,7 +288,10 @@ class BCMatchGroups(commands.Cog):
                 match_group_code = group['id']
                 opposing_team = group['name'].split(' vs ')[-1]
                 break 
-        
+
+        if not match_group_code:
+            return None
+            
         r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
         data = r.json()
         if 'list' not in data:
