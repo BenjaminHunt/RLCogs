@@ -296,8 +296,8 @@ class BCMatchGroups(commands.Cog):
 
         franchise_wins = 0
         franchise_losses = 0
-        for replay in data['list']:
-            try:
+        if 'list' in data:
+            for replay in data['list']:
                 is_blue = franchise_team.lower() in replay['blue']['name'].lower()
                 blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
                 orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
@@ -312,11 +312,12 @@ class BCMatchGroups(commands.Cog):
                         franchise_losses += 1
                     else:
                         franchise_wins += 1
-            except:
-                pass
         
-        summary = "**{}** {} - {} **{}**".format(franchise_team, franchise_wins, franchise_losses, opposing_team)
-        return summary, match_group_code
+        if franchise_wins or franchise_losses:    
+            summary = "**{}** {} - {} **{}**".format(franchise_team, franchise_wins, franchise_losses, opposing_team)
+            return summary, match_group_code
+        
+        return None
 
             
     async def _find_match_replays(self, ctx, member, match, team_players=None):
