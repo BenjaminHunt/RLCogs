@@ -299,6 +299,7 @@ class BCMatchGroups(commands.Cog):
 
         franchise_wins = 0
         franchise_losses = 0
+        await ctx.send(data['count'])
         for replay in data['list']:
             await ctx.send(replay['blue'])
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
