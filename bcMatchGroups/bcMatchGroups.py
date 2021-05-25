@@ -297,20 +297,23 @@ class BCMatchGroups(commands.Cog):
         franchise_wins = 0
         franchise_losses = 0
         for replay in data['list']:
-            is_blue = franchise_team.lower() in replay['blue']['name'].lower()
-            blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
-            orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
+            try:
+                is_blue = franchise_team.lower() in replay['blue']['name'].lower()
+                blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
+                orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
 
-            if is_blue:
-                if blue_goals > orange_goals:
-                    franchise_wins += 1
+                if is_blue:
+                    if blue_goals > orange_goals:
+                        franchise_wins += 1
+                    else:
+                        franchise_losses += 1
                 else:
-                    franchise_losses += 1
-            else:
-                if blue_goals > orange_goals:
-                    franchise_losses += 1
-                else:
-                    franchise_wins += 1
+                    if blue_goals > orange_goals:
+                        franchise_losses += 1
+                    else:
+                        franchise_wins += 1
+            except:
+                pass
         
         summary = "**{}** {} - {} **{}**".format(franchise_team, franchise_wins, franchise_losses, opposing_team)
         return summary, match_group_code
