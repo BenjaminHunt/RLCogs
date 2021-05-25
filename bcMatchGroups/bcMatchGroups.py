@@ -291,7 +291,7 @@ class BCMatchGroups(commands.Cog):
 
         if not match_group_code:
             return None
-            
+
         r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
         data = r.json()
         if 'list' not in data:
@@ -302,7 +302,6 @@ class BCMatchGroups(commands.Cog):
 
         franchise_wins = 0
         franchise_losses = 0
-        await ctx.send(data['count'])
         for replay in data['list']:
             await ctx.send(replay['blue'])
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
