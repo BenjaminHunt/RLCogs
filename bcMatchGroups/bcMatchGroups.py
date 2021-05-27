@@ -238,7 +238,16 @@ class BCMatchGroups(commands.Cog):
         # embed.set_thumbnail(url=emoji_url)
         await bc_status_msg.edit(embed=embed)
 
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def testwp(self, ctx, wins, losses):
+        color = self._get_win_percentage_color(wins, losses)
+        description = "**Wins:** {}\n**Losses:** {}\n**WP:** {}".format(wins, losses, (wins)/(wins+losses))
+        embed = discord.Embed(title="WP Color Test", description=description, color=color)
 
+        await ctx.send(embed=embed)
+    
     # ballchasing functions
     def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
@@ -715,21 +724,21 @@ class BCMatchGroups(commands.Cog):
         wp = wins/(wins+losses)
         
         if wp == 0:
-            return red 
+            return discord.Color(red)
         if wp == 0.5:
-            return yellow
+            return discord.Color(yellow)
         if wp == 1:
-            return green
+            return discord.Color(green)
         
         blue_scale = 0
         if wp < 0.5:
             wp_adj = wp/0.5
             red_scale = 255
             green_scale = 255*wp_adj
-            return (red_scale, yellow_scale, blue_scale)
+            return discord.Color(red_scale, yellow_scale, blue_scale)
         else:
             #sub_wp = ((wp-50)/50)*100
             wp_adj = (wp-0.5)/0.5
             green_scale = 255
             red_scale = 255 - (255*wp_adj)
-            return (red_scale, yellow_scale, blue_scale)
+            return discord.Color(red_scale, yellow_scale, blue_scale)
