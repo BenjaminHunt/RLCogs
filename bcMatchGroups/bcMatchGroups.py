@@ -274,7 +274,11 @@ class BCMatchGroups(commands.Cog):
         )
 
         embed.add_field(name="Team", value="{}\n".format("\n".join(teams)), inline=True)
-        embed.add_field(name="Tier", value="{}\n".format("\n".join(tiers)), inline=True)
+        # TODO: fix role list
+        try:
+            embed.add_field(name="Tier", value="{}\n".format("\n".join(tiers)), inline=True)
+        except:
+            pass
         embed.add_field(name="Results", value="{}\n".format("\n".join(results)), inline=True)
         emoji_url = ctx.guild.icon_url
         if emoji_url:
