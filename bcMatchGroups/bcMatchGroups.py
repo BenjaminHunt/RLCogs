@@ -716,7 +716,7 @@ class BCMatchGroups(commands.Cog):
         tokens[str(member.id)] = token
         await self.config.BCTokens.set(tokens)
     
-    def _get_win_percentage_color(self, wins, losses):
+    def _get_win_percentage_color(self, wins:float, losses:float):
         red = (255, 0, 0)
         yellow = (255, 255, 0)
         green = (0, 255, 0)
