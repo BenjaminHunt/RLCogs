@@ -261,7 +261,7 @@ class BCMatchGroups(commands.Cog):
             total_losses += losses
             
             teams.append(team_name)
-            teirs.append(self._get_team_tier(team_role))
+            tiers.append(self._get_team_tier(team_role))
             results.append("{}-{}".format(wins, losses))
         
         teams.append("Franchise")
