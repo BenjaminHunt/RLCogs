@@ -708,3 +708,28 @@ class BCMatchGroups(commands.Cog):
         tokens[str(member.id)] = token
         await self.config.BCTokens.set(tokens)
     
+    def _get_win_percentage_color(self, wins, losses):
+        red = (255, 0, 0)
+        yellow = (255, 255, 0)
+        green = (0, 255, 0)
+        wp = wins/(wins+losses)
+        
+        if wp == 0:
+            return red 
+        if wp == 0.5:
+            return yellow
+        if wp == 1:
+            return green
+        
+        blue_scale = 0
+        if wp < 0.5:
+            wp_adj = wp/0.5
+            red_scale = 255
+            green_scale = 255*wp_adj
+            return (red_scale, yellow_scale, blue_scale)
+        else:
+            #sub_wp = ((wp-50)/50)*100
+            wp_adj = (wp-0.5)/0.5
+            green_scale = 255
+            red_scale = 255 - (255*wp_adj)
+            return (red_scale, yellow_scale, blue_scale)
