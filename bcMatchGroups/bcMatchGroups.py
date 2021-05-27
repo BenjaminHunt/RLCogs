@@ -249,7 +249,7 @@ class BCMatchGroups(commands.Cog):
 
         teams = []
         tiers = []
-        results = []
+        all_results = []
         total_wins = 0
         total_losses = 0
         auth_token = await self._get_member_bc_token(ctx.message.author)
@@ -262,11 +262,11 @@ class BCMatchGroups(commands.Cog):
             
             teams.append(team_name)
             tiers.append(self._get_team_tier(team_role))
-            results.append("{}-{}".format(wins, losses))
+            all_results.append("{}-{}".format(wins, losses))
         
         teams.append("Franchise")
         tiers.append("-")
-        results.append("{}-{}".format(total_wins, total_losses))
+        all_results.append("{}-{}".format(total_wins, total_losses))
 
         embed = discord.embed(
             title="Franchise Results for Match Day {}".format(match_day),
