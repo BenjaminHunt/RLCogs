@@ -239,7 +239,6 @@ class BCMatchGroups(commands.Cog):
         await bc_status_msg.edit(embed=embed)
 
     @commands.command()
-    @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def testwp(self, ctx, wins:int, losses:int):
         color = self._get_win_percentage_color(wins, losses)
@@ -735,10 +734,10 @@ class BCMatchGroups(commands.Cog):
             wp_adj = wp/0.5
             red_scale = 255
             green_scale = 255*wp_adj
-            return discord.Color.from_rgb(red_scale, yellow_scale, blue_scale)
+            return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
         else:
             #sub_wp = ((wp-50)/50)*100
             wp_adj = (wp-0.5)/0.5
             green_scale = 255
             red_scale = 255 - (255*wp_adj)
-            return discord.Color.from_rgb(red_scale, yellow_scale, blue_scale)
+            return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
