@@ -246,6 +246,14 @@ class BCMatchGroups(commands.Cog):
 
         if not match_day:
             match_day = await self._get_match_day(ctx.guild)
+        
+        await ctx.send("_Finding franchise results for match day {}..._".format(match_day))
+
+        trs = await self._get_team_roles(ctx.guild)
+        team_roles = []
+        for role in ctx.guild.roles:
+            if role in trs:
+                team_roles.append(role)
 
         teams = []
         tiers = []
@@ -253,7 +261,7 @@ class BCMatchGroups(commands.Cog):
         total_wins = 0
         total_losses = 0
         auth_token = await self._get_member_bc_token(ctx.message.author)
-        for team_role in await self._get_team_roles(ctx.guild):
+        for team_role in team_roles:
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
             wins, losses = results
