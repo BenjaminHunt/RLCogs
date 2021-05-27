@@ -238,6 +238,48 @@ class BCMatchGroups(commands.Cog):
         # embed.set_thumbnail(url=emoji_url)
         await bc_status_msg.edit(embed=embed)
 
+    @commands.command(aliases=['mds'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def matchDaySummary(self, ctx, match_day=None):
+        # team_roles = await self._get_team_roles(ctx.guild)
+
+        if not match_day:
+            match_day = await self._get_match_day(ctx.guild)
+
+        teams = []
+        tiers = []
+        results = []
+        total_wins = 0
+        total_losses = 0
+        for team_role in await self._get_team_roles(ctx.guild):
+            results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+            wins, losses = results
+            total_wins += wins 
+            total_losses += losses
+            
+            teams.append(self._get_team_name(team_role))
+            teirs.append(self._get_team_tier(team_role))
+            results.append("{}-{}".format(wins, losses))
+        
+        teams.append("Franchise")
+        tiers.append("-")
+        results.append("{}-{}".format(total_wins, total_losses))
+
+        embed = discord.embed(
+            title="Franchise Results for Match Day {}".format(match_day),
+            color=self._get_win_percentage_color(total_wins, total_losses)
+        )
+
+        embed.add_field(name="Team", value="{}\n".format("\n".join(teams)), inline=True)
+        embed.add_field(name="Tier", value="{}\n".format("\n".join(tiers)), inline=True)
+        embed.add_field(name="Results", value="{}\n".format("\n".join(results)), inline=True)
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        await ctx.send(embed=embed)
+
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
     async def testwp(self, ctx, wins:int, losses:int):
@@ -281,6 +323,60 @@ class BCMatchGroups(commands.Cog):
             url += "?{}".format(params)
         
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+
+
+    # TODO: reduce duplicate code with _check_if_reported
+    async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
+        guild = ctx.guild
+        team_role = await self._get_team_role(guild, franchise_team)
+        top_level_group_info = await self._get_top_level_group(guild, team_role)
+
+        r = self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
+        data = r.json()
+        if 'list' not in data:
+            return None
+
+        match_group_code = ''
+        opposing_team = ''
+        for group in data['list']:
+            if '{}'.format(match_day).zfill(2) in group['name']:
+                match_group_code = group['id']
+                opposing_team = group['name'].split(' vs ')[-1]
+                break 
+
+        if not match_group_code:
+            return None
+
+        r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
+        data = r.json()
+        if 'list' not in data:
+            return None
+        
+        if not data['list']:
+            return None
+
+        franchise_wins = 0
+        franchise_losses = 0
+        for replay in data['list']:
+            is_blue = franchise_team.lower() in replay['blue']['name'].lower()
+            blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
+            orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
+
+            if is_blue:
+                if blue_goals > orange_goals:
+                    franchise_wins += 1
+                else:
+                    franchise_losses += 1
+            else:
+                if blue_goals > orange_goals:
+                    franchise_losses += 1
+                else:
+                    franchise_wins += 1
+        
+        if franchise_wins or franchise_losses:
+            return wins, losses
+        return 0, 0
+    
 
     # other functions
     async def _check_if_reported(self, ctx, franchise_team, match_day, auth_token):
@@ -438,6 +534,12 @@ class BCMatchGroups(commands.Cog):
         if role.name[-1] == ')' and ' (' in role.name:
             return ' '.join((role.name).split()[:-1])
         return role.name
+    
+    def _get_team_tier(self, role):
+        if role.name[-1] == ')' and ' (' in role.name:
+            opi = role.name.index('(')+1
+            cpi = role.name.index(')')
+        return None
 
     def is_match_replay(self, match, replay_data):
         home_team = match['home']       # match cog
