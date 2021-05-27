@@ -268,7 +268,7 @@ class BCMatchGroups(commands.Cog):
         tiers.append("-")
         all_results.append("{}-{}".format(total_wins, total_losses))
 
-        embed = discord.embed(
+        embed = discord.Embed(
             title="Franchise Results for Match Day {}".format(match_day),
             color=self._get_win_percentage_color(total_wins, total_losses)
         )
