@@ -716,11 +716,11 @@ class BCMatchGroups(commands.Cog):
         tokens[str(member.id)] = token
         await self.config.BCTokens.set(tokens)
     
-    def _get_win_percentage_color(self, wins:float, losses:float):
+    def _get_win_percentage_color(self, wins:int, losses:int):
         red = (255, 0, 0)
         yellow = (255, 255, 0)
         green = (0, 255, 0)
-        wp = wins/(wins+losses)
+        wp = float(wins)/(wins+losses)
         
         if wp == 0:
             return discord.Color.from_rgb(*red)
