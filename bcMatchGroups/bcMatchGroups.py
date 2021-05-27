@@ -253,12 +253,13 @@ class BCMatchGroups(commands.Cog):
         total_wins = 0
         total_losses = 0
         for team_role in await self._get_team_roles(ctx.guild):
+            team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
             wins, losses = results
             total_wins += wins 
             total_losses += losses
             
-            teams.append(self._get_team_name(team_role))
+            teams.append(team_name)
             teirs.append(self._get_team_tier(team_role))
             results.append("{}-{}".format(wins, losses))
         
