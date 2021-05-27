@@ -722,7 +722,7 @@ class BCMatchGroups(commands.Cog):
     
     def _get_win_percentage_color(self, wins:int, losses:int):
         if not (wins or losses):
-            return None
+            return discord.Color.default()
         red = (255, 0, 0)
         yellow = (255, 255, 0)
         green = (0, 255, 0)
