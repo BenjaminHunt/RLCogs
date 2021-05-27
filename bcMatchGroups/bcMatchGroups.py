@@ -348,7 +348,7 @@ class BCMatchGroups(commands.Cog):
         r = self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
         data = r.json()
         if 'list' not in data:
-            return None
+            return 0, 0
 
         match_group_code = ''
         opposing_team = ''
@@ -364,10 +364,10 @@ class BCMatchGroups(commands.Cog):
         r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
         data = r.json()
         if 'list' not in data:
-            return None
+            return 0, 0
         
         if not data['list']:
-            return None
+            return 0, 0
 
         franchise_wins = 0
         franchise_losses = 0
