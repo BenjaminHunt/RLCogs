@@ -252,6 +252,7 @@ class BCMatchGroups(commands.Cog):
         results = []
         total_wins = 0
         total_losses = 0
+        auth_token = await self._get_member_bc_token(ctx.message.author)
         for team_role in await self._get_team_roles(ctx.guild):
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
