@@ -254,6 +254,7 @@ class BCMatchGroups(commands.Cog):
         for role in ctx.guild.roles:
             if role in trs:
                 team_roles.append(role)
+        team_roles.reverse()
 
         teams = []
         tiers = []
