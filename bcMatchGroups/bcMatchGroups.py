@@ -273,9 +273,9 @@ class BCMatchGroups(commands.Cog):
             tiers.append(self._get_team_tier(team_role))
             all_results.append("{}-{}".format(wins, losses))
         
-        teams.append("Franchise")
+        teams.append("**Franchise**")
         tiers.append("-")
-        all_results.append("{}-{}".format(total_wins, total_losses))
+        all_results.append("**{}-{}**".format(total_wins, total_losses))
 
         embed = discord.Embed(
             title="Franchise Results for Match Day {}".format(match_day),
