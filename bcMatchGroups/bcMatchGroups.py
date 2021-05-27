@@ -241,7 +241,7 @@ class BCMatchGroups(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def testwp(self, ctx, wins, losses):
+    async def testwp(self, ctx, wins:int, losses:int):
         color = self._get_win_percentage_color(wins, losses)
         description = "**Wins:** {}\n**Losses:** {}\n**WP:** {}".format(wins, losses, (wins)/(wins+losses))
         embed = discord.Embed(title="WP Color Test", description=description, color=color)
