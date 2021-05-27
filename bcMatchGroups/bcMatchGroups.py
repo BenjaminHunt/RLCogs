@@ -724,21 +724,21 @@ class BCMatchGroups(commands.Cog):
         wp = wins/(wins+losses)
         
         if wp == 0:
-            return discord.Color(*red)
+            return discord.Color.from_rgb(*red)
         if wp == 0.5:
-            return discord.Color(*yellow)
+            return discord.Color.from_rgb(*yellow)
         if wp == 1:
-            return discord.Color(*green)
+            return discord.Color.from_rgb(*green)
         
         blue_scale = 0
         if wp < 0.5:
             wp_adj = wp/0.5
             red_scale = 255
             green_scale = 255*wp_adj
-            return discord.Color(red_scale, yellow_scale, blue_scale)
+            return discord.Color.from_rgb(red_scale, yellow_scale, blue_scale)
         else:
             #sub_wp = ((wp-50)/50)*100
             wp_adj = (wp-0.5)/0.5
             green_scale = 255
             red_scale = 255 - (255*wp_adj)
-            return discord.Color(red_scale, yellow_scale, blue_scale)
+            return discord.Color.from_rgb(red_scale, yellow_scale, blue_scale)
