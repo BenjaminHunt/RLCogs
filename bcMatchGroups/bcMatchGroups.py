@@ -274,7 +274,6 @@ class BCMatchGroups(commands.Cog):
         )
 
         embed.add_field(name="Team", value="{}\n".format("\n".join(teams)), inline=True)
-        # TODO: fix role list
         try:
             embed.add_field(name="Tier", value="{}\n".format("\n".join(tiers)), inline=True)
         except:
