@@ -359,7 +359,7 @@ class BCMatchGroups(commands.Cog):
                 break 
 
         if not match_group_code:
-            return None
+            return 0, 0
 
         r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
         data = r.json()
