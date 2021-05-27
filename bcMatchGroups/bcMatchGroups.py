@@ -720,7 +720,7 @@ class BCMatchGroups(commands.Cog):
         red = (255, 0, 0)
         yellow = (255, 255, 0)
         green = (0, 255, 0)
-        wp = float(wins)/(wins+losses)
+        wp = wins/(wins+losses)
         
         if wp == 0:
             return discord.Color.from_rgb(*red)
@@ -733,11 +733,11 @@ class BCMatchGroups(commands.Cog):
         if wp < 0.5:
             wp_adj = wp/0.5
             red_scale = 255
-            green_scale = 255*wp_adj
+            green_scale = round(255*wp_adj)
             return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
         else:
             #sub_wp = ((wp-50)/50)*100
             wp_adj = (wp-0.5)/0.5
             green_scale = 255
-            red_scale = 255 - (255*wp_adj)
+            red_scale = 255 - round(255*wp_adj)
             return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
