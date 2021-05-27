@@ -442,7 +442,10 @@ class BCMatchGroups(commands.Cog):
         return home_team_found and away_team_found
     
     def is_full_replay(self, replay_data):
-        if replay_data['duration'] < 300:
+        if 'duration' in replay_data:
+            if replay_data['duration'] < 300:
+                return False
+        else:
             return False
         
         blue_goals = replay_data['blue']['goals'] if 'goals' in replay_data['blue'] else 0
