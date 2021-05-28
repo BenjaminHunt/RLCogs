@@ -355,11 +355,11 @@ class BCMatchGroups(commands.Cog):
             match_days.append(str(match_day))
             opponents.append("MD {} vs {}".format(match_day, opponent))
             if wins > losses:
-                all_results.append("{}-{} | W".format(wins, losses))
+                all_results.append("{}-{} W".format(wins, losses))
             elif losses > wins:
-                all_results.append("{}-{} | L".format(wins, losses))
+                all_results.append("{}-{} L".format(wins, losses))
             else:
-                all_results.append("{}-{} | T".format(wins, losses))
+                all_results.append("{}-{} T".format(wins, losses))
         
         match_days.append("")
         opponents.append("**Total**")
