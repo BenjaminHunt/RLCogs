@@ -289,7 +289,7 @@ class BCMatchGroups(commands.Cog):
         
         teams.append("**Franchise**")
         tiers.append("-")
-        all_results.append("**{}-{}**".format(total_wins, total_losses))
+        all_results.append("**{}-{} ({})**".format(total_wins, total_losses, self._get_wp_str(total_wins, total_losses)))
 
         embed = discord.Embed(
             title="Franchise Results for Match Day {}".format(match_day),
@@ -365,8 +365,8 @@ class BCMatchGroups(commands.Cog):
         
         match_days.append("")
         opponents.append("**Total**")
-        wp = round((total_wins/(total_wins+total_losses))*100, 2)
-        all_results.append("**{}-{} ({}%)**".format(total_wins, total_losses, wp))
+        wp = self._get_wp_str(total_wins, total_losses)
+        all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp))
 
         ## ################
 
@@ -398,7 +398,7 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(embed=embed)
     
-    # ballchasing functions
+# ballchasing functions
     def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
@@ -429,7 +429,7 @@ class BCMatchGroups(commands.Cog):
         
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
-
+# other functions
     # TODO: reduce duplicate code with _check_if_reported
     async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
         guild = ctx.guild
@@ -484,8 +484,6 @@ class BCMatchGroups(commands.Cog):
             return franchise_wins, franchise_losses, opposing_team
         return 0, 0, opposing_team
     
-
-    # other functions
     async def _check_if_blue(self, replay, team_role):
         franchise_team = self._get_team_name(team_role)
         try:
@@ -564,8 +562,7 @@ class BCMatchGroups(commands.Cog):
             return summary, match_group_code
         
         return None
-
-            
+     
     async def _find_match_replays(self, ctx, member, match, team_players=None):
         if not team_players:
             team_players = [member]
@@ -927,7 +924,42 @@ class BCMatchGroups(commands.Cog):
                 roster.append(member)
         return roster 
     
-    # json dict
+    def _get_wp(self, wins, losses):
+        return wins/(wins+losses)
+
+    def _get_wp_str(self, wins, losses, round_to=2):
+        return "{}%".format(round(self._get_wp(wins, losses)*100, round_to))
+
+    
+    def _get_win_percentage_color(self, wins:int, losses:int):
+        if not (wins or losses):
+            return discord.Color.default()
+        red = (255, 0, 0)
+        yellow = (255, 255, 0)
+        green = (0, 255, 0)
+        wp = self._get_wp(wins, losses)
+        
+        if wp == 0:
+            return discord.Color.from_rgb(*red)
+        if wp == 0.5:
+            return discord.Color.from_rgb(*yellow)
+        if wp == 1:
+            return discord.Color.from_rgb(*green)
+        
+        blue_scale = 0
+        if wp < 0.5:
+            wp_adj = wp/0.5
+            red_scale = 255
+            green_scale = round(255*wp_adj)
+            return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
+        else:
+            #sub_wp = ((wp-50)/50)*100
+            wp_adj = (wp-0.5)/0.5
+            green_scale = 255
+            red_scale = 255 - round(255*wp_adj)
+            return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
+
+# json dict
     async def _get_match_day(self, guild):
         return await self.config.guild(guild).MatchDay()
     
@@ -969,30 +1001,3 @@ class BCMatchGroups(commands.Cog):
         tokens[str(member.id)] = token
         await self.config.BCTokens.set(tokens)
     
-    def _get_win_percentage_color(self, wins:int, losses:int):
-        if not (wins or losses):
-            return discord.Color.default()
-        red = (255, 0, 0)
-        yellow = (255, 255, 0)
-        green = (0, 255, 0)
-        wp = wins/(wins+losses)
-        
-        if wp == 0:
-            return discord.Color.from_rgb(*red)
-        if wp == 0.5:
-            return discord.Color.from_rgb(*yellow)
-        if wp == 1:
-            return discord.Color.from_rgb(*green)
-        
-        blue_scale = 0
-        if wp < 0.5:
-            wp_adj = wp/0.5
-            red_scale = 255
-            green_scale = round(255*wp_adj)
-            return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
-        else:
-            #sub_wp = ((wp-50)/50)*100
-            wp_adj = (wp-0.5)/0.5
-            green_scale = 255
-            red_scale = 255 - round(255*wp_adj)
-            return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
