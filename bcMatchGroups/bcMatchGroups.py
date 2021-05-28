@@ -336,7 +336,7 @@ class BCMatchGroups(commands.Cog):
         embed = discord.Embed(
             title="{} Season Results".format(team_name),
             description="_Finding season results for the {}..._".format(team_name),
-            color=self._get_win_percentage_color(0, 0)
+            color=team_role.color  # self._get_win_percentage_color(0, 0)
         )
         emoji_url = ctx.guild.icon_url
         if emoji_url:
@@ -383,7 +383,7 @@ class BCMatchGroups(commands.Cog):
 
         embed = discord.Embed(
             title="{} Season Results".format(team_name),
-            color=self._get_win_percentage_color(total_wins, total_losses)
+            color=team_role.color  # self._get_win_percentage_color(total_wins, total_losses)
         )
 
         bc_link = "https://ballchasing.com/group/{}".format(group_code)
