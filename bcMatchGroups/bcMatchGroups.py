@@ -363,7 +363,8 @@ class BCMatchGroups(commands.Cog):
         
         match_days.append("")
         opponents.append("**Total**")
-        all_results.append("**{}-{}**".format(total_wins, total_losses))
+        wp = round((total_wins/(total_wins+total_losses))*100, 2)
+        all_results.append("**{}-{} ({}%)**".format(total_wins, total_losses, wp))
 
         ## ################
 
