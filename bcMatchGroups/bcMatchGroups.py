@@ -289,7 +289,11 @@ class BCMatchGroups(commands.Cog):
         
         teams.append("**Franchise**")
         tiers.append("-")
-        all_results.append("**{}-{} ({})**".format(total_wins, total_losses, self._get_wp_str(total_wins, total_losses)))
+        wp_str = self._get_wp_str(total_wins, total_losses)
+        if wp_str:
+            all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp_str))
+        else:
+            all_results.append("**{}-{}**".format(total_wins, total_losses))
 
         embed = discord.Embed(
             title="Franchise Results for Match Day {}".format(match_day),
@@ -365,8 +369,12 @@ class BCMatchGroups(commands.Cog):
         
         match_days.append("")
         opponents.append("**Total**")
-        wp = self._get_wp_str(total_wins, total_losses)
-        all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp))
+        wp_str = self._get_wp_str(total_wins, total_losses)
+        if wp_str:
+            all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp_str))
+        else:
+            all_results.append("**{}-{}**".format(total_wins, total_losses))
+            
 
         ## ################
 
@@ -928,9 +936,10 @@ class BCMatchGroups(commands.Cog):
         return wins/(wins+losses)
 
     def _get_wp_str(self, wins, losses, round_to=2):
-        return "{}%".format(round(self._get_wp(wins, losses)*100, round_to))
+        if wins + losses:
+            return "{}%".format(round(self._get_wp(wins, losses)*100, round_to))
+        return ""
 
-    
     def _get_win_percentage_color(self, wins:int, losses:int):
         if not (wins or losses):
             return discord.Color.default()
