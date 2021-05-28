@@ -423,7 +423,7 @@ class BCMatchGroups(commands.Cog):
 
     async def _get_replay_player_ids(self, replay_data, color):
         players = []
-        for player in replay_data[color]:
+        for player in replay_data[color]['players']:
             players.append([player['id']['platform'], player['id']['id']])
         return players
 
