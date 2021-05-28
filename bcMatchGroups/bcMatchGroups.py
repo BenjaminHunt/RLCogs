@@ -6,8 +6,14 @@ import discord
 import asyncio
 import requests
 import random
-import thread
 import urllib.parse
+
+try:
+    import thread
+except ImportError:
+    from pip._internal import main as pip
+    pip(['install', '--user', 'thread'])
+    import thread
 
 from redbot.core import Config
 from redbot.core import commands
