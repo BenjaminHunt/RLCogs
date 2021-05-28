@@ -245,7 +245,7 @@ class BCMatchGroups(commands.Cog):
         # team_roles = await self._get_team_roles(ctx.guild)
         
         if mds == 'last':
-            match_day = await self._get_match_day(ctx.guild) - 1
+            match_day = int(await self._get_match_day(ctx.guild)) - 1
 
         if not match_day:
             match_day = await self._get_match_day(ctx.guild)
