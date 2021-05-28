@@ -6,6 +6,7 @@ import discord
 import asyncio
 import requests
 import random
+import thread
 import urllib.parse
 
 from redbot.core import Config
@@ -263,77 +264,22 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None):
         """Returns Franchise performance for the current, or provided match day"""
-        # team_roles = await self._get_team_roles(ctx.guild)
-        
-        if match_day == 'last':
-            match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
-
-        if not match_day:
-            match_day = await self._get_match_day(ctx.guild)
-        
-        embed = discord.Embed(
-            title="Franchise Results for Match Day {}".format(match_day),
-            description="_Finding franchise results for match day {}..._".format(match_day),
-            color=self._get_win_percentage_color(0, 0)
-        )
-        emoji_url = ctx.guild.icon_url
-        if emoji_url:
-            embed.set_thumbnail(url=emoji_url)
-        output_msg = await ctx.send(embed=embed)
-
-        trs = await self._get_team_roles(ctx.guild)
-        team_roles = []
-        for role in ctx.guild.roles:
-            if role in trs:
-                team_roles.append(role)
-        team_roles.reverse()
-
-        teams = []
-        tiers = []
-        all_results = []
-        total_wins = 0
-        total_losses = 0
-        auth_token = await self._get_member_bc_token(ctx.message.author)
-        use_invoker_auth_token = True
-        if not auth_token:
-            use_invoker_auth_token = False
-
-        for team_role in team_roles:
-            if not use_invoker_auth_token:
-                auth_token = await self._get_member_bc_token((await self._get_top_level_group(team_role))[0])
-            team_name = self._get_team_name(team_role)
-            results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-            wins, losses, opponent = results
-            total_wins += wins 
-            total_losses += losses
-            
-            teams.append(team_name)
-            tiers.append(self._get_team_tier(team_role))
-            all_results.append("{}-{}".format(wins, losses))
-        
-        teams.append("**Franchise**")
-        tiers.append("-")
-        wp_str = self._get_wp_str(total_wins, total_losses)
-        if wp_str:
-            all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp_str))
-        else:
-            all_results.append("**{}-{}**".format(total_wins, total_losses))
-
-        embed = discord.Embed(
-            title="Franchise Results for Match Day {}".format(match_day),
-            color=self._get_win_percentage_color(total_wins, total_losses)
-        )
-
-        embed.add_field(name="Team", value="{}\n".format("\n".join(teams)), inline=True)
         try:
-            embed.add_field(name="Tier", value="{}\n".format("\n".join(tiers)), inline=True)
+            thread.start_new_thread(await self._match_day_summary, (ctx, match_day))
         except:
-            pass
-        embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
-        if emoji_url:
-            embed.set_thumbnail(url=emoji_url)
-        
-        await output_msg.edit(embed=embed)
+            await ctx.send(":x: An error occured while running this command.")
+            await self._match_day_summary(ctx, match_day)
+    
+    @commands.command()
+    @commands.guild_only()
+    async def tmds(self, ctx, match_day=None):
+        """Returns Franchise performance for the current, or provided match day"""
+        try:
+            thread.start_new_thread(await self._match_day_summary, (ctx, match_day))
+        except:
+            await ctx.send(":x: An error occured while running this command.")
+            await self._match_day_summary(ctx, match_day)
+    
 
     @commands.command(aliases=['gsp', 'getSeasonResults', 'gsr'])
     @commands.guild_only()
@@ -462,6 +408,79 @@ class BCMatchGroups(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
 # other functions
+    async def _match_day_summary(self, ctx, match_day=None):
+        # team_roles = await self._get_team_roles(ctx.guild)
+        
+        if match_day == 'last':
+            match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
+
+        if not match_day:
+            match_day = await self._get_match_day(ctx.guild)
+        
+        embed = discord.Embed(
+            title="Franchise Results for Match Day {}".format(match_day),
+            description="_Finding franchise results for match day {}..._".format(match_day),
+            color=self._get_win_percentage_color(0, 0)
+        )
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        output_msg = await ctx.send(embed=embed)
+
+        trs = await self._get_team_roles(ctx.guild)
+        team_roles = []
+        for role in ctx.guild.roles:
+            if role in trs:
+                team_roles.append(role)
+        team_roles.reverse()
+
+        teams = []
+        tiers = []
+        all_results = []
+        total_wins = 0
+        total_losses = 0
+        auth_token = await self._get_member_bc_token(ctx.message.author)
+        use_invoker_auth_token = True
+        if not auth_token:
+            use_invoker_auth_token = False
+
+        for team_role in team_roles:
+            if not use_invoker_auth_token:
+                auth_token = await self._get_member_bc_token((await self._get_top_level_group(team_role))[0])
+            team_name = self._get_team_name(team_role)
+            results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+            wins, losses, opponent = results
+            total_wins += wins 
+            total_losses += losses
+            
+            teams.append(team_name)
+            tiers.append(self._get_team_tier(team_role))
+            all_results.append("{}-{}".format(wins, losses))
+        
+        teams.append("**Franchise**")
+        tiers.append("-")
+        wp_str = self._get_wp_str(total_wins, total_losses)
+        if wp_str:
+            all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp_str))
+        else:
+            all_results.append("**{}-{}**".format(total_wins, total_losses))
+
+        embed = discord.Embed(
+            title="Franchise Results for Match Day {}".format(match_day),
+            color=self._get_win_percentage_color(total_wins, total_losses)
+        )
+
+        embed.add_field(name="Team", value="{}\n".format("\n".join(teams)), inline=True)
+        try:
+            embed.add_field(name="Tier", value="{}\n".format("\n".join(tiers)), inline=True)
+        except:
+            pass
+        embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        await output_msg.edit(embed=embed)
+    
     # TODO: reduce duplicate code with _check_if_reported
     async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
         guild = ctx.guild
