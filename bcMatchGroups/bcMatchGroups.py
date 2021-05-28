@@ -243,6 +243,9 @@ class BCMatchGroups(commands.Cog):
     async def matchDaySummary(self, ctx, match_day=None):
         """Returns Franchise performance for the current, or provided match day"""
         # team_roles = await self._get_team_roles(ctx.guild)
+        
+        if mds == 'last':
+            match_day = await self._get_match_day(ctx.guild) - 1
 
         if not match_day:
             match_day = await self._get_match_day(ctx.guild)
