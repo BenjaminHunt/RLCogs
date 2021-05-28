@@ -320,9 +320,9 @@ class BCMatchGroups(commands.Cog):
             for role in team_roles:
                 if role in member.roles:
                     team_role = role
-                    team_name = self._get_team_name(team_role)
         if not team_role:
             return await ctx.send(":x: Team not found.")
+        team_name = self._get_team_name(team_role)
 
         embed = discord.Embed(
             title="{} Season Results".format(team_name),
