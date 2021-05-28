@@ -334,6 +334,11 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         output_msg = await ctx.send(embed=embed)
 
+        member_id, group_code = (await self._get_top_level_group(ctx.guild, team_role))
+        auth_token = await self._get_member_bc_token(member)
+        if not auth_token:
+            auth_token = await self._get_member_bc_token(member_id)
+
         ## Get match history
         match_days = []
         opponents = []
@@ -363,9 +368,7 @@ class BCMatchGroups(commands.Cog):
             color=self._get_win_percentage_color(total_wins, total_losses)
         )
 
-        group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
         bc_link = "https://ballchasing.com/group/{}".format(group_code)
-
         embed.add_field(name="Opponent", value="{}\n".format("\n".join(opponents)), inline=True)
         embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
         embed.add_field(name="Ballchasing Group", value=bc_link, inline=False)
