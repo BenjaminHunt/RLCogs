@@ -298,6 +298,7 @@ class BCMatchGroups(commands.Cog):
             for role in team_roles:
                 if role in member.roles:
                     team_role = role
+                    break
         if not team_role:
             return await ctx.send(":x: Team not found.")
         team_name = self._get_team_name(team_role)
@@ -313,7 +314,7 @@ class BCMatchGroups(commands.Cog):
         output_msg = await ctx.send(embed=embed)
 
         member_id, group_code = (await self._get_top_level_group(ctx.guild, team_role))
-        auth_token = await self._get_member_bc_token(member)
+        auth_token = await self._get_member_bc_token(member_id)
         if not auth_token:
             auth_token = await self._get_member_bc_token(member_id)
 
@@ -324,11 +325,14 @@ class BCMatchGroups(commands.Cog):
         total_wins = 0
         total_losses = 0
 
-        for match_day in range(1, int(await self._get_match_day(ctx.guild))+1):
+        num_match_days = int(await self._get_match_day(ctx.guild))
+        for match_day in range(1, num_match_days+1):
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
             wins, losses, opponent = results
             total_wins += wins 
             total_losses += losses
+            if match_day == num_match_days and not opponent:
+                break 
             
             match_days.append(str(match_day))
             opponents.append("MD {} vs {}".format(match_day, opponent))
