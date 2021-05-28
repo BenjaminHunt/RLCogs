@@ -8,12 +8,12 @@ import requests
 import random
 import urllib.parse
 
-try:
-    import thread
-except ImportError:
-    from pip._internal import main as pip
-    pip(['install', '--user', 'thread'])
-    import thread
+# try:
+#     import thread
+# except ImportError:
+#     from pip._internal import main as pip
+#     pip(['install', '--user', 'thread'])
+#     import thread
 
 from redbot.core import Config
 from redbot.core import commands
@@ -270,21 +270,17 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None):
         """Returns Franchise performance for the current, or provided match day"""
-        try:
-            thread.start_new_thread(await self._match_day_summary, (ctx, match_day))
-        except:
-            await ctx.send(":x: An error occured while running this command.")
-            await self._match_day_summary(ctx, match_day)
+        await self._match_day_summary(ctx, match_day)
     
     @commands.command()
     @commands.guild_only()
     async def tmds(self, ctx, match_day=None):
         """Returns Franchise performance for the current, or provided match day"""
-        try:
-            thread.start_new_thread(await self._match_day_summary, (ctx, match_day))
-        except:
-            await ctx.send(":x: An error occured while running this command.")
-            await self._match_day_summary(ctx, match_day)
+        # try:
+        #     thread.start_new_thread(await self._match_day_summary, (ctx, match_day))
+        # except:
+        #     await ctx.send(":x: An error occured while running this command.")
+        #     await self._match_day_summary(ctx, match_day)
     
 
     @commands.command(aliases=['gsp', 'getSeasonResults', 'gsr'])
