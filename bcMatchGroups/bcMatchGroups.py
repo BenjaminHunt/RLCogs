@@ -241,6 +241,7 @@ class BCMatchGroups(commands.Cog):
     @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None):
+        """Returns Franchise performance for the current, or provided match day"""
         # team_roles = await self._get_team_roles(ctx.guild)
 
         if not match_day:
@@ -309,6 +310,7 @@ class BCMatchGroups(commands.Cog):
     @commands.command(aliases=['gsp', 'getSeasonResults', 'gsr'])
     @commands.guild_only()
     async def getSeasonPerformance(self, ctx, *, team_name=None):
+        """Returns the season performance for the given team (invoker's team by default)"""
         member = ctx.message.author
         team_roles = await self._get_team_roles(ctx.guild)
         team_role = None
