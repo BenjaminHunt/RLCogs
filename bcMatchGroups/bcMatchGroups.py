@@ -308,7 +308,7 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command(aliases=['gsp', 'getSeasonResults', 'gsr'])
     @commands.guild_only()
-    async def getSeasonPerformance(self, ctx, team_name=None):
+    async def getSeasonPerformance(self, ctx, *, team_name=None):
         member = ctx.message.author
         team_roles = await self._get_team_roles(ctx.guild)
         team_role = None
