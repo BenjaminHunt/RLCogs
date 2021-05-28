@@ -473,7 +473,7 @@ class BCMatchGroups(commands.Cog):
                     franchise_wins += 1
         
         if franchise_wins or franchise_losses:
-            return franchise_wins, franchise_losses
+            return franchise_wins, franchise_losses, opposing_team
         return 0, 0, opposing_team
     
 
