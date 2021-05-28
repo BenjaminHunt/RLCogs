@@ -314,9 +314,9 @@ class BCMatchGroups(commands.Cog):
         output_msg = await ctx.send(embed=embed)
 
         member_id, group_code = (await self._get_top_level_group(ctx.guild, team_role))
-        auth_token = await self._get_member_bc_token(member_id)
-        if not auth_token:
-            auth_token = await self._get_member_bc_token(member_id)
+        auth_token = await self._get_member_bc_token(member)
+        if not auth_token: # here
+            auth_token = await self._get_member_bc_token(ctx.guild.get_member(member_id))
 
         ## Get match history
         match_days = []
