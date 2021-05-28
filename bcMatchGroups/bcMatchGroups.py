@@ -5,6 +5,7 @@ import tempfile
 import discord
 import asyncio
 import requests
+import random
 import urllib.parse
 
 from redbot.core import Config
@@ -418,8 +419,7 @@ class BCMatchGroups(commands.Cog):
                             return True
                         elif account in orange_players:
                             return False
-        return False
-
+        return random.choice([True, False])
 
     async def _get_replay_player_ids(self, replay_data, color):
         players = []
