@@ -406,8 +406,8 @@ class BCMatchGroups(commands.Cog):
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
             return is_blue
         except:
-            blue_players = self._get_replay_player_ids(replay, 'blue')
-            orange_players = self._get_replay_player_ids(replay, 'orange')
+            blue_players = await self._get_replay_player_ids(replay, 'blue')
+            orange_players = await self._get_replay_player_ids(replay, 'orange')
             
             franchise_roster = self._get_players_from_team_role(team_role)
             for player in franchise_roster:
