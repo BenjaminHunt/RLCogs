@@ -140,7 +140,7 @@ class BCMatchGroups(commands.Cog):
 
         group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
         message = "https://ballchasing.com/group/{}".format(group_code)
-        embed = discord.Embed(title = "{} Replay Group".format(team_role.name), description=message, color=team_role.color)
+        embed = discord.Embed(title="{} Replay Group".format(team_role.name), description=message, color=team_role.color)
         emoji_url = ctx.guild.icon_url
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
@@ -156,7 +156,7 @@ class BCMatchGroups(commands.Cog):
                 ordered_roles.append(role)
         ordered_roles.reverse()
 
-        embed = discord.Embed("Franchise Ballchasing Groups", color=discord.Color.green())
+        embed = discord.Embed(title="Franchise Ballchasing Groups", color=discord.Color.green())
         for team_role in ordered_roles:
             group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
             embed.add_field(name=team_role.name, value="https://ballchasing.com/group/{}".format(group_code), inline=False)
