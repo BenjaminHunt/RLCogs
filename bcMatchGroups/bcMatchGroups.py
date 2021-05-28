@@ -213,8 +213,9 @@ class BCMatchGroups(commands.Cog):
         match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
 
         if match_reported:
-            summary, code = match_reported
+            summary, code, opposing_team = match_reported
             link = "https://ballchasing.com/group/{}".format(code)
+            embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
             embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
             await bc_status_msg.edit(embed=embed)
             return
@@ -616,7 +617,7 @@ class BCMatchGroups(commands.Cog):
         
         if franchise_wins or franchise_losses:    
             summary = "**{}** {} - {} **{}**".format(franchise_team, franchise_wins, franchise_losses, opposing_team)
-            return summary, match_group_code
+            return summary, match_group_code, opposing_team
         
         return None
      
