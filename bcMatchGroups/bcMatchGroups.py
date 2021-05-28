@@ -353,7 +353,7 @@ class BCMatchGroups(commands.Cog):
             total_losses += losses
             
             match_days.append(str(match_day))
-            opponents.append(opponent)
+            opponents.append("MD {} vs {}".format(match_day, opponent))
             if wins > losses:
                 all_results.append("W {}-{}".format(wins, losses))
             elif losses > wins:
@@ -361,7 +361,7 @@ class BCMatchGroups(commands.Cog):
             else:
                 all_results.append("T {}-{}".format(wins, losses))
         
-        match_days.append("-")
+        match_days.append("")
         opponents.append("**Total**")
         all_results.append("**{}-{}**".format(total_wins, total_losses))
 
@@ -373,7 +373,7 @@ class BCMatchGroups(commands.Cog):
         )
 
         bc_link = "https://ballchasing.com/group/{}".format(group_code)
-        embed.add_field(name="MD", value="{}\n".format("\n".join(match_days)), inline=True)
+        # embed.add_field(name="MD", value="{}\n".format("\n".join(match_days)), inline=True)
         embed.add_field(name="Opponent", value="{}\n".format("\n".join(opponents)), inline=True)
         embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
         embed.add_field(name="Ballchasing Group", value=bc_link, inline=False)
