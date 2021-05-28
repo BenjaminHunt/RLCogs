@@ -146,6 +146,27 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=['allgroups', 'groups'])
+    @commands.guild_only()
+    async def getSeasonGroups(self, ctx):
+        ordered_roles = []
+        team_roles = await self._get_team_roles(ctx.guild)
+        for role in ctx.guild.roles:
+            if role in team_roles:
+                ordered_roles.append(role)
+        ordered_roles.reverse()
+
+        embed = discord.Embed("Franchise Ballchasing Groups", color=discord.Color.green())
+        for team_role in ordered_roles:
+            group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
+            embed.add_field(name=team_role.name, value="https://ballchasing.com/group/{}".format(group_code), inline=False)
+        
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        await ctx.send(embed=embed)
+
     @commands.command(aliases=['bcr', 'bcpull'])
     @commands.guild_only()
     async def bcreport(self, ctx, opposing_team, match_day=None):
