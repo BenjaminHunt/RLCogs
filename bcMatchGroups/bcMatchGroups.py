@@ -244,7 +244,7 @@ class BCMatchGroups(commands.Cog):
         """Returns Franchise performance for the current, or provided match day"""
         # team_roles = await self._get_team_roles(ctx.guild)
         
-        if mds == 'last':
+        if match_day == 'last':
             match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
 
         if not match_day:
