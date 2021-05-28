@@ -240,7 +240,6 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
-    @checks.admin_or_permissions(manage_guild=True)
     async def matchDaySummary(self, ctx, match_day=None):
         # team_roles = await self._get_team_roles(ctx.guild)
 
@@ -270,7 +269,13 @@ class BCMatchGroups(commands.Cog):
         total_wins = 0
         total_losses = 0
         auth_token = await self._get_member_bc_token(ctx.message.author)
+        use_invoker_auth_token = True
+        if not auth_token:
+            use_invoker_auth_token = False
+
         for team_role in team_roles:
+            if not use_invoker_auth_token:
+                auth_token = await self._get_member_bc_token((await self._get_top_level_group(team_role))[0])
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
             wins, losses = results
