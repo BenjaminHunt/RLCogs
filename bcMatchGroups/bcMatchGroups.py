@@ -278,7 +278,7 @@ class BCMatchGroups(commands.Cog):
                 auth_token = await self._get_member_bc_token((await self._get_top_level_group(team_role))[0])
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-            wins, losses = results
+            wins, losses, opponent = results
             total_wins += wins 
             total_losses += losses
             
@@ -301,6 +301,74 @@ class BCMatchGroups(commands.Cog):
         except:
             pass
         embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        await output_msg.edit(embed=embed)
+
+    @commands.command(aliases=['gsp', 'getSeasonResults', 'gsr'])
+    @commands.guild_only()
+    async def getSeasonPerformance(self, ctx, team_name=None):
+        member = ctx.message.author
+        team_roles = await self._get_team_roles(ctx.guild)
+        team_role = None
+        if team_name:
+            for role in team_roles:
+                if team_name.lower() in ' '.join(role.name.split()[:-1]).lower() or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
+                    team_role = role
+        else:
+            for role in team_roles:
+                if role in member.roles:
+                    team_role = role
+                    team_name = self._get_team_name(team_role)
+        if not team_role:
+            return await ctx.send(":x: Team not found.")
+
+        embed = discord.Embed(
+            title="{} Season Results".format(team_name),
+            description="_Finding season results for the {}..._".format(team_name),
+            color=self._get_win_percentage_color(0, 0)
+        )
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        output_msg = await ctx.send(embed=embed)
+
+        ## Get match history
+        match_days = []
+        opponents = []
+        all_results = []
+        total_wins = 0
+        total_losses = 0
+
+        for match_day in range(1, int(await self._get_match_day(ctx.guild))+1):
+            results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+            wins, losses, opponent = results
+            total_wins += wins 
+            total_losses += losses
+            
+            match_days.append(match_day)
+            opponents.append(opponent)
+            if wins > losses:
+                all_results.append("W {}-{}".format(wins, losses))
+            elif losses > wins:
+                all_results.append("L {}-{}".format(wins, losses))
+            else:
+                all_results.append("T {}-{}".format(wins, losses))
+
+        ## ################
+
+        embed = discord.Embed(
+            title="{} Season Results".format(team_name),
+            color=self._get_win_percentage_color(total_wins, total_losses)
+        )
+
+        group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
+        bc_link = "https://ballchasing.com/group/{}".format(group_code)
+
+        embed.add_field(name="Opponent", value="{}\n".format("\n".join(opponents)), inline=True)
+        embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
+        embed.add_field(name="Ballchasing Group", value=bc_link, inline=False)
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         
@@ -359,11 +427,12 @@ class BCMatchGroups(commands.Cog):
 
         r = self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
         data = r.json()
+
+        opposing_team = ''
         if 'list' not in data:
-            return 0, 0
+            return 0, 0, opposing_team
 
         match_group_code = ''
-        opposing_team = ''
         for group in data['list']:
             if '{}'.format(match_day).zfill(2) in group['name']:
                 match_group_code = group['id']
@@ -376,7 +445,7 @@ class BCMatchGroups(commands.Cog):
         r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
         data = r.json()
         if 'list' not in data:
-            return 0, 0
+            return 0, 0, opposing_team
         
         if not data['list']:
             return 0, 0
@@ -402,7 +471,7 @@ class BCMatchGroups(commands.Cog):
         
         if franchise_wins or franchise_losses:
             return franchise_wins, franchise_losses
-        return 0, 0
+        return 0, 0, opposing_team
     
 
     # other functions
