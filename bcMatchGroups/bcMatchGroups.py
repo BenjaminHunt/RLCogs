@@ -361,7 +361,7 @@ class BCMatchGroups(commands.Cog):
             else:
                 all_results.append("T {}-{}".format(wins, losses))
         
-        opponent.append("**Total**")
+        opponents.append("**Total**")
         all_results.append("**{}-{}**".format(total_wins, total_losses))
 
         ## ################
