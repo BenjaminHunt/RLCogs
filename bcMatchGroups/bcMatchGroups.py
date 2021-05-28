@@ -26,8 +26,7 @@ class BCMatchGroups(commands.Cog):
         self.config.register_global(**global_defaults)
         self.config.register_guild(**defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
-
-    
+  
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
@@ -238,7 +237,7 @@ class BCMatchGroups(commands.Cog):
         # embed.set_thumbnail(url=emoji_url)
         await bc_status_msg.edit(embed=embed)
 
-    @commands.command(aliases=['mds'])
+    @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def matchDaySummary(self, ctx, match_day=None):
@@ -247,7 +246,15 @@ class BCMatchGroups(commands.Cog):
         if not match_day:
             match_day = await self._get_match_day(ctx.guild)
         
-        await ctx.send("_Finding franchise results for match day {}..._".format(match_day))
+        embed = discord.Embed(
+            title="Franchise Results for Match Day {}".format(match_day),
+            description="_Finding franchise results for match day {}..._".format(match_day)
+            color=self._get_win_percentage_color(0, 0)
+        )
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        output_msg = await ctx.send(embed=embed)
 
         trs = await self._get_team_roles(ctx.guild)
         team_roles = []
@@ -288,11 +295,10 @@ class BCMatchGroups(commands.Cog):
         except:
             pass
         embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
-        emoji_url = ctx.guild.icon_url
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         
-        await ctx.send(embed=embed)
+        await output_msg.edit(embed=embed)
 
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
@@ -372,10 +378,8 @@ class BCMatchGroups(commands.Cog):
         franchise_wins = 0
         franchise_losses = 0
         for replay in data['list']:
-            try:
-                is_blue = franchise_team.lower() in replay['blue']['name'].lower()
-            except:
-                is_blue = True
+            is_blue = await self._check_if_blue(replay, team_role)
+
             blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
             orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
 
@@ -396,6 +400,33 @@ class BCMatchGroups(commands.Cog):
     
 
     # other functions
+    async def _check_if_blue(self, replay, team_role):
+        franchise_team = self._get_team_name(team_role)
+        try:
+            is_blue = franchise_team.lower() in replay['blue']['name'].lower()
+            return is_blue
+        except:
+            blue_players = _get_replay_player_ids(replay, 'blue')
+            orange_players = _get_replay_player_ids(replay, 'orange')
+            
+            franchise_roster = self._get_players_from_team_role(team_role)
+            for player in franchise_roster:
+                accounts = await self._get_all_accounts(player.id)
+                if accounts:
+                    for account in accounts:
+                        if account in blue_players:
+                            return True
+                        elif account in orange_players:
+                            return False
+        return False
+
+
+    async def _get_replay_player_ids(self, replay_data, color):
+        players = []
+        for player in replay_data[color]:
+            players.append([player['id']['platform'], player['id']['id']])
+        return players
+
     async def _check_if_reported(self, ctx, franchise_team, match_day, auth_token):
         guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
@@ -529,6 +560,13 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
+    async def _get_all_accounts(self, discord_id):
+        discord_id = str(discord_id)
+        account_register = await self.account_manager_cog.get_account_register()
+        if discord_id in account_register:
+            return account_register[discord_id]
+        return None
+
     async def _get_steam_ids(self, discord_id):
         discord_id = str(discord_id)
         steam_accounts = []
@@ -796,6 +834,13 @@ class BCMatchGroups(commands.Cog):
             if role.name.lower() == role_name.lower():
                 return role
         return None
+    
+    def _get_players_from_team_role(self, team_role):
+        roster = []
+        for member in team_role.guild.members:
+            if team_role in member.roles:
+                roster.append(member)
+        return roster 
     
     # json dict
     async def _get_match_day(self, guild):
