@@ -248,7 +248,7 @@ class BCMatchGroups(commands.Cog):
         
         embed = discord.Embed(
             title="Franchise Results for Match Day {}".format(match_day),
-            description="_Finding franchise results for match day {}..._".format(match_day)
+            description="_Finding franchise results for match day {}..._".format(match_day),
             color=self._get_win_percentage_color(0, 0)
         )
         emoji_url = ctx.guild.icon_url
