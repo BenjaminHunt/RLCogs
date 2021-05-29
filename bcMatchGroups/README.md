@@ -1,5 +1,9 @@
 # RLCogs
 
+## Requirements
+
+- Python `requests` package
+
 ## Installation
 
 The `bcMatchGroups` cog depends on the `accountManager` cog. Install `accountManager` as well as its dependencies before installing this cog.

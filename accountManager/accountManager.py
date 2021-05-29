@@ -53,7 +53,7 @@ class AccountManager(commands.Cog):
         except:
             await ctx.send(":x: Error setting auth token.")
 
-    @commands.command(aliases=['bcpage', 'mybc', 'bcp', 'getBCPage', 'bcprofile', 'bcpages'])
+    @commands.command(aliases=['bcpage', 'mybc', 'bcp', 'getBCPage', 'bcprofile', 'bcpages', 'bcaccs'])
     @commands.guild_only()
     async def bcProfile(self, ctx):
         """Get the ballchasing pages for registered accounts"""
