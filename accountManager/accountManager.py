@@ -89,6 +89,8 @@ class AccountManager(commands.Cog):
             valid_account = await self._validate_account(ctx, platform, identifier)
         except:
             identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
+            await ctx.send("-------\n{}\n-------".format(identifier))
+            return
             valid_account = await self._validate_account(ctx, platform, identifier)
 
         if valid_account:
