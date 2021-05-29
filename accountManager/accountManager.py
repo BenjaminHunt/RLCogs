@@ -372,6 +372,7 @@ class AccountManager(commands.Cog):
         rewards = None
         data = r.json()
         try:
+            return data
             return data['data']['platformInfo']['platformUserIdentifier']
         except:
             return None
