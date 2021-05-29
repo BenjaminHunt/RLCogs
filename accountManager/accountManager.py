@@ -36,7 +36,7 @@ class AccountManager(commands.Cog):
         await ctx.message.delete()
         try:
             await self._save_bc_auth_token(ctx, auth_token)
-            await ctx.send("Done.")
+            await ctx.send(":white_check_mark: Guild Ballchasing Auth Token has been set.")
         except:
             await ctx.send(":x: Error setting auth token.")
 
@@ -104,6 +104,7 @@ class AccountManager(commands.Cog):
 
         if valid_account:
             username, appearances = valid_account
+            found = True
         else:
             found = False
             identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
