@@ -293,7 +293,7 @@ class BCMatchGroups(commands.Cog):
         team_role = None
         if team_name:
             for role in team_roles:
-                if team_name.lower() in ' '.join(role.name.split()[:-1]).lower() or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
+                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
                     team_role = role
         else:
             for role in team_roles:
