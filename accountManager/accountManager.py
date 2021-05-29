@@ -77,6 +77,7 @@ class AccountManager(commands.Cog):
             [p]registerAccount epic 76edd61bd58841028a8ee27373ae307a
             [p]registerAccount steam
         """
+        initial_id = identifier
         # Check platform
         platform = platform.lower()
         if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
@@ -93,7 +94,7 @@ class AccountManager(commands.Cog):
         if valid_account:
             username, appearances = valid_account
         else:
-            message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=identifier, platform=platform)
+            message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=initial_id, platform=platform)
             if platform == 'epic':
                 message += "\nTry finding the ballchasing ID for this epic account by searching for the account manually."
             await ctx.send(message)
