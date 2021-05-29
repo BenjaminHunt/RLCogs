@@ -444,6 +444,8 @@ class AccountManager(commands.Cog):
 
         appearances = 0
         username = None
+        await ctx.send(auth_token)
+        await ctx.send(data)
         if 'list' in data:
             for team_color in ['blue', 'orange']:
                 for player in data['list'][0][team_color]['players']:
