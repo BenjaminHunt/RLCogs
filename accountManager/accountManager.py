@@ -412,11 +412,14 @@ class AccountManager(commands.Cog):
         if 'list' in data:
             for team_color in ['blue', 'orange']:
                 for game in data['list']:
-                    for player in game[team_color]['players']:
-                        if player['id']['platform'] == platform and player['id']['id'] == identifier:
-                            username = player['name']
-                            appearances = data['count']
-                            break
+                    try:
+                        for player in game[team_color]['players']:
+                            if player['id']['platform'] == platform and player['id']['id'] == identifier:
+                                username = player['name']
+                                appearances = data['count']
+                                break
+                    except KeyError:
+                        pass
         if username:
             return username, appearances
         return False
