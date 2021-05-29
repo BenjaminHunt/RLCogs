@@ -413,15 +413,14 @@ class AccountManager(commands.Cog):
         if 'list' in data:
             for team_color in ['blue', 'orange']:
                 for game in data['list']:
-                    await ctx.send(game)
-                    try:
-                        for player in game[team_color]['players']:
+                    for player in game[team_color]['players']:
+                        try:
                             if player['id']['platform'] == platform and player['id']['id'] == identifier:
                                 username = player['name']
                                 appearances = data['count']
                                 break
-                    except KeyError:
-                        pass
+                        except KeyError:
+                            await ctx.send(player)
         if username:
             return username, appearances
         return False
