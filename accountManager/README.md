@@ -1,4 +1,6 @@
-# RLCogs
+# RLCogs: accountManager
+
+It is responsible for managing Rocket League accounts registered to discord members. Auth Tokens are stored on a per-guild basis, but accounts are saved without a direct association to a guild.
 
 ## Requirements
 
@@ -6,12 +8,14 @@
 
 ## Installation/Setup
 
-The `accountManager` cog has no discord cog dependencies.
+The `accountManager` cog has no discord cog dependencies. To install and load the cogs, run the following bot commands:
 
 ```
 <p>cog install RLCogs bcMatchGroups
 <p>load bcMatchGroups
 ```
+
+Note: `<p>` represents the bot prefix.
 
 <br>
 
@@ -29,8 +33,6 @@ A **Tracker Network** (TRN) authentication token or "API Key" is not required, b
 ---
 
 ## _Admin Commands_
-
-Note: `<p>` represents the bot prefix.
 
 ### Register Ballchasing Token
 
