@@ -372,7 +372,7 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command(aliases=['teams'])
     @commands.guild_only()
-    async def getTeams(self, ctx):
+    async def listTeams(self, ctx):
         """List all registered teams"""
         member = ctx.message.author
         team_roles = await self._get_team_roles(ctx.guild)
