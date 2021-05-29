@@ -407,11 +407,6 @@ class AccountManager(commands.Cog):
 
         appearances = 0
         username = None
-        await ctx.send('----')
-        await ctx.send("platform: {}\nid: {}".format(platform, identifier))
-        await ctx.send(auth_token)
-        await ctx.send(data)
-        await ctx.send('----')
         if 'list' in data and data['list']:
             for team_color in ['blue', 'orange']:
                 for player in data['list'][0][team_color]['players']:
