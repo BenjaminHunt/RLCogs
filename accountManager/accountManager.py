@@ -84,12 +84,17 @@ class AccountManager(commands.Cog):
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
             return False
         
+        if not await self.get_bc_auth_token(ctx.guild):
+            return await ctx.send(":x: An admin must register a ballchasing auth token to enable memebers to register accounts.")
 
         member = ctx.message.author
         valid_account = await self._validate_account(ctx, platform, identifier)
         if not valid_account:
-            identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
-            valid_account = await self._validate_account(ctx, platform, identifier)
+            if await self._get_trn_auth_token(ctx.guild):
+                identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
+                valid_account = await self._validate_account(ctx, platform, identifier)
+            else:
+                valid_account = False
 
         if valid_account:
             username, appearances = valid_account
@@ -197,6 +202,9 @@ class AccountManager(commands.Cog):
         platform = platform.lower()
         if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
+
+        if not await self.get_bc_auth_token(ctx.guild):
+            return await ctx.send(":x: An admin must register a ballchasing auth token to enable memebers to register accounts.")
 
         try:
             valid_account = await self._validate_account(ctx, platform, identifier)
