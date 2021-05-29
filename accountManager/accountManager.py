@@ -118,16 +118,17 @@ class AccountManager(commands.Cog):
                 params = ['player-name={}'.format(identifier), 'count=5']
                 r = await self._bc_get_request(ctx.guild, endpoint, params=params)
                 data = r.json()
-                for replay in data['list']:
-                    for team in ['blue', 'orange']:
-                        for player in replay[team]['players']:
-                            if player['name'] == identifier and player['id']['platform'] == platform:
-                                identifier = player['id']['id']
-                                valid_account = await self._validate_account(ctx, platform, identifier)
-                                if valid_account:
-                                    username, appearances = valid_account
-                                    found = True
-                                    break
+                if 'list' in data:
+                    for replay in data['list']:
+                        for team in ['blue', 'orange']:
+                            for player in replay[team]['players']:
+                                if player['name'] == identifier and player['id']['platform'] == platform:
+                                    identifier = player['id']['id']
+                                    valid_account = await self._validate_account(ctx, platform, identifier)
+                                    if valid_account:
+                                        username, appearances = valid_account
+                                        found = True
+                                        break
 
             if not found:
                 message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=identifier, platform=platform)
