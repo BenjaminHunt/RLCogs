@@ -108,6 +108,7 @@ class AccountManager(commands.Cog):
         else:
             found = False
             identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
+            await ctx.send(identifier)
             if identifier:
                 valid_account = await self._validate_account(ctx, platform, identifier)
                 if valid_account:
