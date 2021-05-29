@@ -370,6 +370,14 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
 
+    @commands.command(aliases=['teams'])
+    @commands.guild_only()
+    async def getTeams(self, ctx):
+        """List all registered teams"""
+        member = ctx.message.author
+        team_roles = await self._get_team_roles(ctx.guild)
+        await ctx.send('Teams: {}'.format(', '.join(role.mention for role in team_roles)))
+
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
     async def testwp(self, ctx, wins:int, losses:int):
