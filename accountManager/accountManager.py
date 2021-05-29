@@ -404,8 +404,10 @@ class AccountManager(commands.Cog):
         ]
         r = await self._bc_get_request(ctx.guild, endpoint, params)
         data = r.json()
+        
         appearances = 0
         username = None
+        await ctx.send(data)
         if 'list' in data:
             for team_color in ['blue', 'orange']:
                 for game in data['list']:
