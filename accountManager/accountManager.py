@@ -404,7 +404,6 @@ class AccountManager(commands.Cog):
         ]
         r = await self._bc_get_request(ctx.guild, endpoint, params)
         data = r.json()
-
         appearances = 0
         username = None
         if 'list' in data:
