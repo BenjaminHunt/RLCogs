@@ -49,7 +49,7 @@ class AccountManager(commands.Cog):
         await ctx.message.delete()
         try:
             await self._save_trn_auth_token(ctx, auth_token)
-            await ctx.send("Done.")
+            await ctx.send(":white_check_mark: Guild Tracker Network Auth Token has been set.")
         except:
             await ctx.send(":x: Error setting auth token.")
 
