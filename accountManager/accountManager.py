@@ -412,7 +412,7 @@ class AccountManager(commands.Cog):
         await ctx.send(auth_token)
         await ctx.send(data)
         await ctx.send('----')
-        if 'list' in data:
+        if 'list' in data and data['list']:
             for team_color in ['blue', 'orange']:
                 for player in data['list'][0][team_color]['players']:
                     if player['id']['platform'] == platform and player['id']['id'] == identifier:
