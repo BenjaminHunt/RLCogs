@@ -420,7 +420,8 @@ class AccountManager(commands.Cog):
                                 appearances = data['count']
                                 break
                         except KeyError:
-                            await ctx.send(player)
+                            pass
+                            # await ctx.send(player)
         if username:
             return username, appearances
         return False
