@@ -17,6 +17,8 @@ Note: `<p>` represents the bot prefix.
 
 ---
 
+<br>
+
 ## Establishing Franchise Teams
 
 A role must exist in each server either in the format `<Team Name>`, or `<Team Name> (<tier>)`. Team roles _should_ be ordered in the permission tree from high to low in accordance with the tier hierarchy. This will impact how commands pertaining to all franchise teams are sorted.
@@ -29,6 +31,10 @@ Examples:
 ?addTeamRoles Panthers
 ?addTeamRoles "Jaguars (Elite)" "Panters (Major)" "Ocelots (Minor)"
 ```
+
+<br>
+
+---
 
 <br>
 
