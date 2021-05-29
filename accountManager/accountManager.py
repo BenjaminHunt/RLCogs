@@ -100,7 +100,6 @@ class AccountManager(commands.Cog):
                     account_register[str(member.id)] = [[platform, identifier]]
                 await self._save_account_register(account_register)
                 await ctx.send("Done.")
-            return
 
         if valid_account:
             username, appearances = valid_account
