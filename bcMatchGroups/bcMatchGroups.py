@@ -95,7 +95,8 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def clearTeamRoles(self, ctx):
-        if await self._react_prompt(ctx, "Are you sure you want to clear **{}** Team Roles?", "Teams not cleared."):
+        prompt = "Are you sure you want to clear **{}** Team Roles?".format(len(await self._get_team_roles(ctx.guild)))
+        if await self._react_prompt(ctx, prompt, "Teams not cleared."):
             await self._save_team_roles(ctx.guild, [])
             await ctx.send("Done")
 
