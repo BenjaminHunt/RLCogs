@@ -63,7 +63,7 @@ class BCMatchGroups(commands.Cog):
     @checks.admin_or_permissions(manage_roles=True)
     async def addTeamRoles(self, ctx, *roleList):
         """Adds the role to every member that can be found from the userList"""
-        team_roles = await self._get_team_roles(ctx.guild)
+        team_roles = [role.id for role in await self._get_team_roles(ctx.guild)]
         found = []
         failed = []
         message_components = []
@@ -90,6 +90,14 @@ class BCMatchGroups(commands.Cog):
             return await ctx.send('\n'.join(message_components))
         
         await ctx.send(":x: No roles provided.")
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
+    async def clearTeamRoles(self, ctx):
+        if await self._react_prompt(ctx, "Are you sure you want to clear **{}** Team Roles?", "Teams not cleared."):
+            await self._save_team_roles(ctx.guild, [])
+            await ctx.send("Done")
 
     @commands.command(aliases=['setMyBCAuthKey'])
     async def setMyBCAuthToken(self, ctx, auth_token):
@@ -808,6 +816,22 @@ class BCMatchGroups(commands.Cog):
         }
         return teams
     
+    async def _react_prompt(self, ctx, prompt, if_not_msg=None):
+        user = ctx.message.author
+        react_msg = await ctx.send(prompt)
+        start_adding_reactions(react_msg, ReactionPredicate.YES_OR_NO_EMOJIS)
+        try:
+            pred = ReactionPredicate.yes_or_no(react_msg, user)
+            await ctx.bot.wait_for("reaction_add", check=pred, timeout=verify_timeout)
+            if pred.result:
+                return True
+            if if_not_msg:
+                await ctx.send(if_not_msg)
+            return False
+        except asyncio.TimeoutError:
+            await ctx.send("Sorry {}, you didn't react quick enough. Please try again.".format(user.mention))
+            return False
+
     async def _embed_react_prompt(self, ctx, embed, existing_message=None, success_embed=None, reject_embed=None, clear_after_confirm=True):
         user = ctx.message.author
         if existing_message:
