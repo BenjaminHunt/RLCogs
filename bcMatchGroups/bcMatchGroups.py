@@ -180,7 +180,10 @@ class BCMatchGroups(commands.Cog):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         member = ctx.message.author
-        team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
+        try:
+            team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
+        except:
+            return await ctx.send(":x: You are rostered to a team in this server.")
         team_name = self._get_team_name(team_role)
 
         # Get team/tier information
