@@ -35,7 +35,7 @@ class AccountManager(commands.Cog):
         """
         await ctx.message.delete()
         try:
-            await self._save_bc_auth_token(ctx, auth_token)
+            await self._save_bc_auth_token(ctx.guild, auth_token)
             await ctx.send(":white_check_mark: Guild Ballchasing Auth Token has been set.")
         except:
             await ctx.send(":x: Error setting auth token.")
@@ -48,7 +48,7 @@ class AccountManager(commands.Cog):
         """
         await ctx.message.delete()
         try:
-            await self._save_trn_auth_token(ctx, auth_token)
+            await self._save_trn_auth_token(ctx.guild, auth_token)
             await ctx.send(":white_check_mark: Guild Tracker Network Auth Token has been set.")
         except:
             await ctx.send(":x: Error setting auth token.")
@@ -448,6 +448,7 @@ class AccountManager(commands.Cog):
         appearances = 0
         username = None
         await ctx.send('----')
+        await ctx.send("platform: {}\nid: {}".format(platform, identifier))
         await ctx.send(auth_token)
         await ctx.send(data)
         await ctx.send('----')
@@ -484,14 +485,14 @@ class AccountManager(commands.Cog):
     async def get_bc_auth_token(self, guild):
         return await self.config.guild(guild).BCAuthToken()
     
-    async def _save_bc_auth_token(self, ctx, token):
-        await self.config.guild(ctx.guild).BCAuthToken.set(token)
+    async def _save_bc_auth_token(self, guild, token):
+        await self.config.guild(guild).BCAuthToken.set(token)
   
     async def _get_trn_auth_token(self, guild):
         return await self.config.guild(guild).TRNAuthToken()
     
-    async def _save_trn_auth_token(self, ctx, token):
-        await self.config.guild(ctx.guild).TRNAuthToken.set(token)
+    async def _save_trn_auth_token(self, guild, token):
+        await self.config.guild(guild).TRNAuthToken.set(token)
 
     async def get_account_register(self):
         return await self.config.AccountRegister()
