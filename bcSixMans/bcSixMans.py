@@ -181,7 +181,6 @@ class BCSixMans(commands.Cog):
         except:
             pass
 
-    # good
     async def _get_all_accounts(self, guild, member):
         accs = []
         account_register = await self._get_account_register()
@@ -191,11 +190,8 @@ class BCSixMans(commands.Cog):
                 accs.append(account)
         return accs
 
-    # good
-    async def _bc_get_request(self, guild, endpoint, params=[], auth_token=None):
-        if not auth_token:
-            auth_token = await self._get_auth_token(guild)
-        
+# ballchasing
+    def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
@@ -207,11 +203,7 @@ class BCSixMans(commands.Cog):
         
         return requests.get(url, headers={'Authorization': auth_token})
 
-    # good
-    async def _bc_post_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None, files=None):
-        if not auth_token:
-            auth_token = await self._get_auth_token(guild)
-        
+    def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
@@ -220,11 +212,7 @@ class BCSixMans(commands.Cog):
         
         return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
 
-    # good
-    async def _bc_patch_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None):
-        if not auth_token:
-            auth_token = await self._get_auth_token(guild)
-
+    def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
@@ -250,7 +238,6 @@ class BCSixMans(commands.Cog):
             await ctx.send("Sorry {}, you didn't react quick enough. Please try again.".format(user.mention))
             return False
 
-    # good
     async def _validate_account(self, ctx, platform, identifier):
         # auth_token = config.auth_token
         auth_token = await self._get_auth_token(ctx.guild)
@@ -259,7 +246,7 @@ class BCSixMans(commands.Cog):
             'player-id={platform}:{identifier}'.format(platform=platform, identifier=identifier),
             'count=1'
         ]
-        r = await self._bc_get_request(ctx.guild, endpoint, params)
+        r = self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
 
         appearances = 0
@@ -275,11 +262,10 @@ class BCSixMans(commands.Cog):
             return username, appearances
         return False
 
-    # good
     async def _get_steam_id_from_token(self, guild, auth_token=None):
         if not auth_token:
             auth_token = await self._get_auth_token(guild)
-        r = await self._bc_get_request(guild, "")
+        r = self._bc_get_request(auth_token, "")
         if r.status_code == 200:
             return r.json()['steam_id']
         return None
@@ -287,7 +273,6 @@ class BCSixMans(commands.Cog):
     async def _get_account_register(self):
         return await self.account_manager_cog.get_account_register()
 
-    # bad
     async def _get_steam_ids(self, guild, discord_id):
         discord_id = str(discord_id)
         steam_accounts = []
@@ -298,15 +283,16 @@ class BCSixMans(commands.Cog):
                     steam_accounts.append(account[1])
         return steam_accounts
 
-    def _is_full_replay(self, replay_data):
-        return True
-        if replay_data['duration'] < 300:
+    def is_full_replay(self, replay_data):
+        if 'duration' in replay_data:
+            if replay_data['duration'] < 300:
+                return False
+        else:
             return False
-
-        orange_goals = replay_data['orange']['goals'] if 'goals' in replay_data['orange'] else 0
+        
         blue_goals = replay_data['blue']['goals'] if 'goals' in replay_data['blue'] else 0
-
-        if orange_goals == blue_goals:
+        orange_goals = replay_data['orange']['goals'] if 'goals' in replay_data['orange'] else 0
+        if blue_goals == orange_goals:
             return False
         for team in ['blue', 'orange']:
             for player in replay_data[team]['players']:
@@ -321,7 +307,6 @@ class BCSixMans(commands.Cog):
                     return team
         return None
 
-    # good
     async def _is_six_mans_replay(self, guild, uploader, sm_game, replay_data, use_account=None):
         """searches for the uploader's appearance in the replay under any registered account"""
         if use_account:
@@ -371,7 +356,6 @@ class BCSixMans(commands.Cog):
 
         return winner
 
-    # good
     async def _get_replay_destination(self, guild, queue, game):
         
         auth_token = await self._get_auth_token(guild)
@@ -397,7 +381,7 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        r = await self._bc_get_request(guild, endpoint, params, auth_token)
+        r = self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
 
         # Dynamically create sub-group
@@ -424,7 +408,7 @@ class BCSixMans(commands.Cog):
                     'group={}'.format(next_subgroup_id)
                 ]
 
-                r = await self._bc_get_request(ctx, endpoint, params, auth_token)
+                r = self._bc_get_request(auth_token, endpoint, params)
                 data = r.json()
 
             # ## Creating next sub-group
@@ -435,7 +419,7 @@ class BCSixMans(commands.Cog):
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
-                r = await self._bc_post_request(guild, endpoint, auth_token=auth_token, json=payload)
+                r = self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 
                 if 'error' not in data:
@@ -446,7 +430,6 @@ class BCSixMans(commands.Cog):
             
         return next_subgroup_id
 
-    # good
     async def _find_series_replays(self, guild, game):
         # search for appearances in private matches
         endpoint = "/replays"
@@ -476,7 +459,7 @@ class BCSixMans(commands.Cog):
                 #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
                 print('--------------------------------')
                 print('{}?{}'.format(endpoint, '&'.join(params)))
-                r = await self._bc_get_request(guild, endpoint, params=params, auth_token=auth_token)
+                r = self._bc_get_request(auth_token, endpoint, params=params)
                 print('--------------------------------')
 
                 # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
@@ -512,14 +495,13 @@ class BCSixMans(commands.Cog):
             
         return None
 
-    # good
     async def _download_replays(self, guild, replay_ids):
         auth_token = await self._get_auth_token(guild)
         tmp_replay_files = []
         this_game = 1
         for replay_id in replay_ids[::-1]:
             endpoint = "/replays/{}/file".format(replay_id)
-            r = await self._bc_get_request(guild, endpoint, auth_token=auth_token)
+            r = self._bc_get_request(auth_token, endpoint)
             
             # replay_filename = "Game {}.replay".format(this_game)
             replay_filename = "{}.replay".format(replay_id)
@@ -532,7 +514,6 @@ class BCSixMans(commands.Cog):
 
         return tmp_replay_files
 
-    # good
     async def _upload_replays(self, guild, subgroup_id, files_to_upload):
         endpoint = "/v2/upload"
         params = [
@@ -546,7 +527,7 @@ class BCSixMans(commands.Cog):
             replay_file.seek(0)
             files = {'file': replay_file}
 
-            r = await self._bc_post_request(guild, endpoint, params, auth_token=auth_token, files=files)
+            r = self._bc_post_request(auth_token, endpoint, params, files=files)
         
             status_code = r.status_code
             data = r.json()
@@ -556,7 +537,7 @@ class BCSixMans(commands.Cog):
                     replay_ids_in_group.append(data['id'])
                 elif status_code == 409: # Handle duplicate replays
                     patch_endpoint = '/replays/{}/'.format(data['id'])
-                    r = await self._bc_patch_request(ctx, patch_endpoint, auth_token=auth_token, json={'group': subgroup_id, 'visibility': config.visibility})
+                    r = self._bc_patch_request(auth_token, patch_endpoint, json={'group': subgroup_id, 'visibility': config.visibility})
                     if r.status_code == 204:
                         replay_ids_in_group.append(data['id'])
             except:
@@ -581,7 +562,7 @@ class BCSixMans(commands.Cog):
             payload = {
                 'title': 'Game {}'.format(game_number)
             }
-            r = await self._bc_patch_request(guild, endpoint, auth_token=auth_token, json=payload)
+            r = self._bc_patch_request(auth_token, endpoint, json=payload)
             status_code = r.status_code
 
             if status_code == 204:
