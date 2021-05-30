@@ -212,7 +212,7 @@ class BCSixMans(commands.Cog):
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
         try:
-            embed.description = "_Processing {} replays..._".format(len(replay_ids))
+            embed.description = ":signal_strength: _Processing {} replays..._".format(len(replay_ids))
             await embed_message.edit(embed=embed)
             return
         except:
@@ -344,7 +344,7 @@ class BCSixMans(commands.Cog):
             account_replay_team = self._get_account_replay_team(platform, plat_id, replay_data)
             # await sm_game.textChannel.send("uploader team: {}\naccount team: {}".format(uploader_sm_team))
 
-            if account_replay_team and uploader_sm_team != account_replay_team:
+            if account_replay_team and uploader_sm_team.lower() != account_replay_team.lower():
                 swap_teams = True
 
         # don't count incomplete replays
@@ -360,7 +360,7 @@ class BCSixMans(commands.Cog):
             winner = 'orange'
         
         # swap teams if necessary
-        if swap_teams and False:
+        if swap_teams:
             # await sm_game.textChannel.send("swapped teams")
             if winner == 'orange':
                 winner = 'blue'
@@ -452,7 +452,6 @@ class BCSixMans(commands.Cog):
         # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
         queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
-        print(">> {}".format(queue_pop_time))
         auth_token = await self._get_auth_token(guild)
         
         params = [
@@ -469,11 +468,12 @@ class BCSixMans(commands.Cog):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
 
+                # TODO: Sanity check here - confirm I get what I need, and clean up .sends
                 #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
-                print('--------------------------------')
-                print('{}?{}'.format(endpoint, '&'.join(params)))
+                # print('--------------------------------')
+                # print('{}?{}'.format(endpoint, '&'.join(params)))
                 r = self._bc_get_request(auth_token, endpoint, params=params)
-                print('--------------------------------')
+                # print('--------------------------------')
 
                 # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
 
@@ -487,7 +487,6 @@ class BCSixMans(commands.Cog):
                 if 'list' in data:
                     await game.textChannel.send("{} has {} replays uploaded...".format(player.name, len(data['list'])))
                     for replay in data['list']:
-                        await game.textChannel.send("{} replays found.".format(len(replay_ids)))
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner == 'blue':
                             blue_wins += 1
