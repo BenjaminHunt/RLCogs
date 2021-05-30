@@ -53,7 +53,7 @@ class BCSixMans(commands.Cog):
 
         await self._process_six_mans_replays(ctx.guild, game)
 
-    @commands.command(aliases=["sbcg", "setTopLevelGroup"])
+    @commands.command(aliases=["sbcg"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def setBCGroup(self, ctx, top_level_group_id):
@@ -221,7 +221,7 @@ class BCSixMans(commands.Cog):
         
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
-    # leave
+# other commands
     async def _react_prompt(self, ctx, prompt, if_not_msg=None):
         user = ctx.message.author
         react_msg = await channel.send(prompt)
@@ -551,7 +551,6 @@ class BCSixMans(commands.Cog):
     async def _add_replay_to_group(self, guild, replay_id, subgroup_id, auth_token=None):
         pass
 
-    # guild
     async def _rename_replays(self, guild, uploaded_replays_ids):
         auth_token = await self._get_auth_token(guild)
         renamed = []
@@ -573,6 +572,7 @@ class BCSixMans(commands.Cog):
             game_number += 1
         return renamed
 
+# json
     async def _get_top_level_group(self, guild):
         return await self.config.guild(guild).TopLevelGroup()
     
