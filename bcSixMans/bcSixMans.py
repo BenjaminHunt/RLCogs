@@ -13,7 +13,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults = {"TopLevelGroup": None}
+defaults = {"TopLevelGroup": None, "SixMansRole": 848403373782204436}
 verify_timeout = 30
 
 class BCSixMans(commands.Cog):
@@ -51,7 +51,7 @@ class BCSixMans(commands.Cog):
             await ctx.send("game not found.")
             return False
 
-        await self._process_six_mans_replays(ctx.guild, game)
+        await self._process_six_mans_replays(game)
 
     @commands.command(aliases=["sbcg"])
     @commands.guild_only()
@@ -118,77 +118,12 @@ class BCSixMans(commands.Cog):
         self.six_mans_cog.add_observer(self)
 
     async def update(self, game):
+        await game.textChannel.send("State: {}".format(game.game_state))
         if game.game_state == "game over":
-            await game.textChannel.send("Hey! The game is over kek")
-            await self._process_six_mans_replays(game.textChannel.guild, game)
-        else:
-            await game.textChannel.send("State: {}".format(game.game_state))
+            await self._process_six_mans_replays(game)
+            
 
 ###########################################################
-
-    # TODO: there's a lot to change. just go by one method at a time and replace ctx with parameters of what it needs. good luck king.
-    async def _process_six_mans_replays(self, guild, game):
-
-        six_mans_queue = None
-        for q in self.six_mans_cog.queues:
-            if game.queueId == q.id:
-                six_mans_queue = q
-                break
-        
-        if not six_mans_queue:
-            await game.textChannel.send("queue not found.")
-            return False
-
-        if not await self._get_top_level_group(guild):
-            await six_mans_queue.channels[0].send('ballchasing group group not found.')
-            return False
-
-        # Start Ballchasing Process:
-        await six_mans_queue.channels[0].send("_Finding ballchasing replays..._")
-
-        # Find Series replays
-        replays_found = await self._find_series_replays(guild, game) 
-
-        # here
-        if not replays_found:
-            await six_mans_queue.channels[0].send(":x: No matching replays found.")
-            return False
-
-        series_subgroup_id = await self._get_replay_destination(guild, six_mans_queue, game)
-        # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
-        if not series_subgroup_id:
-            return await six_mans_queue.channels[0].send(":x: series_subgroup_id not found.")
-
-        replay_ids, summary = replays_found
-        # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
-        
-        try:
-            await six_mans_queue.channels[0].send("_Processing {} replays..._".format(len(replay_ids)))
-        except:
-            pass
-        tmp_replay_files = await self._download_replays(guild, replay_ids)
-        # await text_channel.send("Temp replay files to upload ({}): {}".format(len(tmp_replay_files), ", ".join(tmp_replay_files)))
-        
-        uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
-        # await text_channel.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
-        
-        renamed = await self._rename_replays(guild, uploaded_ids)
-        # await text_channel.send("replays renamed: {}".format(renamed))
-        
-        try:
-            message = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
-            await six_mans_queue.channels[0].send(message)
-        except:
-            pass
-
-    async def _get_all_accounts(self, guild, member):
-        accs = []
-        account_register = await self._get_account_register()
-        discord_id = str(member.id)
-        if discord_id in account_register:
-            for account in account_register[discord_id]:
-                accs.append(account)
-        return accs
 
 # ballchasing
     def _bc_get_request(self, auth_token, endpoint, params=[]):
@@ -222,6 +157,84 @@ class BCSixMans(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
 # other commands
+    async def _process_six_mans_replays(self, game):
+        embed = discord.Embed(
+            title="Six Mans Replay Group",
+            description="_Finding ballchasing replays..._",
+            color=discord.Color.default()
+        )
+        embed.set_footer("Game ID: {}".format(game.id))
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        embed.add_field(name="Blue", value="{}\n".format("\n".join(game.blue)), inline=True)
+        embed.add_field(name="Orange", value="{}\n".format("\n".join(game.orange)), inline=True)
+
+        guild = game.textChannel.guild
+        six_mans_queue = None
+        
+        for q in self.six_mans_cog.queues:
+            if game.queueId == q.id:
+                six_mans_queue = q
+                break
+        
+        if not six_mans_queue:
+            await game.textChannel.send(":x: Queue not found: Ballchasing Group cannot be made.")
+            return
+
+        channel = q.channels[0]
+
+        embed_message = await channel.send(embed=embed)
+
+        if not await self._get_top_level_group(guild):
+            embed.description = ':x: ballchasing group group not found. An Admin must use the `?setBCGroup` command to enable automatic uploads'
+            await embed_message.edit(embed=embed)
+            return
+
+        
+        # Find Series replays
+        replays_found = await self._find_series_replays(guild, game) 
+
+        if not replays_found:
+            embed.description = ":x: No matching replays found."
+            await embed_message.edit(embed=embed)
+            return
+
+        series_subgroup_id = await self._get_replay_destination(guild, six_mans_queue, game)
+        # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
+        if not series_subgroup_id:
+            embed.description = ":x: series_subgroup_id not found."
+            await embed_message.edit(embed=embed)
+            return
+
+        replay_ids, summary = replays_found
+        # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
+        
+        try:
+            embed.description = "_Processing {} replays..._".format(len(replay_ids))
+            await embed_message.edit(embed=embed)
+            return
+        except:
+            pass
+
+        tmp_replay_files = await self._download_replays(guild, replay_ids)
+        uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
+        renamed = await self._rename_replays(guild, uploaded_ids)
+        
+        embed.description = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
+        await embed_message.edit(embed=embed)
+        return
+
+    async def _get_all_accounts(self, guild, member):
+        accs = []
+        account_register = await self._get_account_register()
+        discord_id = str(member.id)
+        if discord_id in account_register:
+            for account in account_register[discord_id]:
+                accs.append(account)
+        return accs
+
     async def _react_prompt(self, ctx, prompt, if_not_msg=None):
         user = ctx.message.author
         react_msg = await channel.send(prompt)
@@ -582,6 +595,11 @@ class BCSixMans(commands.Cog):
     async def _get_auth_token(self, guild):
         return await self.account_manager_cog.get_bc_auth_token(guild)
 
+    async def _save_six_mans_role(self, guild, role):
+        await self.config.guild(guild).SixMansRole.set(role)
+    
+    async def _six_mans_role(self, guild):
+        return guild.get_role(await self.config.guild(guild).SixMansRole())
 
 class Observer(metaclass=abc.ABCMeta):
     def __init__(self):
