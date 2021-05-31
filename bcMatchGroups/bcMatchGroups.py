@@ -192,7 +192,7 @@ class BCMatchGroups(commands.Cog):
         try:
             team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
         except:
-            return await ctx.send(":x: You are rostered to a team in this server.")
+            return await ctx.send(":x: You are not rostered to a team in this server.")
         team_name = self._get_team_name(team_role)
 
         # Get team/tier information
@@ -280,9 +280,51 @@ class BCMatchGroups(commands.Cog):
         # embed.set_thumbnail(url=emoji_url)
         await bc_status_msg.edit(embed=embed)
 
+    @commands.command(aliases=['getmatch'])
+    @commands.guild_only()
+    async def getMatch(self, ctx, match_day=None, *, team_name=None):
+        if match_day == 'last':
+            match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
+
+        if not match_day:
+            match_day = await self._get_match_day(ctx.guild)
+        
+        member = ctx.message.author
+        if not team_name:
+            try:
+                team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
+            except:
+                return await ctx.send(":x: You are not rostered to a team in this server.")
+        else:
+            team_role = await self._get_team_role(ctx.guild, team_name)
+
+        team_name = self._get_team_name(team_role)
+        
+        embed = discord.Embed(
+            title="Match Day {}: {} vs ...".format(match_day, team_name),
+            description="_Finding Group for the {} from match day {}..._".format(team_name, match_day),
+            color=self._get_win_percentage_color(0, 0)
+        )
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        output_msg = await ctx.send(embed=embed)
+
+        match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
+
+        if not match_reported:
+            embed.description = ":x: This match was never reported."
+            return await output_msg.edit(embed=embed)
+
+        summary, code, opposing_team = match_reported
+        link = "https://ballchasing.com/group/{}".format(code)
+        embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
+        embed.description = "{}\n\nView Here: {}".format(summary, link)
+        await output_msg.edit(embed=embed)
+
     @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
-    async def matchDaySummary(self, ctx, match_day=None):
+    async def matchDaySummary(self, ctx, match_day=None, team=None):
         """Returns Franchise performance for the current, or provided match day"""
         await self._match_day_summary(ctx, match_day)
     
