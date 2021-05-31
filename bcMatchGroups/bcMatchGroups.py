@@ -533,7 +533,12 @@ class BCMatchGroups(commands.Cog):
             
             teams.append(team_name)
             tiers.append(self._get_team_tier(team_role))
-            all_results.append("{}-{}".format(wins, losses))
+            if wins > losses:
+                all_results.append("{}-{} W".format(wins, losses))
+            elif losses > wins:
+                all_results.append("{}-{} L".format(wins, losses))
+            else:
+                all_results.append("{}-{} T".format(wins, losses))
         
         teams.append("**Franchise**")
         tiers.append("-")
