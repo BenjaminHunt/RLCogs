@@ -283,6 +283,10 @@ class BCMatchGroups(commands.Cog):
     @commands.command(aliases=['getmatch'])
     @commands.guild_only()
     async def getMatch(self, ctx, match_day=None, *, team_name=None):
+        """Gets the ballchasing group for a given team and match day.
+        Default Team: (Your team)
+        Default Match Day: Current
+        """
         if match_day == 'last':
             match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
 
