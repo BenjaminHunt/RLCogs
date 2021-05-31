@@ -163,7 +163,7 @@ class BCSixMans(commands.Cog):
             description="_Finding ballchasing replays..._",
             color=discord.Color.default()
         )
-        embed.set_footer("Game ID: {}".format(text=game.id))
+        embed.set_footer(text="Game ID: {}".format(game.id))
         emoji_url = ctx.guild.icon_url
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
