@@ -310,7 +310,7 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         output_msg = await ctx.send(embed=embed)
 
-        match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
+        match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
 
         if not match_reported:
             embed.description = ":x: This match was never reported."
