@@ -310,6 +310,10 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         output_msg = await ctx.send(embed=embed)
 
+        auth_token = await self._get_member_bc_token(member)
+        if not auth_token:
+            group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
+            auth_token = await self._get_member_bc_token(ctx.guild.get_member(gruop_owner_id))
         match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
 
         if not match_reported:
