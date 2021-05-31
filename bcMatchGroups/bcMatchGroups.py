@@ -303,7 +303,7 @@ class BCMatchGroups(commands.Cog):
         embed = discord.Embed(
             title="Match Day {}: {} vs ...".format(match_day, team_name),
             description="_Finding Group for the {} from match day {}..._".format(team_name, match_day),
-            color=self._get_win_percentage_color(0, 0)
+            color=team_role.color
         )
         emoji_url = ctx.guild.icon_url
         if emoji_url:
