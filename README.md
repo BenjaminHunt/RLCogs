@@ -1,6 +1,5 @@
 # RLCogs
-Redbot Cogs for Rocket League
-# RSCBot
+Redbot Cogs for Rocket League:
 
 RLCogs is a collection of cogs written in Python that can be installed and used with the [Red Discord Bot](https://docs.discord.red/en/stable/index.html). These cogs are primarily written for franchises within [RSC (Rocket Soccar Confederation)](https://www.rocketsoccarconfederation.com/), a 3v3 Rocket League Amateur League that runs through [Discord](https://discord.gg/rsc).
 
@@ -10,8 +9,8 @@ Follow the Red Discord Bot installation guide for [Windows](https://docs.discord
 
 ```
 <p>load downloader
-<p>repo add RSCBot https://github.com/adammast/RSCBot [branch]
-<p>cog install RSCBot <cog_name>
+<p>repo add RLCogs https://github.com/adammast/RSCBot [branch]
+<p>cog install RLCogs <cog_name>
 <p>load <cog_name>
 ```
 
