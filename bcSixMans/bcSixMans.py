@@ -158,21 +158,20 @@ class BCSixMans(commands.Cog):
 
 # other commands
     async def _process_six_mans_replays(self, game):
+        guild = game.textChannel.guild
+        six_mans_queue = None
         embed = discord.Embed(
             title="Six Mans Replay Group",
             description="_Finding ballchasing replays..._",
             color=discord.Color.default()
         )
         embed.set_footer(text="Game ID: {}".format(game.id))
-        emoji_url = ctx.guild.icon_url
+        emoji_url = guild.icon_url
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         
         embed.add_field(name="Blue", value="{}\n".format("\n".join(game.blue)), inline=True)
         embed.add_field(name="Orange", value="{}\n".format("\n".join(game.orange)), inline=True)
-
-        guild = game.textChannel.guild
-        six_mans_queue = None
         
         for q in self.six_mans_cog.queues:
             if game.queueId == q.id:
@@ -184,7 +183,6 @@ class BCSixMans(commands.Cog):
             return
 
         channel = q.channels[0]
-
         embed_message = await channel.send(embed=embed)
 
         if not await self._get_top_level_group(guild):
