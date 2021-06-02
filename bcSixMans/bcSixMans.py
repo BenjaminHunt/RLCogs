@@ -166,6 +166,14 @@ class BCSixMans(commands.Cog):
             description="_Finding ballchasing replays..._",
             color=discord.Color.default()
         )
+        try:
+            if game.winner == 'blue':
+                 embed.color = discord.Color.blue()
+            else:
+                embed.color = discord.Color.orange()
+        except:
+            pass 
+
         embed.set_footer(text="Game ID: {}".format(game.id))
         emoji_url = guild.icon_url
         if emoji_url:
