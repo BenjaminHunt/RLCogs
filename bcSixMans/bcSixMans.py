@@ -92,6 +92,7 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def bct(self, ctx):
+        """ballchasing... time?"""
         key = await self.account_manager
 
 ## OBSERVER PATTERN IMPLEMENTATION ########################
@@ -170,8 +171,8 @@ class BCSixMans(commands.Cog):
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         
-        embed.add_field(name="Blue", value="{}\n".format("\n".join(game.blue)), inline=True)
-        embed.add_field(name="Orange", value="{}\n".format("\n".join(game.orange)), inline=True)
+        embed.add_field(name="Blue", value="{}\n".format("\n".join([player.mention for player in game.blue])), inline=True)
+        embed.add_field(name="Orange", value="{}\n".format("\n".join([player.mention for player in game.orange])), inline=True)
         
         for q in self.six_mans_cog.queues:
             if game.queueId == q.id:
