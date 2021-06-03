@@ -119,6 +119,12 @@ class BCSixMans(commands.Cog):
         self.six_mans_cog.add_observer(self)
 
     async def update(self, game):
+        try:
+            guild = game.textChannel.guild
+            if not await self._get_top_level_group(guild):
+                return
+        except:
+            return
         await game.textChannel.send("State: {}".format(game.game_state))
         if game.game_state == "game over":
             await self._process_six_mans_replays(game)
