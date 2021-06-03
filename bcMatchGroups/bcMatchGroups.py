@@ -489,7 +489,6 @@ class BCMatchGroups(commands.Cog):
             url += "?{}".format(params)
         
         # url = urllib.parse.quote_plus(url)
-        
         return requests.get(url, headers={'Authorization': auth_token})
 
     def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -964,16 +963,25 @@ class BCMatchGroups(commands.Cog):
 
         auth_token = await self._get_member_bc_token(bc_group_owner)
         bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
-        # await ctx.send(bc_group_owner_steam)
-        # await ctx.send(top_group_code)
+        
         endpoint = '/groups'
         params = [
             'creator={}'.format(bc_group_owner_steam),
             'group={}'.format(top_group_code)
         ]
 
-        r = self._bc_get_request(auth_token, endpoint, params)
+        r = self._bc_get_request(auth_token, endpoint, params=params)
         data = r.json()
+
+        debug = False
+        if match['home'] == 'Ocelots':
+            debug = True
+
+        if debug:
+            await ctx.send(bc_group_owner_steam)
+            await ctx.send(top_group_code)
+            await ctx.send('{}?{}'.format(endpoint, '&'.join(params)))
+            await ctx.send(data)
 
         # Dynamically create sub-group
         current_subgroup_id = top_group_code
