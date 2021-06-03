@@ -817,7 +817,7 @@ class BCMatchGroups(commands.Cog):
             return account_register[discord_id]
         return None
 
-    async def _get_steam_id_from_token(self, guild, auth_token):
+    async def _get_steam_id_from_token(self, auth_token):
         r = self._bc_get_request(auth_token, '')
         if r.status_code == 200:
             return r.json()['steam_id']
