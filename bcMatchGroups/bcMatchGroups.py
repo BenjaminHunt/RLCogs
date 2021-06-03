@@ -456,7 +456,8 @@ class BCMatchGroups(commands.Cog):
         )
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
-
+        
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=['teams'])
     @commands.guild_only()
