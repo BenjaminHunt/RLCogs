@@ -730,7 +730,7 @@ class BCMatchGroups(commands.Cog):
         # Search all players in game for replays until match is found
         for player in team_players:
             for steam_id in await self._get_steam_ids(player.id):
-                if player.name == 'Slywolf':
+                if player.nick == 'Sly':
                     await ctx.send(steam_id)
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
