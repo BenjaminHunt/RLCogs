@@ -967,6 +967,8 @@ class BCMatchGroups(commands.Cog):
             'group={}'.format(top_group_code)
         ]
 
+        await ctx.send('top: https://ballchasing.com/group/{}'.format(top_group_code))
+
         auth_token = await self._get_member_bc_token(bc_group_owner)
         r = self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
