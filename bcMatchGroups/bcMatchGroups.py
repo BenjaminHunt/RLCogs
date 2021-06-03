@@ -968,6 +968,7 @@ class BCMatchGroups(commands.Cog):
 
         auth_token = await self._get_member_bc_token(bc_group_owner)
         bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
+        await ctx.send(bc_group_owner_steam)
         endpoint = '/groups'
         params = [
             'creator={}'.format(bc_group_owner_steam),
