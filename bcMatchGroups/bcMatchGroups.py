@@ -978,6 +978,7 @@ class BCMatchGroups(commands.Cog):
             debug = True
 
         if debug:
+            await ctx.send(len(data['list']))
             await ctx.send(bc_group_owner_steam)
             await ctx.send(top_group_code)
             await ctx.send('{}?{}'.format(endpoint, '&'.join(params)))
