@@ -991,7 +991,7 @@ class BCMatchGroups(commands.Cog):
             if 'list' in data:
                 for data_subgroup in data['list']:
                     # await ctx.send(data_subgroup)
-                    await ctx.send(data_subgroup['name'])
+                    await ctx.send(data_subgroup['link'])
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
                         break
