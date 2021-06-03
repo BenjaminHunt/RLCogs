@@ -955,6 +955,7 @@ class BCMatchGroups(commands.Cog):
             return False
     
     async def _get_replay_destination(self, ctx, match):
+        # todo: wtf is going on with flame
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
         
@@ -968,8 +969,8 @@ class BCMatchGroups(commands.Cog):
 
         auth_token = await self._get_member_bc_token(bc_group_owner)
         bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
-        await ctx.send(bc_group_owner_steam)
-        await ctx.send(top_group_code)
+        # await ctx.send(bc_group_owner_steam)
+        # await ctx.send(top_group_code)
         endpoint = '/groups'
         params = [
             'creator={}'.format(bc_group_owner_steam),
