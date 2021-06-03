@@ -803,12 +803,7 @@ class BCMatchGroups(commands.Cog):
         return None
     
     async def _get_roster(self, team_role:discord.Role):
-        guild = team_role.guild
-        roster = []
-        for member in guild.members:
-            if team_role in member.roles:
-                roster.append(member)
-        return roster
+        return team_role.members
 
     async def _get_all_accounts(self, discord_id):
         discord_id = str(discord_id)
