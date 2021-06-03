@@ -955,13 +955,13 @@ class BCMatchGroups(commands.Cog):
         bc_group_owner = ctx.guild.get_member(top_level_group_info[0])
         top_group_code = top_level_group_info[1]
         
-        # RSC/<top level group>/MD <Match Day> vs <Opposing Team>
+        # <top level group>/MD <Match Day> vs <Opposing Team>
         ordered_subgroups = [
             "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
         ]
 
         endpoint = '/groups'
-        
+        await ctx.send(bc_group_owner.name)
         params = [
             'creator={}'.format(bc_group_owner),
             'group={}'.format(top_group_code)
