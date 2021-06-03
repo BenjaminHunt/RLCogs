@@ -724,6 +724,7 @@ class BCMatchGroups(commands.Cog):
      
     async def _find_match_replays(self, ctx, member, match, team_players=None):
         if not team_players:
+            team_role = await self._get_team_role(ctx.guild, match['home'])
             team_players = await self._get_roster(team_role)
         # search for appearances in private matches
         endpoint = "/replays"
