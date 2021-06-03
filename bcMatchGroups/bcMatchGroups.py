@@ -433,6 +433,31 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
 
+    @commands.command(aliases=['team'])
+    @commands.guild_only()
+    async def roster(self, ctx, team):
+
+        member = ctx.message.author
+        if not team_name:
+            try:
+                team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
+            except:
+                return await ctx.send(":x: You are not rostered to a team in this server.")
+        else:
+            team_role = await self._get_team_role(ctx.guild, team_name)
+
+        team_name = self._get_team_name(team_role)
+        emoji_url = ctx.guild.icon_url
+        
+        embed = discord.Embed(
+            title="{} Roster".format(team_name),
+            description='\n'.join([player.mention for player in await self._get_roster(team_role)]),
+            color=team_role.color
+        )
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+
+
     @commands.command(aliases=['teams'])
     @commands.guild_only()
     async def listTeams(self, ctx):
@@ -778,6 +803,14 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
+    async def _get_roster(self, team_role:discord.Role):
+        guild = team_role.guild
+        roster = []
+        for member in guild.members:
+            if team_role in member.roles:
+                roster.append(member)
+        return roster
+
     async def _get_all_accounts(self, discord_id):
         discord_id = str(discord_id)
         account_register = await self.account_manager_cog.get_account_register()
