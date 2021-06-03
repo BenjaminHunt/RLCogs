@@ -168,7 +168,7 @@ class BCSixMans(commands.Cog):
         )
         try:
             if game.winner == 'blue':
-                 embed.color = discord.Color.blue()
+                embed.color = discord.Color.blue()
             else:
                 embed.color = discord.Color.orange()
         except:
