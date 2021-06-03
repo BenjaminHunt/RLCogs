@@ -221,7 +221,7 @@ class BCMatchGroups(commands.Cog):
         bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
         auth_token = await self._get_member_bc_token(member)
         if not auth_token:
-            auth_token = await self._get_member_bc_token(ctx.guild.get_member(member_id))
+            auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
         match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
 
         if match_reported:
