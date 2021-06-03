@@ -981,7 +981,6 @@ class BCMatchGroups(commands.Cog):
             await ctx.send(bc_group_owner_steam)
             await ctx.send(top_group_code)
             await ctx.send('{}?{}'.format(endpoint, '&'.join(params)))
-            await ctx.send(data)
 
         # Dynamically create sub-group
         current_subgroup_id = top_group_code
@@ -994,8 +993,8 @@ class BCMatchGroups(commands.Cog):
             # Check if next subgroup exists
             if 'list' in data:
                 for data_subgroup in data['list']:
-                    # await ctx.send(data_subgroup)
-                    # await ctx.send(data_subgroup['link'])
+                    if debug:
+                        await ctx.send(data_subgroup)
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
                         break
