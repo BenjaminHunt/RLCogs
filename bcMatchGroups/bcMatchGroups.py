@@ -972,6 +972,8 @@ class BCMatchGroups(commands.Cog):
         r = self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
 
+        await ctx.send(data)
+
         # Dynamically create sub-group
         current_subgroup_id = top_group_code
         next_subgroup_id = None
