@@ -961,7 +961,6 @@ class BCMatchGroups(commands.Cog):
         ]
 
         endpoint = '/groups'
-        await ctx.send(bc_group_owner.name)
         params = [
             'creator={}'.format(bc_group_owner),
             'group={}'.format(top_group_code)
@@ -984,6 +983,7 @@ class BCMatchGroups(commands.Cog):
             # Check if next subgroup exists
             if 'list' in data:
                 for data_subgroup in data['list']:
+                    await ctx.send(data_subgroup)
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
                         break
