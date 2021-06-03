@@ -817,6 +817,12 @@ class BCMatchGroups(commands.Cog):
             return account_register[discord_id]
         return None
 
+    async def _get_steam_id_from_token(self, guild, auth_token):
+        r = self._bc_get_request(auth_token, '')
+        if r.status_code == 200:
+            return r.json()['steam_id']
+        return None
+
     async def _get_steam_ids(self, discord_id):
         discord_id = str(discord_id)
         steam_accounts = []
@@ -960,19 +966,16 @@ class BCMatchGroups(commands.Cog):
             "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
         ]
 
+        auth_token = await self._get_member_bc_token(bc_group_owner)
+        bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
         endpoint = '/groups'
         params = [
-            'creator={}'.format(bc_group_owner),
+            'creator={}'.format(bc_group_owner_steam),
             'group={}'.format(top_group_code)
         ]
 
-        await ctx.send('top: https://ballchasing.com/group/{}'.format(top_group_code))
-
-        auth_token = await self._get_member_bc_token(bc_group_owner)
         r = self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
-
-        await ctx.send(data)
 
         # Dynamically create sub-group
         current_subgroup_id = top_group_code
