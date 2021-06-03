@@ -221,7 +221,7 @@ class BCMatchGroups(commands.Cog):
         bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
         auth_token = await self._get_member_bc_token(member)
         if not auth_token:
-            auth_token = await self._get_member_bc_token(ctx.guild.get_member(member_id))
+            auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
         match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
 
         if match_reported:
@@ -318,7 +318,7 @@ class BCMatchGroups(commands.Cog):
         auth_token = await self._get_member_bc_token(member)
         if not auth_token:
             group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
-            auth_token = await self._get_member_bc_token(ctx.guild.get_member(gruop_owner_id))
+            auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
         match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
 
         if not match_reported:
@@ -432,6 +432,31 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         
         await output_msg.edit(embed=embed)
+
+    @commands.command(aliases=['team'])
+    @commands.guild_only()
+    async def roster(self, ctx, team_name=None):
+        member = ctx.message.author
+        if not team_name:
+            try:
+                team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
+            except:
+                return await ctx.send(":x: You are not rostered to a team in this server.")
+        else:
+            team_role = await self._get_team_role(ctx.guild, team_name)
+
+        team_name = self._get_team_name(team_role)
+        emoji_url = ctx.guild.icon_url
+        
+        embed = discord.Embed(
+            title="{} Roster".format(team_name),
+            description='\n'.join([player.mention for player in await self._get_roster(team_role)]),
+            color=team_role.color
+        )
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        await ctx.send(embed=embed)
 
     @commands.command(aliases=['teams'])
     @commands.guild_only()
@@ -699,7 +724,8 @@ class BCMatchGroups(commands.Cog):
      
     async def _find_match_replays(self, ctx, member, match, team_players=None):
         if not team_players:
-            team_players = [member]
+            team_role = await self._get_team_role(ctx.guild, match['home'])
+            team_players = await self._get_roster(team_role)
         # search for appearances in private matches
         endpoint = "/replays"
 
@@ -776,11 +802,25 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
+    async def _get_roster(self, team_role:discord.Role):
+        guild = team_role.guild
+        roster = []
+        for member in guild.members:
+            if team_role in member.roles:
+                roster.append(member)
+        return roster
+
     async def _get_all_accounts(self, discord_id):
         discord_id = str(discord_id)
         account_register = await self.account_manager_cog.get_account_register()
         if discord_id in account_register:
             return account_register[discord_id]
+        return None
+
+    async def _get_steam_id_from_token(self, auth_token):
+        r = self._bc_get_request(auth_token, '')
+        if r.status_code == 200:
+            return r.json()['steam_id']
         return None
 
     async def _get_steam_ids(self, discord_id):
@@ -915,25 +955,28 @@ class BCMatchGroups(commands.Cog):
             return False
     
     async def _get_replay_destination(self, ctx, match):
+        # todo: wtf is going on with flame
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
         
         bc_group_owner = ctx.guild.get_member(top_level_group_info[0])
         top_group_code = top_level_group_info[1]
         
-        # RSC/<top level group>/MD <Match Day> vs <Opposing Team>
+        # <top level group>/MD <Match Day> vs <Opposing Team>
         ordered_subgroups = [
             "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
         ]
 
+        auth_token = await self._get_member_bc_token(bc_group_owner)
+        bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
+        # await ctx.send(bc_group_owner_steam)
+        # await ctx.send(top_group_code)
         endpoint = '/groups'
-        
         params = [
-            'creator={}'.format(bc_group_owner),
+            'creator={}'.format(bc_group_owner_steam),
             'group={}'.format(top_group_code)
         ]
 
-        auth_token = await self._get_member_bc_token(bc_group_owner)
         r = self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
 
@@ -948,6 +991,8 @@ class BCMatchGroups(commands.Cog):
             # Check if next subgroup exists
             if 'list' in data:
                 for data_subgroup in data['list']:
+                    # await ctx.send(data_subgroup)
+                    # await ctx.send(data_subgroup['link'])
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
                         break
