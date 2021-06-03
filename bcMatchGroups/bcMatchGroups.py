@@ -435,7 +435,7 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command(aliases=['team'])
     @commands.guild_only()
-    async def roster(self, ctx, team):
+    async def roster(self, ctx, team_name=None):
 
         member = ctx.message.author
         if not team_name:
