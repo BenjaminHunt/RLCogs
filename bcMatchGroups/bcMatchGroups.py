@@ -966,7 +966,7 @@ class BCMatchGroups(commands.Cog):
         
         endpoint = '/groups'
         params = [
-            'creator={}'.format(bc_group_owner_steam),
+            # 'creator={}'.format(bc_group_owner_steam),
             'group={}'.format(top_group_code)
         ]
 
