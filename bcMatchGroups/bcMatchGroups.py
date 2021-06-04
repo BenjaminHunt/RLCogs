@@ -856,7 +856,7 @@ class BCMatchGroups(commands.Cog):
         home_team = match['home']       # match cog
         away_team = match['away']       # match cog
 
-        if not self.is_full_replay(replay_data):
+        if not self._is_full_replay(replay_data):
             return False
 
         replay_teams = self.get_replay_teams(replay_data)
@@ -866,7 +866,7 @@ class BCMatchGroups(commands.Cog):
 
         return home_team_found and away_team_found
     
-    def is_full_replay(self, replay_data):
+    def _is_full_replay(self, replay_data):
         if 'duration' in replay_data:
             if replay_data['duration'] < 300:
                 return False

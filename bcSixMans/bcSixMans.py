@@ -303,7 +303,7 @@ class BCSixMans(commands.Cog):
                     steam_accounts.append(account[1])
         return steam_accounts
 
-    def is_full_replay(self, replay_data):
+    def _is_full_replay(self, replay_data):
         if 'duration' in replay_data:
             if replay_data['duration'] < 300:
                 return False
