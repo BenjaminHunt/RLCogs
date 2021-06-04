@@ -21,12 +21,9 @@ Note: `<p>` represents the bot prefix.
 
 A **Ballchasing** (BC) authentication token or "Upload Key" must be registered with the bot to enable accounts to be added and removed. After logging into [ballchasing](https://ballchasing.com), you may obtain a ballchasing token [here](https://ballchasing.com/upload).
 
-A **Tracker Network** (TRN) authentication token or "API Key" is not required, but enables some improvements with the bot, such as registering accounts by their id name, rather than their id code. After logging into [The Tracker Network](https://tracker.gg), you may obtain a TRN Auth Token by **creating a project** in the [Developer Portal](https://tracker.gg/developers).
-
 ### Example:
 
-- Without TRN Token: `<p>registerAccount steam 76561198380344413`
-- With TRN Token: `<p>registerAccount steam nullidea`
+`<p>registerAccount steam 76561198380344413`
 
 <br>
 
@@ -37,11 +34,6 @@ A **Tracker Network** (TRN) authentication token or "API Key" is not required, b
 ### Register Ballchasing Token
 
 - `<p>setGuildBCAuthToken <auth token>`
-
-### Register Tracker-Network Token
-
-- `<p>setTRNAuthToken <auth token>`
-  <br>
 
 ---
 
