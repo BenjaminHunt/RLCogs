@@ -309,23 +309,6 @@ class BCSixMans(commands.Cog):
                     steam_accounts.append(account[1])
         return steam_accounts
 
-    def _is_full_replay(self, replay_data):
-        if 'duration' in replay_data:
-            if replay_data['duration'] < 300:
-                return False
-        else:
-            return False
-        
-        blue_goals = replay_data['blue']['goals'] if 'goals' in replay_data['blue'] else 0
-        orange_goals = replay_data['orange']['goals'] if 'goals' in replay_data['orange'] else 0
-        if blue_goals == orange_goals:
-            return False
-        for team in ['blue', 'orange']:
-            for player in replay_data[team]['players']:
-                if player['start_time'] == 0:
-                    return True
-        return False
-
     def _get_account_replay_team(self, platform, plat_id, replay_data):
         for team in ['blue', 'orange']:
             for player in replay_data[team]['players']:
@@ -381,6 +364,23 @@ class BCSixMans(commands.Cog):
                 winner = 'orange'
 
         return winner
+
+    def _is_full_replay(self, replay_data):
+        if 'duration' in replay_data:
+            if replay_data['duration'] < 300:
+                return False
+        else:
+            return False
+        
+        blue_goals = replay_data['blue']['goals'] if 'goals' in replay_data['blue'] else 0
+        orange_goals = replay_data['orange']['goals'] if 'goals' in replay_data['orange'] else 0
+        if blue_goals == orange_goals:
+            return False
+        for team in ['blue', 'orange']:
+            for player in replay_data[team]['players']:
+                if player['start_time'] == 0:
+                    return True
+        return False
 
     async def _get_replay_destination(self, guild, queue, game):
         
