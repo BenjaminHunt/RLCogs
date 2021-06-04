@@ -40,12 +40,16 @@ class AccountManager(commands.Cog):
         except:
             await ctx.send(":x: Error setting auth token.")
 
+    # disabled
     @commands.command(aliases=['setTRNAuthKey'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def setTRNAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Tracker Network API requests.
+
+        Note: Tracker Network's Rocket League API has been disabled :x:
         """
+        return
         await ctx.message.delete()
         try:
             await self._save_trn_auth_token(ctx.guild, auth_token)
@@ -64,7 +68,6 @@ class AccountManager(commands.Cog):
         show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
         await ctx.send(show_accounts)
 
-    # TODO: enable use of finding accounts by name with tracker network lookup
     @commands.command(aliases=['registeraccount', 'accountregister', 'accountRegister', 'addAccount', 'addaccount', 'addacc'])
     @commands.guild_only()
     async def registerAccount(self, ctx, platform:str, identifier:str):
@@ -89,12 +92,13 @@ class AccountManager(commands.Cog):
 
         member = ctx.message.author
         valid_account = await self._validate_account(ctx, platform, identifier)
-        if not valid_account:
-            if await self._get_trn_auth_token(ctx.guild):
-                identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
-                valid_account = await self._validate_account(ctx, platform, identifier)
-            else:
-                valid_account = False
+        # Tracker Network down
+        # if not valid_account:
+        #     if await self._get_trn_auth_token(ctx.guild):
+        #         identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
+        #         valid_account = await self._validate_account(ctx, platform, identifier)
+        #     else:
+        #         valid_account = False
 
         if valid_account:
             username, appearances = valid_account
@@ -225,38 +229,7 @@ class AccountManager(commands.Cog):
 
         if valid_account:
             username, appearances = valid_account
-        else:
-            found = False
-            identifier = await self._trn_id_lookup(ctx.guild, platform, identifier)
-            if identifier:
-                valid_account = await self._validate_account(ctx, platform, identifier)
-                if valid_account:
-                    username, appearances = valid_account
-                    found = True
-            
-            if not found:
-                endpoint = '/replays'
-                params = ['player-name={}'.format(identifier), 'count=5']
-                r = await self._bc_get_request(ctx.guild, endpoint, params=params)
-                data = r.json()
-                for replay in data['list']:
-                    for team in ['blue', 'orange']:
-                        for player in replay[team]['players']:
-                            if player['name'] == identifier and player['id']['platform'] == platform:
-                                identifier = player['id']['id']
-                                valid_account = await self._validate_account(ctx, platform, identifier)
-                                if valid_account:
-                                    username, appearances = valid_account
-                                    found = True
-                                    break
-
-            if not found:
-                message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=identifier, platform=platform)
-                if platform == 'epic':
-                    message += "\nTry finding the ballchasing ID for this epic account by searching for the account manually."
-                await ctx.send(message)
-                return False
-
+        
         account_register = await self.get_account_register()
         
         # Make sure not a repeat account
@@ -327,6 +300,7 @@ class AccountManager(commands.Cog):
                 accs.append(account)
         return accs
 
+    # Disabled
     async def _trn_id_lookup(self, guild, platform, identifier):
         game = 'rocket-league'
         url = 'https://public-api.tracker.gg/v2/{}/standard/profile'.format(game)
@@ -346,7 +320,7 @@ class AccountManager(commands.Cog):
         except:
             return None
 
-
+# ballchasing
     async def _bc_get_request(self, guild, endpoint, params=[], auth_token=None):
         if not auth_token:
             auth_token = await self.get_bc_auth_token(guild)
@@ -386,6 +360,7 @@ class AccountManager(commands.Cog):
         
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
+# other commands
     async def _react_prompt(self, ctx, prompt, if_not_msg=None):
         user = ctx.message.author
         react_msg = await ctx.send(prompt)
@@ -448,16 +423,18 @@ class AccountManager(commands.Cog):
                     steam_accounts.append(account[1])
         return steam_accounts
 
-    # json db
+# json db
     async def get_bc_auth_token(self, guild):
         return await self.config.guild(guild).BCAuthToken()
     
     async def _save_bc_auth_token(self, guild, token):
         await self.config.guild(guild).BCAuthToken.set(token)
   
+    # disabled
     async def _get_trn_auth_token(self, guild):
         return await self.config.guild(guild).TRNAuthToken()
     
+    # disabled
     async def _save_trn_auth_token(self, guild, token):
         await self.config.guild(guild).TRNAuthToken.set(token)
 
