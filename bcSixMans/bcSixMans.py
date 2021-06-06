@@ -407,8 +407,20 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        r = self._bc_get_request(auth_token, endpoint, params)
+        r = self._bc_get_request(auth_token, endpoint, params=params)
         data = r.json()
+
+        ## TEST OUTPUT - admin-input
+        debug_channel = None
+        for channel in guild.text_channels:
+            if channel.id == 816122799679864902:
+                debug_channel = channel
+                break
+        
+        if channel and not data['list']:
+            await debug_channel.send("No data")
+            await debug_channel.send(data)
+            return None
 
         # Dynamically create sub-group
         current_subgroup_id = top_level_group
