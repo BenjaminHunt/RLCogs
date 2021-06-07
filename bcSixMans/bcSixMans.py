@@ -95,6 +95,11 @@ class BCSixMans(commands.Cog):
         """ballchasing... time?"""
         key = await self.account_manager
 
+    @commands.command()
+    @commands.guild_only()
+    async def authToken(self, ctx):
+        await ctx.send("token: {}".format(self._get_auth_token(ctx.guild))
+        
 ## OBSERVER PATTERN IMPLEMENTATION ########################
 
     @commands.command()
