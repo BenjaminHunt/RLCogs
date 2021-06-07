@@ -469,7 +469,7 @@ class BCMatchGroups(commands.Cog):
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
     async def testwp(self, ctx, wins:int, losses:int):
-        """Tests WP -- %s"""
+        """Tests WP -- %d""" % (verify_timeout)
         color = self._get_win_percentage_color(wins, losses)
         try:
             wp = (wins)/(wins+losses)
