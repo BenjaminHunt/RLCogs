@@ -10,5 +10,3 @@ class config:
     player_identification = 'by-id'                 # setting -- Alternative 'by-name'
     sort_by = 'replay-date'                         # 'created
     sort_dir = 'desc'                               # 'asc'
-
-    help_testwp = "FOO BAR :)\n\nteam size: {}"
