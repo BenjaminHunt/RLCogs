@@ -11,4 +11,4 @@ class config:
     sort_by = 'replay-date'                         # 'created
     sort_dir = 'desc'                               # 'asc'
 
-    help_testwp = "FOO BAR :) team size: {}"
+    help_testwp = "FOO BAR :)\n\nteam size: {}"
