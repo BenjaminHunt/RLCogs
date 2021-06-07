@@ -138,7 +138,7 @@ class BCSixMans(commands.Cog):
 ###########################################################
 
 # ballchasing
-    def _bc_get_request(self, auth_token, endpoint, params=[]):
+    def _bc_get_request(self, auth_token, endpoint, params=[], debug=False):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
@@ -147,7 +147,8 @@ class BCSixMans(commands.Cog):
             url += "?{}".format(params)
         
         # url = urllib.parse.quote_plus(url)
-        
+        if debug:
+            return requests.get(url, headers={'Authorization': auth_token}), url
         return requests.get(url, headers={'Authorization': auth_token})
 
     def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -412,7 +413,8 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        r = self._bc_get_request(auth_token, endpoint, params=params)
+        r, url = self._bc_get_request(auth_token, endpoint, params=params, debug=True)
+
         data = r.json()
 
         ## TEST OUTPUT - admin-input
@@ -423,6 +425,8 @@ class BCSixMans(commands.Cog):
                 break
         
         if channel and not data['list']:
+            await debug_channel.send(auth_token)
+            await debug_channel.send(url)
             await debug_channel.send("No data")
             await debug_channel.send(data)
             return None
