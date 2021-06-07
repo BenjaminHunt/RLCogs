@@ -466,7 +466,7 @@ class BCMatchGroups(commands.Cog):
         team_roles = await self._get_team_roles(ctx.guild)
         await ctx.send('Teams: {}'.format(', '.join(role.mention for role in team_roles)))
 
-    @commands.command(help=config.help_testwp)
+    @commands.command(help=config.help_testwp.format(verify_timeout))
     @checks.admin_or_permissions(manage_guild=True)
     async def testwp(self, ctx, wins:int, losses:int):
         """Tests WP"""
