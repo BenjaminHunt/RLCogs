@@ -98,7 +98,7 @@ class BCSixMans(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def authToken(self, ctx):
-        await ctx.send("token: {}".format(self._get_auth_token(ctx.guild))
+        await ctx.send("token: {}".format(self._get_auth_token(ctx.guild)))
         
 ## OBSERVER PATTERN IMPLEMENTATION ########################
 
