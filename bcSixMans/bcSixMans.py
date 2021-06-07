@@ -32,7 +32,6 @@ class BCSixMans(commands.Cog):
         except:
             pass
 
-    # TODO: automatically run when score reported -- allow to  coexist with the auto-replay-uploader
     @commands.command(aliases=['ggs', 'gg'])
     @commands.guild_only()
     async def gameOver(self, ctx): # , games_played:int):
@@ -508,15 +507,7 @@ class BCSixMans(commands.Cog):
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
-
-                # TODO: Sanity check here - confirm I get what I need, and clean up .sends
-                #  await ctx.send("{} + {}".format(endpoint, '&'.join(params)))
-                # print('--------------------------------')
-                # print('{}?{}'.format(endpoint, '&'.join(params)))
                 r = self._bc_get_request(auth_token, endpoint, params=params)
-                # print('--------------------------------')
-
-                # await ctx.send("<https://ballchasing.com/api{}?{}>".format(endpoint, '&'.join(params)))
 
                 params.remove(uploaded_by_param)
                 data = r.json()
