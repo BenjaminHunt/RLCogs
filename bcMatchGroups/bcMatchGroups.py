@@ -873,9 +873,12 @@ class BCMatchGroups(commands.Cog):
         if blue_goals == orange_goals:
             return False
         for team in ['blue', 'orange']:
-            for player in replay_data[team]['players']:
-                if player['start_time'] == 0:
-                    return True
+            try:
+                for player in replay_data[team]['players']:
+                    if player['start_time'] == 0:
+                        return True
+            except:
+                pass
         return False
     
     def get_replay_teams(self, replay):
