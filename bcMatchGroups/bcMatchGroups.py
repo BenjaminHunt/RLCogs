@@ -978,7 +978,8 @@ class BCMatchGroups(commands.Cog):
 
         debug = False
         if match['home'] == 'Ocelots':
-            debug = True
+            pass 
+            # debug = True
 
         if debug:
             await ctx.send(len(data['list']))
