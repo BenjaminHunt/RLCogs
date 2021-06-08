@@ -953,7 +953,6 @@ class BCMatchGroups(commands.Cog):
             return False
     
     async def _get_replay_destination(self, ctx, match):
-        # todo: wtf is going on with flame
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
         
@@ -1029,7 +1028,7 @@ class BCMatchGroups(commands.Cog):
                     next_subgroup_id = data['id']
                 except:
                     await ctx.send(":x: Error creating Ballchasing group: {}".format(next_group_name))
-                    await ctx.send(data)
+                    # await ctx.send(data)
                     return False
             
         return next_subgroup_id
