@@ -389,7 +389,6 @@ class BCSixMans(commands.Cog):
         return False
 
     async def _get_replay_destination(self, guild, queue, game):
-        
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
         top_level_group = await self._get_top_level_group(guild)

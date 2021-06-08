@@ -618,7 +618,7 @@ class BCMatchGroups(commands.Cog):
             return 0, 0, opposing_team
         
         if not data['list']:
-            return 0, 0
+            return 0, 0, opposing_team
 
         franchise_wins = 0
         franchise_losses = 0
