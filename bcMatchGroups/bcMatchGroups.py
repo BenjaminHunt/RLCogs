@@ -878,7 +878,7 @@ class BCMatchGroups(commands.Cog):
                     if player['start_time'] == 0:
                         return True
             except:
-                pass
+                return False
         return False
     
     def get_replay_teams(self, replay):
