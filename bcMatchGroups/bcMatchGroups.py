@@ -328,7 +328,7 @@ class BCMatchGroups(commands.Cog):
         summary, code, opposing_team = match_reported
         link = "https://ballchasing.com/group/{}".format(code)
         embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
-        embed.description = "{}\n\n[View this group!]({})".format(summary, link)
+        embed.description = "{}\n\n[Click here to view this group!]({})".format(summary, link)
         await output_msg.edit(embed=embed)
 
     @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
