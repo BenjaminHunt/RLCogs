@@ -276,7 +276,7 @@ class BCMatchGroups(commands.Cog):
         
         renamed = await self._rename_replays(ctx, auth_token, uploaded_ids)
 
-        embed.description = "Match summary:\n{}\n\nView the ballchasing group: https://ballchasing.com/group/{}\n\n:white_check_mark: Done".format(summary, match_subgroup_id)
+        embed.description = "Match summary:\n{}\n\n[View the ballchasing group!] (https://ballchasing.com/group/{})\n\n:white_check_mark: Done".format(summary, match_subgroup_id)
         # embed.set_thumbnail(url=emoji_url)
         await bc_status_msg.edit(embed=embed)
 
