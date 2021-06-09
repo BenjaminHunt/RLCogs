@@ -423,7 +423,7 @@ class BCMatchGroups(commands.Cog):
             color=team_role.color  # self._get_win_percentage_color(total_wins, total_losses)
         )
 
-        bc_link = "[Ballchasing Season Group](https://ballchasing.com/group/{})".format(group_code)
+        bc_link = "[Click here to see all groups!](https://ballchasing.com/group/{})".format(group_code)
         # embed.add_field(name="MD", value="{}\n".format("\n".join(match_days)), inline=True)
         embed.add_field(name="Opponent", value="{}\n".format("\n".join(opponents)), inline=True)
         embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
