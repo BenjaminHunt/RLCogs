@@ -121,7 +121,7 @@ class AccountManager(commands.Cog):
                     account_register[str(member.id)] = [[platform, identifier]]
                 await self._save_account_register(account_register)
                 await ctx.send("Done.")
-                return
+            return
 
         account_register = await self.get_account_register()
         
