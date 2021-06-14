@@ -103,11 +103,25 @@ class AccountManager(commands.Cog):
         if valid_account:
             username, appearances = valid_account
         else:
-            message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=initial_id, platform=platform)
-            if platform == 'epic':
-                message += "\nTry finding the ballchasing ID for this epic account by searching for the account manually."
-            await ctx.send(message)
-            return False
+            # here
+            # message = ":x: No ballchasing replays found for user: **{identifier}** ({platform}) ".format(identifier=initial_id, platform=platform)
+            # if platform == 'epic':
+            #     message += "\nTry finding the ballchasing ID for this epic account by searching for the account manually."
+            # await ctx.send(message)
+            # return False
+            prompt = "It appears that no games have been played on this account. Would you like to add it anyways?"
+            prompt += "\n_Warning: This may cause issues if the account does not exist_"
+            nvm_message = "Registration cancelled."
+            if await self._react_prompt(ctx, prompt, nvm_message):
+                account_register = await self.get_account_register()
+                if str(member.id) in account_register:
+                    if [platform, identifier] not in account_register[str(member.id)]:
+                        account_register[str(member.id)].append([platform, identifier])
+                else:
+                    account_register[str(member.id)] = [[platform, identifier]]
+                await self._save_account_register(account_register)
+                await ctx.send("Done.")
+                return
 
         account_register = await self.get_account_register()
         
