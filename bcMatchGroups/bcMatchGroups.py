@@ -433,6 +433,23 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
 
+    @commands.command()
+    @commands.guild_only()
+    async def rosters(self, ctx, team_name=None):
+        emoji_url = ctx.guild.icon_url
+        team_roles = await self._get_team_roles(ctx.guild)
+        for team_role in team_roles:
+            team_name = self._get_team_name(team_role)
+            embed = discord.Embed(
+                title="{} Roster".format(team_name),
+                description='\n'.join([player.mention for player in await self._get_roster(team_role)]),
+                color=team_role.color
+            )
+            if emoji_url:
+                embed.set_thumbnail(url=emoji_url)
+            
+            await ctx.send(embed=embed)
+
     @commands.command(aliases=['team'])
     @commands.guild_only()
     async def roster(self, ctx, team_name=None):
