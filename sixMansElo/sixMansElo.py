@@ -9,7 +9,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults = {"SixMansRoleRanges": {}, "LogChannel": None}
+defaults = {"RoleRanges": {}, "LogChannel": None}
 verify_timeout = 30
 k_factor = 30
 
@@ -302,7 +302,7 @@ class SixMansElo(commands.Cog):
         return [guild.get_role(role_id) for role_id in (await self._get_sm_role_ranks(guild)).keys()]
 
     async def _get_role_ranges(self, guild: discord.Guild):
-        return await self.config.guild(guild).SixMansRoleRanges()
+        return await self.config.guild(guild).RoleRanges()
 
     async def _save_role_ranges(self, guild: discord.Guild, role_ranges):
         await self.config.guild(guild).SixMansRoleRanges.set(role_ranges)
