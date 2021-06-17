@@ -11,7 +11,7 @@ from redbot.core.utils.menus import start_adding_reactions
 
 defaults = {"SixMansRoleRanges": [], "LogChannel": None}
 verify_timeout = 30
-k_factor = 40
+k_factor = 30
 
 class SixMansElo(commands.Cog):
     """Manages aspects of Ballchasing Integrations with RSC"""
@@ -20,12 +20,29 @@ class SixMansElo(commands.Cog):
         self.bot = bot
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
+        self.players = []
         self.six_mans_cog = bot.get_cog("SixMans")
 
         try:
             self.observe_six_mans()
         except:
             pass
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def setLogChannel(self, ctx, log_channel: discord.TextChannel):
+        """Sets the channel where all transaction messages will be posted"""
+        await self._save_log_channel(ctx.guild, log_channel.id)
+        await ctx.send("Done")
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def unsetLogChannel(self, ctx):
+        """Sets the channel where all transaction messages will be posted"""
+        await self._save_log_channel(ctx.guild, None)
+        await ctx.send("Done")
     
     @commands.command()
     @commands.guild_only()
@@ -71,6 +88,24 @@ class SixMansElo(commands.Cog):
         else:
             await ctx.send("Error adding player: {0}".format(member.name))
 
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def addEloRole(self, role: discord.Role, min_elo: float, max_elo: float):
+        await self._register_role_range(role, min_elo, max_elo)
+        log_channel = await self._get_log_channel(player.guild)
+        for player in self.players:
+            if player.elo_rating >= min_elo and player.elo_rating <= max_elo:
+                await player.member.add_roles(role)
+                if log_channel:
+                    message = "{} has had their roles updated!".format(player.member.mention)
+                    message += "\n\t - **Added:** {}".format(role.name)
+        await ctx.send("Done.")
+
+
+    @commands.guild_only()
+    @commands.Cog.listener("on_guild_role_delete")
+    async def on_guild_role_delete(self, role):
 
 ## OBSERVER PATTERN IMPLEMENTATION ########################
 
@@ -153,7 +188,7 @@ class SixMansElo(commands.Cog):
         if player_elo == None:
             elo = await self._get_player_rating(player)
         
-        log_channel = None
+        log_channel = await self._get_log_channel(player.guild)
 
         guild = player.guild
         all_elo_roles = await self._get_sm_roles(guild)
@@ -229,6 +264,15 @@ class SixMansElo(commands.Cog):
         role_range[role.id] = [min_elo, max_elo]
         await self._save_role_ranges(guild, role_range)
 
+    async def _unregister_role_range(self, role: discord.Role):
+        guild = role.guild
+        role_ranges = await self._get_role_ranges(guild)
+        if str(role.id) in role_ranges:
+            del role_ranges[str(role.id)]
+            await self._save_role_ranges(role_ranges)
+            if log_channel:
+                await log_channel.send("The Six Mans role **{}** has been removed.".format(role.name))
+
     async def _get_role_range(self, role: discord.Role):
         guild = role.guild
         role_ranges = await self._get_role_ranges(guild)
@@ -258,7 +302,7 @@ class SixMansElo(commands.Cog):
                 return player
         return None
 
-    async def _add_player(self, ctx, member, wins, losses, elo_rating):
+    async def _add_player(self, ctx, member, wins, losses, elo_rating, assign_elo_roles=True):
         await self.load_players(ctx)
         players = self.players
         
@@ -289,6 +333,8 @@ class SixMansElo(commands.Cog):
         try:
             player = Player(member, wins, losses, elo_rating, -1)
             players.append(player)
+            if add_elo_roles:
+                await self._reassign_elo_roles(member, elo_rating)
         except:
             return False
         await self._save_players(ctx, players)
@@ -313,6 +359,11 @@ class SixMansElo(commands.Cog):
 #endregion uncategorized helpers
 
 #region load/save methods
+    async def _save_log_channel(self, guild, channel_id):
+        await self.config.guild(guild).LogChannel.set(channel_id)
+
+    async def _get_log_channel(self, guild: discord.Guild):
+        guild.get_channel(await self.config.guild(guild).LogChannel())
 
     async def load_players(self, ctx, force_load = False):
         players = await self._players(ctx)
