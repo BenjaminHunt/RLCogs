@@ -19,7 +19,7 @@ class SixMansElo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
-        # self.config.register_guild(**defaults)
+        self.config.register_guild(**defaults)
         self.players = []
         self.six_mans_cog = bot.get_cog("SixMans")
 
