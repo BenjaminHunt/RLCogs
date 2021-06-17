@@ -102,6 +102,18 @@ class SixMansElo(commands.Cog):
                     message += "\n\t - **Added:** {}".format(role.name)
         await ctx.send("Done.")
 
+    async def getEloRanges(self, ctx):
+        elo_role_ranges = await self._get_role_ranges(ctx.guild)
+        if not elo_role_ranges:
+            return await ctx.send(":x: No elo roles have been set.")
+        ordered_roles = [guild.get_role(role_id) for role_id in elo_role_ranges.keys()]
+
+        message = "Elo Roles:"
+        for role in ordered_roles:
+            message += "\n- {} [{} - {}]".format(role.mention, elo_role_ranges[0], elo_role_ranges[1])
+        
+        await ctx.send(message)
+
 
     @commands.guild_only()
     @commands.Cog.listener("on_guild_role_delete")
@@ -113,7 +125,7 @@ class SixMansElo(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def observe(self, ctx):
+    async def observeForElo(self, ctx):
         self.observe_six_mans()
         await ctx.send("Observing.")
 
