@@ -106,6 +106,7 @@ class SixMansElo(commands.Cog):
     @commands.guild_only()
     @commands.Cog.listener("on_guild_role_delete")
     async def on_guild_role_delete(self, role):
+        await self._unregister_elo_role(role)
 
 ## OBSERVER PATTERN IMPLEMENTATION ########################
 
@@ -264,7 +265,7 @@ class SixMansElo(commands.Cog):
         role_range[role.id] = [min_elo, max_elo]
         await self._save_role_ranges(guild, role_range)
 
-    async def _unregister_role_range(self, role: discord.Role):
+    async def _unregister_elo_role(self, role: discord.Role):
         guild = role.guild
         role_ranges = await self._get_role_ranges(guild)
         if str(role.id) in role_ranges:
