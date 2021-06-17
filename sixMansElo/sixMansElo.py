@@ -102,6 +102,9 @@ class SixMansElo(commands.Cog):
                     message += "\n\t - **Added:** {}".format(role.name)
         await ctx.send("Done.")
 
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
     async def getEloRanges(self, ctx):
         elo_role_ranges = await self._get_role_ranges(ctx.guild)
         if not elo_role_ranges:
