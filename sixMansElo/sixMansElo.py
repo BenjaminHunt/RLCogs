@@ -91,7 +91,7 @@ class SixMansElo(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def addEloRole(self, role: discord.Role, min_elo: float, max_elo: float):
+    async def addEloRole(self, role: discord.Role, min_elo: int, max_elo: int):
         await self._register_role_range(role, min_elo, max_elo)
         log_channel = await self._get_log_channel(player.guild)
         for player in self.players:
