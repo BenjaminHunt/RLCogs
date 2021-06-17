@@ -106,7 +106,8 @@ class SixMansElo(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def getEloRanges(self, ctx):
-        elo_role_ranges = await self._get_role_ranges(ctx.guild)
+        guild = ctx.guild
+        elo_role_ranges = await self._get_role_ranges(guild)
         if not elo_role_ranges:
             return await ctx.send(":x: No elo roles have been set.")
         ordered_roles = [guild.get_role(role_id) for role_id in elo_role_ranges.keys()]
