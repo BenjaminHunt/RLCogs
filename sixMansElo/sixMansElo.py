@@ -305,7 +305,7 @@ class SixMansElo(commands.Cog):
         return await self.config.guild(guild).RoleRanges()
 
     async def _save_role_ranges(self, guild: discord.Guild, role_ranges):
-        await self.config.guild(guild).SixMansRoleRanges.set(role_ranges)
+        await self.config.guild(guild).RoleRanges.set(role_ranges)
 
 #endregion SixMansRoles settings
 
