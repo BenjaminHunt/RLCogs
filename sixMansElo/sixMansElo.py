@@ -102,6 +102,8 @@ class SixMansElo(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def addEloRole(self, ctx, role: discord.Role, min_elo: float, max_elo: float):
         
+        await ctx.send(role.id)
+
         # Save Elo Role
         await self._register_role_range(role, min_elo, max_elo)
         
@@ -109,13 +111,13 @@ class SixMansElo(commands.Cog):
         log_channel = await self._get_log_channel(role.guild)
         
         # Add roles to appropriate existing players
-        for player in self.players:
-            if player.elo_rating >= min_elo and player.elo_rating <= max_elo:
-                await player.member.add_roles(role)
-                if log_channel:
-                    message = "{} has had their roles updated!".format(player.member.mention)
-                    message += "\n\t - **Added:** {}".format(role.name)
-        await ctx.send("Done.")
+        # for player in self.players:
+        #     if player.elo_rating >= min_elo and player.elo_rating <= max_elo:
+        #         await player.member.add_roles(role)
+        #         if log_channel:
+        #             message = "{} has had their roles updated!".format(player.member.mention)
+        #             message += "\n\t - **Added:** {}".format(role.name)
+        # await ctx.send("Done.")
 
     @commands.command()
     @commands.guild_only()
@@ -130,10 +132,11 @@ class SixMansElo(commands.Cog):
         #     return await ctx.send(":x: No elo roles have been set.")
         
         # for role_id in elo_role_ranges:
+        #     role_id = int(role_id)
         #     await ctx.send(role_id)
-        #     await ctx.send(guild.get_role(str(role_id)))
+        #     await ctx.send(guild.get_role(role_id))
 
-        # ordered_roles = [guild.get_role(str(role_id)) for role_id in elo_role_ranges.keys()]
+        # ordered_roles = [guild.get_role(role_id) for role_id in elo_role_ranges.keys()]
 
         # message = "Elo Roles:"
         # for role in ordered_roles:
