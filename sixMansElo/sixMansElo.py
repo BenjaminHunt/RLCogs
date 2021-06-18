@@ -140,9 +140,9 @@ class SixMansElo(commands.Cog):
         # for role_id in elo_role_ranges:
         #     role_id = int(role_id)
         #     await ctx.send(role_id)
-        #     await ctx.send(guild.get_role(role_id))
+        #     await ctx.send(guild.get_role(int(role_id)))
 
-        # ordered_roles = [guild.get_role(role_id) for role_id in elo_role_ranges.keys()]
+        # ordered_roles = [guild.get_role(int(role_id)) for role_id in elo_role_ranges.keys()]
 
         # message = "Elo Roles:"
         # for role in ordered_roles:
@@ -328,13 +328,13 @@ class SixMansElo(commands.Cog):
         guild = role.guild
         role_ranges = await self._get_role_ranges(guild)
         for sm_role_id, role_range in role_ranges.items():
-            sm_role = guild.get_role(str(sm_role_id))
+            sm_role = guild.get_role(int(sm_role_id))
             if role == sm_role:
                 return role_range[0], rolerange[1]
         return None
     
     async def _get_sm_roles(self, guild: discord.Guild):
-        return [guild.get_role(str(role_id)) for role_id in (await self._get_role_ranges(guild)).keys()]
+        return [guild.get_role(int(role_id)) for role_id in (await self._get_role_ranges(guild)).keys()]
 
     async def _get_role_ranges(self, guild: discord.Guild):
         return await self.config.guild(guild).RoleRanges()
