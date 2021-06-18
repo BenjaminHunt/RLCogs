@@ -88,6 +88,15 @@ class SixMansElo(commands.Cog):
         else:
             await ctx.send("Error adding player: {0}".format(member.name))
 
+    
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def clearEloRoles(self, ctx):
+        await self._save_role_ranges(ctx.guild, {})
+        await ctx.send("Done")
+
+
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
