@@ -110,6 +110,11 @@ class SixMansElo(commands.Cog):
         elo_role_ranges = await self._get_role_ranges(guild)
         if not elo_role_ranges:
             return await ctx.send(":x: No elo roles have been set.")
+        
+        for role_id in elo_role_ranges:
+            await ctx.send(role_id)
+            await ctx.send(guild.get_role(role_id))
+            
         ordered_roles = [guild.get_role(role_id) for role_id in elo_role_ranges.keys()]
 
         message = "Elo Roles:"
