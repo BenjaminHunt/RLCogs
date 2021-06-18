@@ -122,7 +122,9 @@ class SixMansElo(commands.Cog):
         guild = ctx.guild
         elos = await self._get_role_ranges(guild)
 
-        elo_roles = [guild.get_role(int(role_id)) for role_id in elos.keys()]
+        elo_roles = []
+        for elo_id in elos.keys():
+            elo_roles.append(guild.get_role(int(elo_id)))
         elo_roles = sorted(elo_roles, key=operator.attrgetter('position'))
 
         out = "Elo Ranges"
