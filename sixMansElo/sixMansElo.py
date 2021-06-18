@@ -130,7 +130,7 @@ class SixMansElo(commands.Cog):
         out = "Elo Ranges"
         for role in elo_roles:
             elo_range = elos[str(role.id)]
-            role = ctx.guild.get_role(int(role_id))
+            role = ctx.guild.get_role(int(role.id))
             out += "\n- {}: [{}-{}]".format(role.mention, elo_range[0], elo_range[1])
         
         await ctx.send(out)
