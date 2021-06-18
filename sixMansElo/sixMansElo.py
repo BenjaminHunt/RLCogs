@@ -126,6 +126,7 @@ class SixMansElo(commands.Cog):
         for elo_id in elos.keys():
             elo_roles.append(guild.get_role(int(elo_id)))
         elo_roles = sorted(elo_roles, key=operator.attrgetter('position'))
+        elo_roles.reverse()
 
         out = "Elo Ranges"
         for role in elo_roles:
