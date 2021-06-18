@@ -92,8 +92,14 @@ class SixMansElo(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def addEloRole(self, ctx, role: discord.Role, min_elo: float, max_elo: float):
+        
+        # Save Elo Role
         await self._register_role_range(role, min_elo, max_elo)
+        
+        # Log Role addition
         log_channel = await self._get_log_channel(role.guild)
+        
+        # Add roles to appropriate existing players
         for player in self.players:
             if player.elo_rating >= min_elo and player.elo_rating <= max_elo:
                 await player.member.add_roles(role)
@@ -114,7 +120,7 @@ class SixMansElo(commands.Cog):
         for role_id in elo_role_ranges:
             await ctx.send(role_id)
             await ctx.send(guild.get_role(role_id))
-            
+
         ordered_roles = [guild.get_role(role_id) for role_id in elo_role_ranges.keys()]
 
         message = "Elo Roles:"
@@ -283,6 +289,8 @@ class SixMansElo(commands.Cog):
             return False 
         guild = role.guild
         role_ranges = await self._get_role_ranges(guild)
+        channel = guild.get_channel(816122799679864902)
+        await channel.send(role_ranges)
         role_ranges[role.id] = [min_elo, max_elo]
         await self._save_role_ranges(guild, role_ranges)
 
