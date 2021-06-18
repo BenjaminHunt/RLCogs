@@ -300,8 +300,8 @@ class SixMansElo(commands.Cog):
         guild = role.guild
         role_ranges = await self._get_role_ranges(guild)
         channel = guild.get_channel(816122799679864902)
-        await channel.send(role_ranges)
-        role_ranges[role.id] = [min_elo, max_elo]
+        await channel.send("> {}".format(role_ranges))
+        role_ranges[str(role.id)] = [min_elo, max_elo]
         await self._save_role_ranges(guild, role_ranges)
 
     async def _unregister_elo_role(self, role: discord.Role):
