@@ -2,6 +2,7 @@ import abc
 import discord
 import asyncio
 import urllib.parse
+import operator
 
 from redbot.core import Config
 from redbot.core import commands
@@ -88,7 +89,6 @@ class SixMansElo(commands.Cog):
         else:
             await ctx.send("Error adding player: {0}".format(member.name))
 
-    
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
@@ -96,14 +96,10 @@ class SixMansElo(commands.Cog):
         await self._save_role_ranges(ctx.guild, {})
         await ctx.send("Done")
 
-
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def addEloRole(self, ctx, role: discord.Role, min_elo: float, max_elo: float):
-        
-        await ctx.send(role.id)
-
         # Save Elo Role
         await self._register_role_range(role, min_elo, max_elo)
         
@@ -111,45 +107,30 @@ class SixMansElo(commands.Cog):
         log_channel = await self._get_log_channel(role.guild)
         
         # Add roles to appropriate existing players
-        # for player in self.players:
-        #     if player.elo_rating >= min_elo and player.elo_rating <= max_elo:
-        #         await player.member.add_roles(role)
-        #         if log_channel:
-        #             message = "{} has had their roles updated!".format(player.member.mention)
-        #             message += "\n\t - **Added:** {}".format(role.name)
-        # await ctx.send("Done.")
+        for player in self.players:
+            if player.elo_rating >= min_elo and player.elo_rating <= max_elo:
+                await player.member.add_roles(role)
+                if log_channel:
+                    message = "{} has had their roles updated!".format(player.member.mention)
+                    message += "\n\t - **Added:** {}".format(role.name)
+        await ctx.send("Done.")
 
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def getEloRanges(self, ctx):
         elos = await self._get_role_ranges(ctx.guild)
-        await ctx.send("Ranges: {}".format(elos))
+
+        elo_roles = [guild.get_role(int(role_id)) for role_id in elos.keys()]
+        elo_roles = sorted(elo_roles, key=operator.attrgetter('position'))
+
         out = "Elo Ranges"
-        for role_id, elo_range in elos.items():
+        for role_id in elo_roles:
+            elo_range = elos[str(role_id)]
             role = ctx.guild.get_role(int(role_id))
             out += "\n- {}: [{}-{}]".format(role.mention, elo_range[0], elo_range[1])
         
         await ctx.send(out)
-        # guild = ctx.guild
-        # await ctx.send("Roles: {}".format(', '.join([role for role in await self._get_sm_roles(guild)])))
-        # elo_role_ranges = await self._get_role_ranges(guild)
-        # if not elo_role_ranges:
-        #     return await ctx.send(":x: No elo roles have been set.")
-        
-        # for role_id in elo_role_ranges:
-        #     role_id = int(role_id)
-        #     await ctx.send(role_id)
-        #     await ctx.send(guild.get_role(int(role_id)))
-
-        # ordered_roles = [guild.get_role(int(role_id)) for role_id in elo_role_ranges.keys()]
-
-        # message = "Elo Roles:"
-        # for role in ordered_roles:
-        #     message += "\n- {} [{} - {}]".format(role.mention, elo_role_ranges[0], elo_role_ranges[1])
-        
-        # await ctx.send(message)
-
 
     @commands.guild_only()
     @commands.Cog.listener("on_guild_role_delete")
