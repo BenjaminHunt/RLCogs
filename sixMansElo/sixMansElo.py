@@ -9,7 +9,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults = {"RoleRanges": {}, "LogChannel": None}
+defaults = {"RoleRanges": {}, "LogChannel": None, "Players": {}, "Results": []}
 verify_timeout = 30
 k_factor = 30
 
