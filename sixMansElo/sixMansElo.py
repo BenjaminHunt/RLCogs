@@ -314,7 +314,7 @@ class SixMansElo(commands.Cog):
         return None
     
     async def _get_sm_roles(self, guild: discord.Guild):
-        return [guild.get_role(role_id) for role_id in (await self._get_sm_role_ranks(guild)).keys()]
+        return [guild.get_role(role_id) for role_id in (await self._get_role_ranges(guild)).keys()]
 
     async def _get_role_ranges(self, guild: discord.Guild):
         return await self.config.guild(guild).RoleRanges()
