@@ -125,6 +125,12 @@ class SixMansElo(commands.Cog):
     async def getEloRanges(self, ctx):
         elos = await self._get_role_ranges(ctx.guild)
         await ctx.send("Ranges: {}".format(elos))
+        out = "Elo Ranges"
+        for role_id, elo_range in elos.items():
+            role = ctx.guild.get_role(int(role_id))
+            out += "\n- {}: [{}-{}]".format(role.mention, elo_range[0], elo_range[1])
+        
+        await ctx.send(out)
         # guild = ctx.guild
         # await ctx.send("Roles: {}".format(', '.join([role for role in await self._get_sm_roles(guild)])))
         # elo_role_ranges = await self._get_role_ranges(guild)
