@@ -115,11 +115,12 @@ class SixMansElo(commands.Cog):
                     message += "\n\t - **Added:** {}".format(role.name)
         await ctx.send("Done.")
 
-    @commands.command()
+    @commands.command(aliases=['getEloRoles'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def getEloRanges(self, ctx):
-        elos = await self._get_role_ranges(ctx.guild)
+        guild = ctx.guild
+        elos = await self._get_role_ranges(guild)
 
         elo_roles = [guild.get_role(int(role_id)) for role_id in elos.keys()]
         elo_roles = sorted(elo_roles, key=operator.attrgetter('position'))
