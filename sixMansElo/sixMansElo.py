@@ -126,8 +126,8 @@ class SixMansElo(commands.Cog):
         elo_roles = sorted(elo_roles, key=operator.attrgetter('position'))
 
         out = "Elo Ranges"
-        for role_id in elo_roles:
-            elo_range = elos[str(role_id)]
+        for role in elo_roles:
+            elo_range = elos[str(role.id)]
             role = ctx.guild.get_role(int(role_id))
             out += "\n- {}: [{}-{}]".format(role.mention, elo_range[0], elo_range[1])
         
@@ -292,8 +292,6 @@ class SixMansElo(commands.Cog):
             return False 
         guild = role.guild
         role_ranges = await self._get_role_ranges(guild)
-        channel = guild.get_channel(816122799679864902)
-        await channel.send("> {}".format(role_ranges))
         role_ranges[str(role.id)] = [min_elo, max_elo]
         await self._save_role_ranges(guild, role_ranges)
 
