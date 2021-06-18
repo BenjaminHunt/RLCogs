@@ -121,23 +121,25 @@ class SixMansElo(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def getEloRanges(self, ctx):
-        guild = ctx.guild
-        await ctx.send("Roles: {}".format(', '.join([role for role in await self._get_sm_roles(guild)])))
-        elo_role_ranges = await self._get_role_ranges(guild)
-        if not elo_role_ranges:
-            return await ctx.send(":x: No elo roles have been set.")
+        elos = await self._get_role_ranges(ctx.guild)
+        await ctx.send("Ranges: {}".format(elos))
+        # guild = ctx.guild
+        # await ctx.send("Roles: {}".format(', '.join([role for role in await self._get_sm_roles(guild)])))
+        # elo_role_ranges = await self._get_role_ranges(guild)
+        # if not elo_role_ranges:
+        #     return await ctx.send(":x: No elo roles have been set.")
         
-        for role_id in elo_role_ranges:
-            await ctx.send(role_id)
-            await ctx.send(guild.get_role(str(role_id)))
+        # for role_id in elo_role_ranges:
+        #     await ctx.send(role_id)
+        #     await ctx.send(guild.get_role(str(role_id)))
 
-        ordered_roles = [guild.get_role(str(role_id)) for role_id in elo_role_ranges.keys()]
+        # ordered_roles = [guild.get_role(str(role_id)) for role_id in elo_role_ranges.keys()]
 
-        message = "Elo Roles:"
-        for role in ordered_roles:
-            message += "\n- {} [{} - {}]".format(role.mention, elo_role_ranges[0], elo_role_ranges[1])
+        # message = "Elo Roles:"
+        # for role in ordered_roles:
+        #     message += "\n- {} [{} - {}]".format(role.mention, elo_role_ranges[0], elo_role_ranges[1])
         
-        await ctx.send(message)
+        # await ctx.send(message)
 
 
     @commands.guild_only()
