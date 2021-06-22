@@ -220,8 +220,9 @@ class BCMatchGroups(commands.Cog):
 
         bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
         auth_token = await self._get_member_bc_token(member)
+        owner_auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
         if not auth_token:
-            auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
+            auth_token = owner_auth_token
         match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
 
         if match_reported:
@@ -271,10 +272,10 @@ class BCMatchGroups(commands.Cog):
 
         # Download and upload replays
         tmp_replay_files = await self._download_replays(auth_token, replay_ids)
-        uploaded_ids = await self._upload_replays(ctx, auth_token, match_subgroup_id, tmp_replay_files)
+        uploaded_ids = await self._upload_replays(ctx, owner_auth_token, match_subgroup_id, tmp_replay_files)
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
         
-        renamed = await self._rename_replays(ctx, auth_token, uploaded_ids)
+        renamed = await self._rename_replays(ctx, owner_auth_token, uploaded_ids)
 
         embed.description = "Match summary:\n{}\n\n[View the ballchasing group!](https://ballchasing.com/group/{})\n\n:white_check_mark: Done".format(summary, match_subgroup_id)
         # embed.set_thumbnail(url=emoji_url)
@@ -972,17 +973,16 @@ class BCMatchGroups(commands.Cog):
     async def _get_replay_destination(self, ctx, match):
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
-        
         bc_group_owner = ctx.guild.get_member(top_level_group_info[0])
         top_group_code = top_level_group_info[1]
+        auth_token = await self._get_member_bc_token(bc_group_owner)
+        bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
         
         # <top level group>/MD <Match Day> vs <Opposing Team>
         ordered_subgroups = [
             "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
         ]
 
-        auth_token = await self._get_member_bc_token(bc_group_owner)
-        bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
         
         endpoint = '/groups'
         params = [
@@ -994,10 +994,6 @@ class BCMatchGroups(commands.Cog):
         data = r.json()
 
         debug = False
-        if match['home'] == 'Ocelots':
-            pass 
-            # debug = True
-
         if debug:
             await ctx.send(len(data['list']))
             await ctx.send(bc_group_owner_steam)
