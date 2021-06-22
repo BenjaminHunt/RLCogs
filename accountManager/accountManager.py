@@ -253,10 +253,9 @@ class AccountManager(commands.Cog):
 
         # React to confirm account registration
         appearances = "10000+" if str(appearances) == "10000" else appearances
-        try:
-            member_name = member.nick
-        except:
-            member_name = member.name
+        
+        member_name = member.display_name
+        
         prompt = "**{username}** ({platform}) appears in **{count}** ballchasing replays.".format(username=username, platform=platform, count=appearances)
         prompt += "\n\nWould you like to register this account for **{}**?".format(member_name)
         nvm_message = "Registration cancelled."
