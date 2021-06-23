@@ -1186,7 +1186,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_team_roles(self, guild):
         team_role_ids = await self.config.guild(guild).TeamRoles()
         team_roles = [guild.get_role(role_id) for role_id in team_role_ids]
-        team_roles.sort(key=lambda tr: tr.position, reverse=False)
+        team_roles.sort(key=lambda tr: tr.position, reverse=True)
         return team_roles
     
     async def _save_season_group(self, guild, team_role, captain, group_code):
