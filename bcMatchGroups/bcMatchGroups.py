@@ -114,7 +114,22 @@ class BCMatchGroups(commands.Cog):
             await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been set.".format(member.name))
         except:
             await ctx.send(":x: Error setting auth token.")
-        
+    
+    @commands.command(aliases=['clearMyBCAuthKey'])
+    async def clearMyBCAuthToken(self, ctx):
+        """Sets the Auth Key for Ballchasing API requests for the given user.
+        """
+        member = ctx.message.author
+        try:
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+            await self._save_member_bc_token(member, None)
+            await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been removed.".format(member.name))
+        except:
+            await ctx.send(":x: Error clearing auth token.")
+
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
@@ -1213,6 +1228,11 @@ class BCMatchGroups(commands.Cog):
     
     async def _save_member_bc_token(self, member: discord.Member, token):
         tokens = await self.config.BCTokens()
-        tokens[str(member.id)] = token
-        await self.config.BCTokens.set(tokens)
-    
+        if token:
+            tokens[str(member.id)] = token
+            await self.config.BCTokens.set(tokens)
+        else:
+            try:
+                del tokens[str(member.id)]
+            except:
+                pass 
