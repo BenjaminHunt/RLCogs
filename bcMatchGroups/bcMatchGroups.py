@@ -578,6 +578,7 @@ class BCMatchGroups(commands.Cog):
         for team_role in team_roles:
             if not use_invoker_auth_token:
                 owner = (await self._get_top_level_group(team_role.guild, team_role))[0]
+                await ctx.send(owner)
                 auth_token = await self._get_member_bc_token(owner)
                 await ctx.send(auth_token)
             team_name = self._get_team_name(team_role)
