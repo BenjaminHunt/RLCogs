@@ -547,13 +547,7 @@ class BCMatchGroups(commands.Cog):
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         output_msg = await ctx.send(embed=embed)
-
-        trs = await self._get_team_roles(ctx.guild)
-        team_roles = []
-        for role in ctx.guild.roles:
-            if role in trs:
-                team_roles.append(role)
-        team_roles.reverse()
+        team_roles = await self._get_team_roles(ctx.guild)
 
         teams = []
         tiers = []
@@ -567,7 +561,7 @@ class BCMatchGroups(commands.Cog):
 
         for team_role in team_roles:
             if not use_invoker_auth_token:
-                auth_token = await self._get_member_bc_token((await self._get_top_level_group(ctx.guild, team_role))[0])
+                auth_token = await self._get_member_bc_token((await self._get_top_level_group(team_role.guild, team_role))[0])
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
             await ctx.send(results)
