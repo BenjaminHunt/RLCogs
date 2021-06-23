@@ -567,9 +567,10 @@ class BCMatchGroups(commands.Cog):
 
         for team_role in team_roles:
             if not use_invoker_auth_token:
-                auth_token = await self._get_member_bc_token((await self._get_top_level_group(team_role.guild, team_role))[0])
+                auth_token = await self._get_member_bc_token((await self._get_top_level_group(ctx.guild, team_role))[0])
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+            await ctx.send(results)
             wins, losses, opponent = results
             total_wins += wins 
             total_losses += losses
@@ -1184,7 +1185,9 @@ class BCMatchGroups(commands.Cog):
 
     async def _get_team_roles(self, guild):
         team_role_ids = await self.config.guild(guild).TeamRoles()
-        return [guild.get_role(role_id) for role_id in team_role_ids]
+        team_roles = [guild.get_role(role_id) for role_id in team_role_ids]
+        team_roles.sort(key=lambda tr: tr.position, reverse=False)
+        return team_roles
     
     async def _save_season_group(self, guild, team_role, captain, group_code):
         groups = await self.config.guild(guild).ReplayGroups()
