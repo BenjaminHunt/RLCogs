@@ -1234,5 +1234,6 @@ class BCMatchGroups(commands.Cog):
         else:
             try:
                 del tokens[str(member.id)]
+                await self.config.BCTokens.set(tokens)
             except:
                 pass 
