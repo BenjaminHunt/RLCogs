@@ -248,7 +248,7 @@ class BCMatchGroups(commands.Cog):
             await bc_status_msg.edit(embed=embed)
             return
 
-        replays_found = await self._find_match_replays(ctx, member, match)
+        replays_found = await self._find_match_replays(ctx, member, match, owner_token=owner_auth_token)
 
         ## Not found:
         if not replays_found:
@@ -751,7 +751,7 @@ class BCMatchGroups(commands.Cog):
         
         return None
      
-    async def _find_match_replays(self, ctx, member, match, team_players=None):
+    async def _find_match_replays(self, ctx, member, match, team_players=None, owner_token=None):
         if not team_players:
             team_role = await self._get_team_role(ctx.guild, match['home'])
             team_players = await self._get_roster(team_role)
@@ -776,6 +776,11 @@ class BCMatchGroups(commands.Cog):
         ]
 
         auth_token = await self._get_member_bc_token(member)
+        if not auth_token:
+            auth_token = owner_token
+
+        if not auth_token:
+            return None
 
         # Search invoker's replay uploads first
         if member in team_players:
