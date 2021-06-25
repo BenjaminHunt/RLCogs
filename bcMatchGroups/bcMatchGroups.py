@@ -699,6 +699,9 @@ class BCMatchGroups(commands.Cog):
             for account in player_accs:
                 roster_accs.append(account)
         
+        for player_set in [player_accs, blue_players, orange_players]:
+            for account in player_set:
+                account = '-'.join(account)
         blue_intersect = list(set(roster_accs) & set(blue_players))
         orange_intersect = list(set(roster_accs) & set(orange_players))
 
