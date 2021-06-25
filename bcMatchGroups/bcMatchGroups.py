@@ -682,14 +682,23 @@ class BCMatchGroups(commands.Cog):
             orange_players = await self._get_replay_player_ids(replay, 'orange')
             
             franchise_roster = self._get_players_from_team_role(team_role)
+            roster_accs = []
             for player in franchise_roster:
-                accounts = await self._get_all_accounts(player.id)
-                if accounts:
-                    for account in accounts:
-                        if account in blue_players:
-                            return True
-                        elif account in orange_players:
-                            return False
+                player_accs = await self._get_all_accounts(player.id)
+                for account in player_accs:
+                    roster_accs.append(account)
+            
+            blue_intersect = list(set(roster_accs) & set(blue_players))
+            orange_intersect = list(set(roster_accs) & set(orange_players))
+
+            if blue_intersect:
+                return True 
+            elif orange_intersect:
+                return False 
+            else:
+                channel = team_role.guild.get_channel(741758967260250213)
+                await channel.send("can't help")
+
         return random.choice([True, False])
 
     async def _get_replay_player_ids(self, replay_data, color):
