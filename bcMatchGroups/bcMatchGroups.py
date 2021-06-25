@@ -751,7 +751,7 @@ class BCMatchGroups(commands.Cog):
         franchise_wins = 0
         franchise_losses = 0
         for replay in data['list']:
-            is_blue = franchise_team.lower() in replay['blue']['name'].lower()
+            is_blue = await self._check_if_blue(replay, team_role)
             blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
             orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
 
