@@ -691,6 +691,17 @@ class BCMatchGroups(commands.Cog):
 
         blue_players = await self._get_replay_player_ids(replay, 'blue')
         orange_players = await self._get_replay_player_ids(replay, 'orange')
+
+        franchise_roster = self._get_players_from_team_role(team_role)
+        for player in franchise_roster:
+            accounts = await self._get_all_accounts(player.id)
+            if accounts:
+                for account in accounts:
+                    if account in blue_players:
+                        return True
+                    elif account in orange_players:
+                        return False
+        return random.choice([True, False])
         
         franchise_roster = self._get_players_from_team_role(team_role)
         roster_accs = []
