@@ -679,11 +679,12 @@ class BCMatchGroups(commands.Cog):
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
             is_orange = franchise_team.lower() in replay['orange']['name'].lower()
         
-            if is_blue != is_orange:
+            if is_blue ^ is_orange:  # ^ is xor
                 return is_blue 
         except:
             pass 
 
+        channel = team_role.guild.get_channel(741758967260250213)
         blue_players = await self._get_replay_player_ids(replay, 'blue')
         orange_players = await self._get_replay_player_ids(replay, 'orange')
         
@@ -698,11 +699,12 @@ class BCMatchGroups(commands.Cog):
         orange_intersect = list(set(roster_accs) & set(orange_players))
 
         if blue_intersect:
+            await channel.send('blue')
             return True 
         elif orange_intersect:
+            await channel.send('orange')
             return False 
         else:
-            channel = team_role.guild.get_channel(741758967260250213)
             await channel.send("can't help")
         
         return random.choice([True, False])
