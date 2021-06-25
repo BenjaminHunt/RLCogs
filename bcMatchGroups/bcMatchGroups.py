@@ -862,7 +862,7 @@ class BCMatchGroups(commands.Cog):
         account_register = await self.account_manager_cog.get_account_register()
         if discord_id in account_register:
             return account_register[discord_id]
-        return None
+        return []
 
     async def _get_steam_id_from_token(self, auth_token):
         r = self._bc_get_request(auth_token, '')
