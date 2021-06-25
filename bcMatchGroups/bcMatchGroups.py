@@ -408,7 +408,6 @@ class BCMatchGroups(commands.Cog):
         num_match_days = int(await self._get_match_day(ctx.guild))
         for match_day in range(1, num_match_days+1):
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-            await ctx.send(results)
             wins, losses, opponent = results
             total_wins += wins 
             total_losses += losses
@@ -675,18 +674,13 @@ class BCMatchGroups(commands.Cog):
     
     async def _check_if_blue(self, replay, team_role):
         franchise_team = self._get_team_name(team_role)
-        
-        channel = team_role.guild.get_channel(741758967260250213)
-        await channel.send("HELLO?")
         try:
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
             is_orange = franchise_team.lower() in replay['orange']['name'].lower()
         
             if is_blue ^ is_orange:  # ^ is xor
-                await channel.send(str(is_blue))
                 return is_blue 
         except:
-            await channel.send("??")
             pass 
 
         blue_players = await self._get_replay_player_ids(replay, 'blue')
@@ -701,30 +695,6 @@ class BCMatchGroups(commands.Cog):
                         return True
                     elif account in orange_players:
                         return False
-        return random.choice([True, False])
-        
-        franchise_roster = self._get_players_from_team_role(team_role)
-        roster_accs = []
-        for player in franchise_roster:
-            player_accs = await self._get_all_accounts(player.id)
-            for account in player_accs:
-                roster_accs.append(account)
-        
-        for player_set in [roster_accs, blue_players, orange_players]:
-            for account in player_set:
-                account = '-'.join(account)
-        blue_intersect = list(set(roster_accs) & set(blue_players))
-        orange_intersect = list(set(roster_accs) & set(orange_players))
-
-        if blue_intersect:
-            await channel.send('blue')
-            return True 
-        elif orange_intersect:
-            await channel.send('orange')
-            return False 
-        else:
-            await channel.send("can't help")
-        
         return random.choice([True, False])
 
     async def _get_replay_player_ids(self, replay_data, color):
@@ -824,7 +794,6 @@ class BCMatchGroups(commands.Cog):
             for steam_id in await self._get_steam_ids(player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
-                # await ctx.send('&'.join(params))
 
                 r = self._bc_get_request(auth_token, endpoint, params=params)
                 data = r.json()
