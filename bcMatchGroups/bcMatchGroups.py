@@ -674,31 +674,37 @@ class BCMatchGroups(commands.Cog):
     
     async def _check_if_blue(self, replay, team_role):
         franchise_team = self._get_team_name(team_role)
+        
         try:
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
-            return is_blue
+            is_orange = franchise_team.lower() in replay['orange']['name'].lower()
+        
+            if is_blue != is_orange:
+                return is_blue 
         except:
-            blue_players = await self._get_replay_player_ids(replay, 'blue')
-            orange_players = await self._get_replay_player_ids(replay, 'orange')
-            
-            franchise_roster = self._get_players_from_team_role(team_role)
-            roster_accs = []
-            for player in franchise_roster:
-                player_accs = await self._get_all_accounts(player.id)
-                for account in player_accs:
-                    roster_accs.append(account)
-            
-            blue_intersect = list(set(roster_accs) & set(blue_players))
-            orange_intersect = list(set(roster_accs) & set(orange_players))
+            pass 
 
-            if blue_intersect:
-                return True 
-            elif orange_intersect:
-                return False 
-            else:
-                channel = team_role.guild.get_channel(741758967260250213)
-                await channel.send("can't help")
+        blue_players = await self._get_replay_player_ids(replay, 'blue')
+        orange_players = await self._get_replay_player_ids(replay, 'orange')
+        
+        franchise_roster = self._get_players_from_team_role(team_role)
+        roster_accs = []
+        for player in franchise_roster:
+            player_accs = await self._get_all_accounts(player.id)
+            for account in player_accs:
+                roster_accs.append(account)
+        
+        blue_intersect = list(set(roster_accs) & set(blue_players))
+        orange_intersect = list(set(roster_accs) & set(orange_players))
 
+        if blue_intersect:
+            return True 
+        elif orange_intersect:
+            return False 
+        else:
+            channel = team_role.guild.get_channel(741758967260250213)
+            await channel.send("can't help")
+        
         return random.choice([True, False])
 
     async def _get_replay_player_ids(self, replay_data, color):
