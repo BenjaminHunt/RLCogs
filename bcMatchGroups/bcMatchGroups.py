@@ -676,6 +676,7 @@ class BCMatchGroups(commands.Cog):
         franchise_team = self._get_team_name(team_role)
         
         channel = team_role.guild.get_channel(741758967260250213)
+        await channel.send("HELLO?")
         try:
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
             is_orange = franchise_team.lower() in replay['orange']['name'].lower()
@@ -684,6 +685,7 @@ class BCMatchGroups(commands.Cog):
                 await channel.send(str(is_blue))
                 return is_blue 
         except:
+            await channel.send("??")
             pass 
 
         blue_players = await self._get_replay_player_ids(replay, 'blue')
