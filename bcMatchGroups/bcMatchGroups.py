@@ -408,6 +408,7 @@ class BCMatchGroups(commands.Cog):
         num_match_days = int(await self._get_match_day(ctx.guild))
         for match_day in range(1, num_match_days+1):
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+            await ctx.send(results)
             wins, losses, opponent = results
             total_wins += wins 
             total_losses += losses
