@@ -1155,7 +1155,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_team_role(self, guild, team_name):
         team_roles = await self._get_team_roles(guild)
         for role in team_roles:
-            if team_name in role.name:
+            if team_name.lower() in role.name.lower():
                 return role
         return None
     
