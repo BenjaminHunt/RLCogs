@@ -451,14 +451,20 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def rosters(self, ctx, team_name=None):
+    async def rosters(self, ctx):
         emoji_url = ctx.guild.icon_url
         team_roles = await self._get_team_roles(ctx.guild)
         for team_role in team_roles:
             team_name = self._get_team_name(team_role)
+            players = []
+            for player in await self._get_roster(team_role):
+                p_str = player.mention
+                if self.is_captain(player):
+                    p_str = "{} (C)".format(p_str)
+                players.append(p_str)
             embed = discord.Embed(
                 title="{} Roster".format(team_name),
-                description='\n'.join([player.mention for player in await self._get_roster(team_role)]),
+                description='\n'.join(players),
                 color=team_role.color
             )
             if emoji_url:
@@ -480,10 +486,15 @@ class BCMatchGroups(commands.Cog):
 
         team_name = self._get_team_name(team_role)
         emoji_url = ctx.guild.icon_url
-        
+        players = []
+        for player in await self._get_roster(team_role):
+            p_str = player.mention
+            if self.is_captain(player):
+                p_str = "{} (C)".format(p_str)
+            players.append(p_str)
         embed = discord.Embed(
             title="{} Roster".format(team_name),
-            description='\n'.join([player.mention for player in await self._get_roster(team_role)]),
+            description='\n'.join(players),
             color=team_role.color
         )
         if emoji_url:
@@ -837,6 +848,11 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
+    def is_captain(self, member: discord.Member):
+        for role in member.roles:
+            if role.name.lower() == "captain":
+                return True
+
     async def _get_roster(self, team_role:discord.Role):
         return team_role.members
 
