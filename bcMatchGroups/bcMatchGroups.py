@@ -608,6 +608,7 @@ class BCMatchGroups(commands.Cog):
 # other functions
     async def auto_update_match_day(self):
         """Loop task to auto-update match day"""
+        # TODO: make this work
         update_time = 5  # 3600 #  Check hourly
         while self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.mutual_guilds:
