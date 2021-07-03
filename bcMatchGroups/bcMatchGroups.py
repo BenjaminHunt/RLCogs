@@ -103,6 +103,13 @@ class BCMatchGroups(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
+    async def autoUpdate(self, ctx):
+        await self.auto_update_match_day()
+        await ctx.send("Done")
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
     async def nextMatchDay(self, ctx):
         match_day = await self.config.guild(ctx.guild).MatchDay()
         match_day = int(match_day) + 1
