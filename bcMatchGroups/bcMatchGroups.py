@@ -618,7 +618,9 @@ class BCMatchGroups(commands.Cog):
                 today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
                 if today in all_matches:
                     new_match_day = all_matches.index(today) + 1
-                    await self._save_match_day(guild, new_match_day)
+                    if str(match_day) != str(new_match_day):
+                        await self._save_match_day(guild, new_match_day)
+                        
                 await asyncio.sleep(update_time)
 
     async def _match_day_summary(self, ctx, match_day=None):
