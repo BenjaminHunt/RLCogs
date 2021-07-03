@@ -54,7 +54,7 @@ class BCMatchGroups(commands.Cog):
                 mm, dd, yy = date.split('/')
                 if len(yy) == 2:
                     yy = century + yy
-                match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime(yy, mm, dd))
+                match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime(int(yy), int(mm), int(dd)))
                 all_dates.append(match_date_str)
             except:
                 await ctx.send("Traceback:\n```\n{}\n```".format(traceback.print_exc()))
