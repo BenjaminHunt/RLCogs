@@ -957,7 +957,7 @@ class BCMatchGroups(commands.Cog):
             all_matches = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
 
         if today in all_matches:
-            new_match_day = all_matches.index(today) + 1
+            new_match_day = all_matches.index(today)
             if str(match_day) != str(new_match_day):
                 await self._save_match_day(guild, new_match_day)
                 if str(guild.id) == str(675121792741801994):
