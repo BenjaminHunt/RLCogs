@@ -625,7 +625,7 @@ class BCMatchGroups(commands.Cog):
         # TODO: make this work
         update_time = 5  # 3600 #  Check hourly
         await self.bot.wait_until_ready()
-        while self.bot.get_cog("bcMatchGroups") == self:
+        while True:  # self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.guilds:
                 await self._update_match_day(guild)
                 if str(guild.id) == '675121792741801994':
