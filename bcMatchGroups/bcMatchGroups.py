@@ -96,6 +96,13 @@ class BCMatchGroups(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
+    async def updateMatchDay(self, ctx, match_day):
+        await self._update_match_day(ctx.guild)
+        await ctx.send("Done")
+    
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
     async def nextMatchDay(self, ctx):
         match_day = await self.config.guild(ctx.guild).MatchDay()
         match_day = int(match_day) + 1
@@ -612,18 +619,7 @@ class BCMatchGroups(commands.Cog):
         update_time = 5  # 3600 #  Check hourly
         while self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.mutual_guilds:
-                all_matches = await self._get_match_dates(guild)
-                match_day = await self._get_match_day(guild)
-                if not match_day or not all_matches:
-                    continue
-                today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
-                if today in all_matches:
-                    new_match_day = all_matches.index(today) + 1
-                    if str(match_day) != str(new_match_day):
-                        await self._save_match_day(guild, new_match_day)
-                        if str(guild.id) == str(675121792741801994):
-                            channel = guild.get_channel(741758967260250213)
-                            await channel.send("New match day: {}".format(new_match_day))
+                await self._update_match_day(guild)
                 await asyncio.sleep(update_time)
 
     async def _match_day_summary(self, ctx, match_day=None):
@@ -919,6 +915,20 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
+    async def _update_match_day(self, guild):
+        all_matches = await self._get_match_dates(guild)
+        match_day = await self._get_match_day(guild)
+        if not match_day or not all_matches:
+            return
+        today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
+        if today in all_matches:
+            new_match_day = all_matches.index(today) + 1
+            if str(match_day) != str(new_match_day):
+                await self._save_match_day(guild, new_match_day)
+                if str(guild.id) == str(675121792741801994):
+                    channel = guild.get_channel(741758967260250213)
+                    await channel.send("New match day: {}".format(new_match_day))
+
     def is_captain(self, member: discord.Member):
         for role in member.roles:
             if role.name.lower() == "captain":
