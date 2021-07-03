@@ -21,7 +21,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults = {"Emoji": None, "MatchDay": 1, "TeamRoles": [], "ReplayGroups": {}, "Schedule": {}}
+defaults = {"Emoji": None, "MatchDates": [], "MatchDay": 1, "TeamRoles": [], "ReplayGroups": {}, "Schedule": {}}
 global_defaults = {"BCTokens": {}}
 verify_timeout = 30
 
@@ -34,7 +34,56 @@ class BCMatchGroups(commands.Cog):
         self.config.register_global(**global_defaults)
         self.config.register_guild(**defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
-  
+        self.task = self.bot.loop.create_task(self.auto_update_match_day())
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def setMatchDates(self, ctx, *dates):
+        """Sets the dates where games will be played.
+        
+        Date format: MM/DD/YYYY
+        Example:
+        [p]setMatchDates 5/1/21 6/2/21 6/7/21 6/9/21
+        """
+        century = datetime.now().strftime("%Y")[:2]
+        all_dates = []
+        for date in dates:
+            try:
+                mm, dd, yy = date.split('/')
+                if len(yy) == 2:
+                    yy = century + yy
+                match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime(yy, mm, dd))
+                all_dates.append(match_date_str)
+            except:
+                return await ctx.send(":x: **{}** is not represented in a valid date format. Use `{}help setMatchDates` for more information.".format(date, ctx.prefix))
+        
+        all_dates.sort()
+        await self._save_match_dates(ctx.guild, all_dates)
+        await ctx.send(":white_check_mark: Saved {} match dates.".format(len(all_dates)))
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def clearMatchDates(self, ctx):
+        """Clears all match dates registered with the bot.
+        """
+        await self._save_match_dates(ctx.guild, [])
+        await ctx.send("Done.")
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions()
+    async def getMatchDates(self, ctx):
+        dates = await self._get_match_dates(ctx.guild)
+        dates_str = ""
+        for i in range(len(dates)):
+            dates_str += "\n({}) {}".format(i+1, dates[i])
+        if dates_str:
+            await ctx.send("__All Match Dates:__{}")
+        else:
+            await ctx.send(":x: No match dates registered.")
+
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
@@ -544,6 +593,21 @@ class BCMatchGroups(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
 # other functions
+    async def auto_update_match_day(self):
+        """Loop task to auto-update match day"""
+        update_time = 5  # 3600 #  Check hourly
+        while self.bot.get_cog("bcMatchGroups") == self:
+            for guild in self.bot.mutual_guilds:
+                all_matches = await self._get_match_dates(guild)
+                match_day = await self._get_match_day(guild)
+                if not match_day or not all_matches:
+                    continue
+                today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
+                if today in all_matches:
+                    new_match_day = all_matches.index(today) + 1
+                    await self._save_match_day(guild, new_match_day)
+                await asyncio.sleep(update_time)
+
     async def _match_day_summary(self, ctx, match_day=None):
         # team_roles = await self._get_team_roles(ctx.guild)
         
@@ -1187,6 +1251,12 @@ class BCMatchGroups(commands.Cog):
             return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
 
 # json dict
+    async def _get_match_dates(self, guild):
+        return await self.config.guild(guild).MatchDates()
+    
+    async def _save_match_dates(self, guild, match_dates):
+        await self.config.guild(guild).MatchDates.set(match_dates)
+
     async def _get_match_day(self, guild):
         return await self.config.guild(guild).MatchDay()
     
