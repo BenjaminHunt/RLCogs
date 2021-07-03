@@ -226,8 +226,6 @@ class BCSixMans(commands.Cog):
             # for message in messages:
             #     await message.edit(embed=embed)
             return
-
-        await channel.send('A')
         
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game) 
@@ -237,11 +235,12 @@ class BCSixMans(commands.Cog):
             await embed_message.edit(embed=embed)
             return
 
+        await channel.send('A')
+        series_subgroup_id = await self._get_replay_destination(game)
         await channel.send('B')
-
-        series_subgroup_id = await self._get_replay_destination(guild, six_mans_queue, game)
         # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
+            await channel.send('XXX')
             embed.description = ":x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
@@ -280,7 +279,7 @@ class BCSixMans(commands.Cog):
 
     async def _react_prompt(self, ctx, prompt, if_not_msg=None):
         user = ctx.message.author
-        react_msg = await channel.send(prompt)
+        react_msg = await ctx.send(prompt)
         start_adding_reactions(react_msg, ReactionPredicate.YES_OR_NO_EMOJIS)
         try:
             pred = ReactionPredicate.yes_or_no(react_msg, user)
@@ -412,7 +411,9 @@ class BCSixMans(commands.Cog):
                     return True
         return False
 
-    async def _get_replay_destination(self, guild, queue, game):
+    async def _get_replay_destination(self, game):
+        queue = game.queue
+        guild = queue.guild
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
         top_level_group = await self._get_top_level_group(guild)
