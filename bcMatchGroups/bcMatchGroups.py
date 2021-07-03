@@ -621,7 +621,7 @@ class BCMatchGroups(commands.Cog):
         while self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.guilds:
                 await self._update_match_day(guild)
-                if guild.id == 675121792741801994:
+                if str(guild.id) == '675121792741801994':
                     channel = guild.get_channel(741758967260250213)
                     await channel.send("**event**")
             await asyncio.sleep(update_time)
