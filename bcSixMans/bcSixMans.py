@@ -148,9 +148,12 @@ class BCSixMans(commands.Cog):
                 return
         except:
             return
-        await game.textChannel.send("State: {}".format(game.game_state))
-        if game.game_state == "game over":
+        await game.textChannel.send("Game State: {}".format(game.game_state))
+        if game.game_state == "game over":  # TODO: update to be just "over"
+            channel = guild.get_channel(816122799679864902)
+            await channel.send("processing replays hopefully :)")
             await self._process_six_mans_replays(game)
+            await channel.send("processed!")
             
 
 ###########################################################
@@ -197,7 +200,7 @@ class BCSixMans(commands.Cog):
             color=discord.Color.default()
         )
         try:
-            if game.winner == 'blue':
+            if game.winner.lower() == 'blue':
                 embed.color = discord.Color.blue()
             else:
                 embed.color = discord.Color.orange()
