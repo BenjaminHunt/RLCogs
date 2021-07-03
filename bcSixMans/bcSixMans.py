@@ -227,6 +227,7 @@ class BCSixMans(commands.Cog):
             #     await message.edit(embed=embed)
             return
 
+        await channel.send('A')
         
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game) 
@@ -236,6 +237,8 @@ class BCSixMans(commands.Cog):
             await embed_message.edit(embed=embed)
             return
 
+        await channel.send('B')
+
         series_subgroup_id = await self._get_replay_destination(guild, six_mans_queue, game)
         # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
@@ -243,6 +246,7 @@ class BCSixMans(commands.Cog):
             await embed_message.edit(embed=embed)
             return
 
+        await channel.send('C')
         replay_ids, summary = replays_found
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
@@ -253,11 +257,15 @@ class BCSixMans(commands.Cog):
         except:
             pass
 
+        await channel.send('D')
+
         tmp_replay_files = await self._download_replays(guild, replay_ids)
         uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
         renamed = await self._rename_replays(guild, uploaded_ids)
         
-        embed.description = ':white_check_mark: {}\n\nReplays added to ballchasing subgroup ({}): <https://ballchasing.com/group/{}>'.format(summary, len(uploaded_ids), series_subgroup_id)
+        await channel.send('E')
+
+        embed.description = ':white_check_mark: {}\n\nReplays added to a new [ballchasing subgroup!](https://ballchasing.com/group/{})'.format(summary, len(uploaded_ids), series_subgroup_id)
         await embed_message.edit(embed=embed)
         return
 
