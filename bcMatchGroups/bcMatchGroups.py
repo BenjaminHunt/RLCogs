@@ -93,12 +93,12 @@ class BCMatchGroups(commands.Cog):
         await self.config.guild(ctx.guild).MatchDay.set(match_day)
         await ctx.send("Done")
 
-    @commands.command()
-    @commands.guild_only()
-    @checks.admin_or_permissions(manage_roles=True)
-    async def updateMatchDay(self, ctx):
-        await self._update_match_day(ctx.guild, ctx.channel)
-        await ctx.send("Done")
+    # @commands.command()
+    # @commands.guild_only()
+    # @checks.admin_or_permissions(manage_roles=True)
+    # async def updateMatchDay(self, ctx):
+    #     await self._update_match_day(ctx.guild, ctx.channel)
+    #     await ctx.send("Done")
     
     @commands.command()
     @commands.guild_only()
@@ -622,15 +622,15 @@ class BCMatchGroups(commands.Cog):
 # other functions
     async def auto_update_match_day(self):
         """Loop task to auto-update match day"""
-        # TODO: make this work
-        update_time = 5  # 3600 #  Check hourly
+        update_time = 3600 #  Check hourly
         await self.bot.wait_until_ready()
         while True:  # self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.guilds:
                 await self._update_match_day(guild)
+                # TODO: leave for a while :)
                 if str(guild.id) == '675121792741801994':
                     channel = guild.get_channel(741758967260250213)
-                    await channel.send("**event**")
+                    # await channel.send("**event**")
             await asyncio.sleep(update_time)
 
     async def _match_day_summary(self, ctx, match_day=None):
