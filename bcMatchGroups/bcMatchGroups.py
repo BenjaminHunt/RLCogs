@@ -50,6 +50,7 @@ class BCMatchGroups(commands.Cog):
         century = datetime.now().strftime("%Y")[:2]
         all_dates = []
         for date in dates:
+            dates = dates.replace('\n', '')
             try:
                 mm, dd, yy = date.split('/')
                 if len(yy) == 2:
