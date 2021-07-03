@@ -60,7 +60,7 @@ class BCMatchGroups(commands.Cog):
                 await ctx.send("Traceback:\n```\n{}\n```".format(traceback.print_exc()))
                 return await ctx.send(":x: **{}** is not represented in a valid date format. Use `{}help setMatchDates` for more information.".format(date, ctx.prefix))
         
-        all_dates.sort()
+        all_dates.sort(reverse=True)
         await self._save_match_dates(ctx.guild, all_dates)
         await ctx.send(":white_check_mark: Saved {} match dates.".format(len(all_dates)))
 
@@ -73,7 +73,7 @@ class BCMatchGroups(commands.Cog):
         await self._save_match_dates(ctx.guild, [])
         await ctx.send("Done.")
 
-    @commands.command()
+    @commands.command(aliases=['matches'])
     @commands.guild_only()
     @checks.admin_or_permissions()
     async def getMatchDates(self, ctx):
