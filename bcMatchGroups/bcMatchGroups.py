@@ -86,7 +86,7 @@ class BCMatchGroups(commands.Cog):
         dates = await self._get_match_dates(ctx.guild)
         dates_str = ""
         for i in range(len(dates)):
-            if str(i) == str(match_day): 
+            if str(i+2) == str(match_day): 
                 dates_str += "\n**({}) {}**".format(i+1, dates[i])
             else:
                 dates_str += "\n({}) {}".format(i+1, dates[i])
