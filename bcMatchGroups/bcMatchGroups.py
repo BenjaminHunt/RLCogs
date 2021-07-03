@@ -434,7 +434,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def getSeasonPerformance(self, ctx, *, team_name=None):
         """Returns the season performance for the given team (invoker's team by default)"""
-        asyncio.create_task(self.get_season_performance(ctx, team_name))
+        asyncio.create_task(self._get_season_performance(ctx, team_name))
 
     @commands.command()
     @commands.guild_only()
