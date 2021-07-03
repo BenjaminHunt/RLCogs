@@ -36,7 +36,10 @@ class BCSixMans(commands.Cog):
         """Clean up when cog shuts down."""
         # if self.task:
         #     self.task.cancel()
-        pass
+        try:
+            self.observe_six_mans(False)
+        except:
+            pass
     
     @commands.command(aliases=['ggs', 'gg'])
     @commands.guild_only()
@@ -131,9 +134,12 @@ class BCSixMans(commands.Cog):
         pass 
         # self.observe_six_mans()
 
-    def observe_six_mans(self):
+    def observe_six_mans(self, observe=True):
         self.six_mans_cog = self.bot.get_cog("SixMans")
-        self.six_mans_cog.add_observer(self)
+        if observe:
+            self.six_mans_cog.add_observer(self)
+        else:
+            self.six_mans_cog.remove_observer(self)
 
     async def update(self, game):
         try:
