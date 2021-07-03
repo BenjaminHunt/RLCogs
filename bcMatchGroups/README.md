@@ -32,6 +32,36 @@ Examples:
 ?addTeamRoles "Jaguars (Elite)" "Panters (Major)" "Ocelots (Minor)"
 ```
 
+---
+
+<br>
+
+## Match Day Management
+
+The Match Day (default: 1) can either be manually updated throughout the course of the season, or a bot owner or guild admin may set the dates for season matches, which will enable the bot to auto-update the match day as the season progresses.
+
+### Manual Updates:
+
+```
+<p>setMatchDay <match day>
+<p>nextMatchDay
+```
+
+`<p>nextMatchDay` increments the match day by 1
+
+<br>
+
+### Automatic Updates:
+
+```
+<p>setMatchDates [match dates...]
+```
+
+Registering match dates with the bot will enable automatic updates throughout the duration of the season. Match Dates must be provided in the a `month/date/year` format.
+
+If the match day appears to be incorrect, the command `<p>updateMatchDay` should force the bot to update the current match day.
+
+**Note: There is currently no way the bot can differentiate between the Preseason, Regular Season, Or Playoffs.**
 <br>
 
 ---
@@ -89,7 +119,6 @@ Notes:
 - **Get Season Performance** (gsp) - View results for your team
 
 ```
-<p>setMatchDay <match day>
 <p>mds [match day]
 <p>gsp [team name]
 ```
@@ -98,10 +127,7 @@ Additional notes:
 
 - To make an existing subgroup work correctly with this code, each match group must be written in the following format: **MD XX vs <opponent>**
 - Brackets `[]` indicate optional parameters, while carrots `<>` indicate requred parameters
-- `<p>nextMatchDay` increments the match day by 1
 
 <br>
 
 ---
-
-**There is currently no way the bot can differentiate between the Preseason, Regular Season, Or Playoffs.**
