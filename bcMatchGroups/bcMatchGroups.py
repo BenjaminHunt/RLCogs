@@ -35,7 +35,12 @@ class BCMatchGroups(commands.Cog):
         self.config.register_global(**global_defaults)
         self.config.register_guild(**defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
-        asyncio.create_task(self.auto_update_match_day())
+        self.task = asyncio.create_task(self.auto_update_match_day())
+
+    def cog_unload(self):
+        """Clean up when cog shuts down."""
+        if self.task:
+            self.task.cancel()
 
     @commands.command()
     @commands.guild_only()

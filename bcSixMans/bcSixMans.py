@@ -32,6 +32,12 @@ class BCSixMans(commands.Cog):
         except:
             pass
 
+    def cog_unload(self):
+        """Clean up when cog shuts down."""
+        # if self.task:
+        #     self.task.cancel()
+        pass
+    
     @commands.command(aliases=['ggs', 'gg'])
     @commands.guild_only()
     async def gameOver(self, ctx): # , games_played:int):
