@@ -619,7 +619,7 @@ class BCMatchGroups(commands.Cog):
         # TODO: make this work
         update_time = 5  # 3600 #  Check hourly
         while self.bot.get_cog("bcMatchGroups") == self:
-            for guild in self.bot.mutual_guilds:
+            for guild in self.bot.guilds:
                 await self._update_match_day(guild)
             await asyncio.sleep(update_time)
 
