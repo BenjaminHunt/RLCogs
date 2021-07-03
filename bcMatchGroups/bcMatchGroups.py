@@ -97,7 +97,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def updateMatchDay(self, ctx):
-        await self._update_match_day(ctx.guild)
+        await self._update_match_day(ctx.guild, ctx.channel)
         await ctx.send("Done")
     
     @commands.command()
