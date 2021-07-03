@@ -620,7 +620,9 @@ class BCMatchGroups(commands.Cog):
                     new_match_day = all_matches.index(today) + 1
                     if str(match_day) != str(new_match_day):
                         await self._save_match_day(guild, new_match_day)
-                        
+                        if str(guild.id) == str(675121792741801994):
+                            channel = guild.get_channel(741758967260250213)
+                            await channel.send("New match day: {}".format(new_match_day))
                 await asyncio.sleep(update_time)
 
     async def _match_day_summary(self, ctx, match_day=None):
