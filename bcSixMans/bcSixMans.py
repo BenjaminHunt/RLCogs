@@ -78,7 +78,7 @@ class BCSixMans(commands.Cog):
         await self._save_top_level_group(ctx, top_level_group_id)
         await ctx.send("Done.")
     
-    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'getBCGroup'])
+    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'tlg', 'getBCGroup'])
     @commands.guild_only()
     async def bcgroup(self, ctx):
         """Get the top-level ballchasing group to see all season match replays."""
@@ -143,7 +143,8 @@ class BCSixMans(commands.Cog):
 
     async def update(self, game):
         try:
-            guild = game.textChannel.guild
+            guild = game.queue.guild
+            await self.six_mans_cog._pre_load_games(guild)
             if not await self._get_top_level_group(guild):
                 return
         except:
@@ -192,7 +193,7 @@ class BCSixMans(commands.Cog):
 
 # other commands
     async def _process_six_mans_replays(self, game):
-        guild = game.textChannel.guild
+        guild = game.queue.guild
         six_mans_queue = None
         embed = discord.Embed(
             title="Six Mans Replay Group",
@@ -215,21 +216,15 @@ class BCSixMans(commands.Cog):
         embed.add_field(name="Blue", value="{}\n".format("\n".join([player.mention for player in game.blue])), inline=True)
         embed.add_field(name="Orange", value="{}\n".format("\n".join([player.mention for player in game.orange])), inline=True)
         
-        for q in self.six_mans_cog.queues:
-            if game.queueId == q.id:
-                six_mans_queue = q
-                break
-        
-        if not six_mans_queue:
-            await game.textChannel.send(":x: Queue not found: Ballchasing Group cannot be made.")
-            return
-
-        channel = q.channels[0]
+        # TODO: messages = await game.queue.send_message(embed=embed)
+        channel = game.queue.channels[0]
         embed_message = await channel.send(embed=embed)
 
         if not await self._get_top_level_group(guild):
             embed.description = ':x: ballchasing group group not found. An Admin must use the `?setBCGroup` command to enable automatic uploads'
             await embed_message.edit(embed=embed)
+            # for message in messages:
+            #     await message.edit(embed=embed)
             return
 
         
