@@ -937,7 +937,7 @@ class BCMatchGroups(commands.Cog):
             
             this_date = datetime(now.year, now.month, now.day)
             if this_date not in all_dates:
-                this_date.append(all_dates)
+                all_dates.append(all_dates)
             all_dates.sort()
             all_matches = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
 
