@@ -54,14 +54,14 @@ class BCMatchGroups(commands.Cog):
                 mm, dd, yy = date.split('/')
                 if len(yy) == 2:
                     yy = century + yy
-                match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime(int(yy), int(mm), int(dd)))
-                all_dates.append(match_date_str)
+                all_dates.append(datetime(int(yy), int(mm), int(dd)))
             except:
                 await ctx.send("Traceback:\n```\n{}\n```".format(traceback.print_exc()))
                 return await ctx.send(":x: **{}** is not represented in a valid date format. Use `{}help setMatchDates` for more information.".format(date, ctx.prefix))
         
-        all_dates.sort(reverse=True)
-        await self._save_match_dates(ctx.guild, all_dates)
+        all_dates.sort()
+        all_str_dates = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
+        await self._save_match_dates(ctx.guild, all_str_dates)
         await ctx.send(":white_check_mark: Saved {} match dates.".format(len(all_dates)))
 
     @commands.command()
