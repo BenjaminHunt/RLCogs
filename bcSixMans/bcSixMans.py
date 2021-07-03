@@ -84,7 +84,7 @@ class BCSixMans(commands.Cog):
         """Get the top-level ballchasing group to see all season match replays."""
         group_code = await self._get_top_level_group(ctx.guild)
         url = "https://ballchasing.com/group/{}".format(group_code)
-        await ctx.send("See all six mans replays in the [top-level ballchasing group]({})".format(url))
+        await ctx.send("See all six mans replays in the (top-level ballchasing group)[{}]".format(url))
 
     @commands.command(aliases=['gsids'])
     @commands.guild_only()
