@@ -418,7 +418,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None, team=None):
         """Returns Franchise performance for the current, or provided match day"""
-        asyncio.create_task(self._match_day_summary(ctx, match_day))
+        await self._match_day_summary(ctx, match_day)
     
     @commands.command()
     @commands.guild_only()
