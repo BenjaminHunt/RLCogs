@@ -7,6 +7,7 @@ import asyncio
 import requests
 import random
 import urllib.parse
+import traceback
 
 # try:
 #     import thread
@@ -56,6 +57,7 @@ class BCMatchGroups(commands.Cog):
                 match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime(yy, mm, dd))
                 all_dates.append(match_date_str)
             except:
+                await ctx.send("Traceback:\n```\n{}\n```".format(traceback.print_exc()))
                 return await ctx.send(":x: **{}** is not represented in a valid date format. Use `{}help setMatchDates` for more information.".format(date, ctx.prefix))
         
         all_dates.sort()
