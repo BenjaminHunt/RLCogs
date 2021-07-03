@@ -418,7 +418,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None, team=None):
         """Returns Franchise performance for the current, or provided match day"""
-        await self._match_day_summary(ctx, match_day)
+        asyncio.create_task(self._match_day_summary(ctx, match_day))
     
     @commands.command()
     @commands.guild_only()
@@ -434,87 +434,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def getSeasonPerformance(self, ctx, *, team_name=None):
         """Returns the season performance for the given team (invoker's team by default)"""
-        member = ctx.message.author
-        team_roles = await self._get_team_roles(ctx.guild)
-        team_role = None
-        if team_name:
-            for role in team_roles:
-                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
-                    team_role = role
-        else:
-            for role in team_roles:
-                if role in member.roles:
-                    team_role = role
-                    break
-        if not team_role:
-            return await ctx.send(":x: Team not found.")
-        team_name = self._get_team_name(team_role)
-
-        embed = discord.Embed(
-            title="{} Season Results".format(team_name),
-            description="_Finding season results for the {}..._".format(team_name),
-            color=team_role.color  # self._get_win_percentage_color(0, 0)
-        )
-        emoji_url = ctx.guild.icon_url
-        if emoji_url:
-            embed.set_thumbnail(url=emoji_url)
-        output_msg = await ctx.send(embed=embed)
-
-        member_id, group_code = (await self._get_top_level_group(ctx.guild, team_role))
-        auth_token = await self._get_member_bc_token(member)
-        if not auth_token:
-            auth_token = await self._get_member_bc_token(ctx.guild.get_member(member_id))
-
-        ## Get match history
-        match_days = []
-        opponents = []
-        all_results = []
-        total_wins = 0
-        total_losses = 0
-
-        num_match_days = int(await self._get_match_day(ctx.guild))
-        for match_day in range(1, num_match_days+1):
-            results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-            wins, losses, opponent = results
-            total_wins += wins 
-            total_losses += losses
-            if match_day == num_match_days and not opponent:
-                break 
-            
-            match_days.append(str(match_day))
-            opponents.append("MD {} vs {}".format(match_day, opponent))
-            if wins > losses:
-                all_results.append("{}-{} W".format(wins, losses))
-            elif losses > wins:
-                all_results.append("{}-{} L".format(wins, losses))
-            else:
-                all_results.append("{}-{} T".format(wins, losses))
-        
-        match_days.append("")
-        opponents.append("**Total**")
-        wp_str = self._get_wp_str(total_wins, total_losses)
-        if wp_str:
-            all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp_str))
-        else:
-            all_results.append("**{}-{}**".format(total_wins, total_losses))
-            
-
-        ## ################
-
-        embed = discord.Embed(
-            title="{} Season Results".format(team_name),
-            color=team_role.color  # self._get_win_percentage_color(total_wins, total_losses)
-        )
-
-        bc_link = "[Click here to see all groups!](https://ballchasing.com/group/{})".format(group_code)
-        # embed.add_field(name="MD", value="{}\n".format("\n".join(match_days)), inline=True)
-        embed.add_field(name="Opponent", value="{}\n".format("\n".join(opponents)), inline=True)
-        embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
-        embed.add_field(name="Ballchasing Group", value=bc_link, inline=False)
-        if emoji_url:
-            embed.set_thumbnail(url=emoji_url)
-        
-        await output_msg.edit(embed=embed)
+        asyncio.create_task(self.get_season_performance(ctx, team_name))
 
     @commands.command()
     @commands.guild_only()
@@ -622,6 +542,92 @@ class BCMatchGroups(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
 # other functions
+
+    # big helpers
+    async def _get_season_performance(self, ctx, team_name):
+        member = ctx.message.author
+        team_roles = await self._get_team_roles(ctx.guild)
+        team_role = None
+        if team_name:
+            for role in team_roles:
+                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
+                    team_role = role
+        else:
+            for role in team_roles:
+                if role in member.roles:
+                    team_role = role
+                    break
+        if not team_role:
+            return await ctx.send(":x: Team not found.")
+        team_name = self._get_team_name(team_role)
+
+        embed = discord.Embed(
+            title="{} Season Results".format(team_name),
+            description="_Finding season results for the {}..._".format(team_name),
+            color=team_role.color  # self._get_win_percentage_color(0, 0)
+        )
+        emoji_url = ctx.guild.icon_url
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        output_msg = await ctx.send(embed=embed)
+
+        member_id, group_code = (await self._get_top_level_group(ctx.guild, team_role))
+        auth_token = await self._get_member_bc_token(member)
+        if not auth_token:
+            auth_token = await self._get_member_bc_token(ctx.guild.get_member(member_id))
+
+        ## Get match history
+        match_days = []
+        opponents = []
+        all_results = []
+        total_wins = 0
+        total_losses = 0
+
+        num_match_days = int(await self._get_match_day(ctx.guild))
+        for match_day in range(1, num_match_days+1):
+            results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+            wins, losses, opponent = results
+            total_wins += wins 
+            total_losses += losses
+            if match_day == num_match_days and not opponent:
+                break 
+            
+            match_days.append(str(match_day))
+            opponents.append("MD {} vs {}".format(match_day, opponent))
+            if wins > losses:
+                all_results.append("{}-{} W".format(wins, losses))
+            elif losses > wins:
+                all_results.append("{}-{} L".format(wins, losses))
+            else:
+                all_results.append("{}-{} T".format(wins, losses))
+        
+        match_days.append("")
+        opponents.append("**Total**")
+        wp_str = self._get_wp_str(total_wins, total_losses)
+        if wp_str:
+            all_results.append("**{}-{} ({})**".format(total_wins, total_losses, wp_str))
+        else:
+            all_results.append("**{}-{}**".format(total_wins, total_losses))
+            
+
+        ## ################
+
+        embed = discord.Embed(
+            title="{} Season Results".format(team_name),
+            color=team_role.color  # self._get_win_percentage_color(total_wins, total_losses)
+        )
+
+        bc_link = "[Click here to see all groups!](https://ballchasing.com/group/{})".format(group_code)
+        # embed.add_field(name="MD", value="{}\n".format("\n".join(match_days)), inline=True)
+        embed.add_field(name="Opponent", value="{}\n".format("\n".join(opponents)), inline=True)
+        embed.add_field(name="Results", value="{}\n".format("\n".join(all_results)), inline=True)
+        embed.add_field(name="Ballchasing Group", value=bc_link, inline=False)
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        await output_msg.edit(embed=embed)
+
+    # standard
     async def auto_update_match_day(self):
         """Loop task to auto-update match day"""
         update_time = 3600 #  Check hourly
