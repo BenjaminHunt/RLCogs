@@ -82,7 +82,7 @@ class BCMatchGroups(commands.Cog):
         for i in range(len(dates)):
             dates_str += "\n({}) {}".format(i+1, dates[i])
         if dates_str:
-            await ctx.send("__All Match Dates:__{}")
+            await ctx.send("__All Match Dates:__{}".format(dates_str))
         else:
             await ctx.send(":x: No match dates registered.")
 
