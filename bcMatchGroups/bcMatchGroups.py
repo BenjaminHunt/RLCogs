@@ -619,7 +619,7 @@ class BCMatchGroups(commands.Cog):
         await self.bot.wait_until_ready()
         while True:  # self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.guilds:
-                await self._update_match_day(guild)
+                await self._update_match_day(guild, force_set=True)
                 # TODO: leave for a while :)
                 if str(guild.id) == '675121792741801994':
                     channel = guild.get_channel(741758967260250213)
@@ -924,13 +924,22 @@ class BCMatchGroups(commands.Cog):
         match_day = await self._get_match_day(guild)
         if not match_day or not all_matches:
             return
-        today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
+        now = datetime.now()
+        today = "{dt.month}/{dt.day}/{dt.year}".format(dt = now)
         # await channel.send(today)
         # await channel.send([str("{}".format(match)) for match in all_matches])
         
         if today not in all_matches and force_set:
-            all_matches.append(today)
-            all_matches.sort()
+            all_dates = []
+            for match in all_matches:
+                mm, dd, yy = match.split('/')
+                all_dates.append(datetime(int(yy), int(mm), int(dd)))
+            
+            this_date = datetime(now.year, now.month, now.day)
+            if this_date not in all_dates:
+                this_date.append(all_dates)
+            all_dates.sort()
+            all_matches = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
 
         if today in all_matches:
             new_match_day = all_matches.index(today) + 1
