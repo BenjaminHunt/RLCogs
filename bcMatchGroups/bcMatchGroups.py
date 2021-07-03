@@ -621,7 +621,7 @@ class BCMatchGroups(commands.Cog):
         while self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.mutual_guilds:
                 await self._update_match_day(guild)
-                await asyncio.sleep(update_time)
+            await asyncio.sleep(update_time)
 
     async def _match_day_summary(self, ctx, match_day=None):
         # team_roles = await self._get_team_roles(ctx.guild)
@@ -922,8 +922,8 @@ class BCMatchGroups(commands.Cog):
         if not match_day or not all_matches:
             return
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
-        await channel.send(today)
-        await channel.send([str("\n{}".format(match)) for match in all_matches])
+        # await channel.send(today)
+        # await channel.send([str("{}".format(match)) for match in all_matches])
         if today in all_matches:
             new_match_day = all_matches.index(today) + 1
             if str(match_day) != str(new_match_day):
