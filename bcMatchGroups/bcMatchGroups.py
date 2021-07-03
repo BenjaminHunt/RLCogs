@@ -297,7 +297,7 @@ class BCMatchGroups(commands.Cog):
             await bc_status_msg.edit(embed=embed)
             return
 
-        replays_found = await self._find_match_replays(ctx, member, match)
+        replays_found = await self._find_match_replays(ctx, auth_token, member, match)
 
         ## Not found:
         if not replays_found:
@@ -500,14 +500,20 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def rosters(self, ctx, team_name=None):
+    async def rosters(self, ctx):
         emoji_url = ctx.guild.icon_url
         team_roles = await self._get_team_roles(ctx.guild)
         for team_role in team_roles:
             team_name = self._get_team_name(team_role)
+            players = []
+            for player in await self._get_roster(team_role):
+                p_str = player.mention
+                if self.is_captain(player):
+                    p_str = "{} (C)".format(p_str)
+                players.append(p_str)
             embed = discord.Embed(
                 title="{} Roster".format(team_name),
-                description='\n'.join([player.mention for player in await self._get_roster(team_role)]),
+                description='\n'.join(players),
                 color=team_role.color
             )
             if emoji_url:
@@ -529,10 +535,15 @@ class BCMatchGroups(commands.Cog):
 
         team_name = self._get_team_name(team_role)
         emoji_url = ctx.guild.icon_url
-        
+        players = []
+        for player in await self._get_roster(team_role):
+            p_str = player.mention
+            if self.is_captain(player):
+                p_str = "{} (C)".format(p_str)
+            players.append(p_str)
         embed = discord.Embed(
             title="{} Roster".format(team_name),
-            description='\n'.join([player.mention for player in await self._get_roster(team_role)]),
+            description='\n'.join(players),
             color=team_role.color
         )
         if emoji_url:
@@ -740,20 +751,25 @@ class BCMatchGroups(commands.Cog):
         franchise_team = self._get_team_name(team_role)
         try:
             is_blue = franchise_team.lower() in replay['blue']['name'].lower()
-            return is_blue
+            is_orange = franchise_team.lower() in replay['orange']['name'].lower()
+        
+            if is_blue ^ is_orange:  # ^ is xor
+                return is_blue 
         except:
-            blue_players = await self._get_replay_player_ids(replay, 'blue')
-            orange_players = await self._get_replay_player_ids(replay, 'orange')
-            
-            franchise_roster = self._get_players_from_team_role(team_role)
-            for player in franchise_roster:
-                accounts = await self._get_all_accounts(player.id)
-                if accounts:
-                    for account in accounts:
-                        if account in blue_players:
-                            return True
-                        elif account in orange_players:
-                            return False
+            pass 
+
+        blue_players = await self._get_replay_player_ids(replay, 'blue')
+        orange_players = await self._get_replay_player_ids(replay, 'orange')
+
+        franchise_roster = self._get_players_from_team_role(team_role)
+        for player in franchise_roster:
+            accounts = await self._get_all_accounts(player.id)
+            if accounts:
+                for account in accounts:
+                    if account in blue_players:
+                        return True
+                    elif account in orange_players:
+                        return False
         return random.choice([True, False])
 
     async def _get_replay_player_ids(self, replay_data, color):
@@ -794,7 +810,7 @@ class BCMatchGroups(commands.Cog):
         franchise_wins = 0
         franchise_losses = 0
         for replay in data['list']:
-            is_blue = franchise_team.lower() in replay['blue']['name'].lower()
+            is_blue = await self._check_if_blue(replay, team_role)
             blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
             orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
 
@@ -815,7 +831,11 @@ class BCMatchGroups(commands.Cog):
         
         return None
      
-    async def _find_match_replays(self, ctx, member, match, team_players=None):
+    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None):
+        
+        if not auth_token:
+            return None
+        
         if not team_players:
             team_role = await self._get_team_role(ctx.guild, match['home'])
             team_players = await self._get_roster(team_role)
@@ -839,8 +859,6 @@ class BCMatchGroups(commands.Cog):
             'sort-dir={}'.format(config.sort_dir)
         ]
 
-        auth_token = await self._get_member_bc_token(member)
-
         # Search invoker's replay uploads first
         if member in team_players:
             team_players.remove(member)
@@ -851,7 +869,6 @@ class BCMatchGroups(commands.Cog):
             for steam_id in await self._get_steam_ids(player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
-                # await ctx.send('&'.join(params))
 
                 r = self._bc_get_request(auth_token, endpoint, params=params)
                 data = r.json()
@@ -895,6 +912,11 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
+    def is_captain(self, member: discord.Member):
+        for role in member.roles:
+            if role.name.lower() == "captain":
+                return True
+
     async def _get_roster(self, team_role:discord.Role):
         return team_role.members
 
@@ -903,7 +925,7 @@ class BCMatchGroups(commands.Cog):
         account_register = await self.account_manager_cog.get_account_register()
         if discord_id in account_register:
             return account_register[discord_id]
-        return None
+        return []
 
     async def _get_steam_id_from_token(self, auth_token):
         r = self._bc_get_request(auth_token, '')
@@ -1197,7 +1219,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_team_role(self, guild, team_name):
         team_roles = await self._get_team_roles(guild)
         for role in team_roles:
-            if team_name in role.name:
+            if team_name.lower() in role.name.lower():
                 return role
         return None
     
