@@ -97,7 +97,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def updateMatchDay(self, ctx):
-        await self._update_match_day(ctx.guild, ctx.channel)
+        await self._update_match_day(ctx.guild, ctx.channel, force_set=True)
         await ctx.send("Done")
 
     @commands.command()
@@ -919,7 +919,7 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
-    async def _update_match_day(self, guild, channel=None):
+    async def _update_match_day(self, guild, channel=None, force_set=False):
         all_matches = await self._get_match_dates(guild)
         match_day = await self._get_match_day(guild)
         if not match_day or not all_matches:
@@ -927,6 +927,11 @@ class BCMatchGroups(commands.Cog):
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
         # await channel.send(today)
         # await channel.send([str("{}".format(match)) for match in all_matches])
+        
+        if today not in all_matches and force_set:
+            all_matches.append(today)
+            all_matches.sort()
+
         if today in all_matches:
             new_match_day = all_matches.index(today) + 1
             if str(match_day) != str(new_match_day):
