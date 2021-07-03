@@ -78,7 +78,7 @@ class BCMatchGroups(commands.Cog):
         await self._save_match_dates(ctx.guild, [])
         await ctx.send("Done.")
 
-    @commands.command(aliases=['matches'])
+    @commands.command(aliases=['matches', 'getMatchDays'])
     @commands.guild_only()
     @checks.admin_or_permissions()
     async def getMatchDates(self, ctx):
