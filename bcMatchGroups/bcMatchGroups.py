@@ -116,7 +116,7 @@ class BCMatchGroups(commands.Cog):
         await self.config.guild(ctx.guild).MatchDay.set(match_day)
         await ctx.send(":white_check_mark: It is now **match day {}**.".format(match_day))
 
-    @commands.command(aliases=['md'])
+    @commands.command(aliases=['md', 'gmd'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def getMatchDay(self, ctx):
@@ -630,7 +630,7 @@ class BCMatchGroups(commands.Cog):
                 # TODO: leave for a while :)
                 if str(guild.id) == '675121792741801994':
                     channel = guild.get_channel(741758967260250213)
-                    # await channel.send("**event**")
+                    await channel.send("**event**")
             await asyncio.sleep(update_time)
 
     async def _match_day_summary(self, ctx, match_day=None):
