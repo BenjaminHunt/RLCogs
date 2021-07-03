@@ -915,12 +915,14 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
-    async def _update_match_day(self, guild):
+    async def _update_match_day(self, guild, channel=None):
         all_matches = await self._get_match_dates(guild)
         match_day = await self._get_match_day(guild)
         if not match_day or not all_matches:
             return
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = datetime.now())
+        await channel.send(today)
+        await channel.send([str("\n{}".format(match)) for match in all_matches])
         if today in all_matches:
             new_match_day = all_matches.index(today) + 1
             if str(match_day) != str(new_match_day):
