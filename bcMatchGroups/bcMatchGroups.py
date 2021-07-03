@@ -35,7 +35,7 @@ class BCMatchGroups(commands.Cog):
         self.config.register_global(**global_defaults)
         self.config.register_guild(**defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
-        self.task = self.bot.loop.create_task(self.auto_update_match_day())
+        asyncio.create_task(self.auto_update_match_day())
 
     @commands.command()
     @commands.guild_only()
