@@ -82,10 +82,14 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions()
     async def getMatchDates(self, ctx):
+        match_day = await self._get_match_day(ctx.guild)
         dates = await self._get_match_dates(ctx.guild)
         dates_str = ""
         for i in range(len(dates)):
-            dates_str += "\n({}) {}".format(i+1, dates[i])
+            if str(i+1) == str(match_day): 
+                dates_str += "\n**({}) {}**".format(i+1, dates[i])
+            else:
+                dates_str += "\n({}) {}".format(i+1, dates[i])
         if dates_str:
             await ctx.send("__All Match Dates:__{}".format(dates_str))
         else:
