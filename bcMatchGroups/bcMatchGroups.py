@@ -945,9 +945,9 @@ class BCMatchGroups(commands.Cog):
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = now)
         # await channel.send(today)
         # await channel.send([str("{}".format(match)) for match in all_matches])
-        
-        if today not in all_matches and force_set:
+        if channel:
             await channel.send("today: {}".format(today))
+        if today not in all_matches and force_set:
             all_dates = []
             for match in all_matches:
                 mm, dd, yy = match.split('/')
