@@ -961,6 +961,8 @@ class BCMatchGroups(commands.Cog):
 
         if today in all_matches:
             new_match_day = all_matches.index(today)
+            if channel:
+                await channel.send(new_match_day)
             if str(match_day) != str(new_match_day):
                 await self._save_match_day(guild, new_match_day+1)
                 if str(guild.id) == str(675121792741801994):
