@@ -937,8 +937,6 @@ class BCMatchGroups(commands.Cog):
     async def _update_match_day(self, guild, channel=None, force_set=False):
         all_matches = await self._get_match_dates(guild)
         match_day = await self._get_match_day(guild)
-        if channel:
-            await channel.send(".")
         if match_day == None or not all_matches:
             return
         now = datetime.now()
@@ -946,8 +944,6 @@ class BCMatchGroups(commands.Cog):
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = now)
         # await channel.send(today)
         # await channel.send([str("{}".format(match)) for match in all_matches])
-        if channel:
-            await channel.send("today: {}".format(today))
         if today not in all_matches and force_set:
             all_dates = []
             for match in all_matches:
@@ -961,18 +957,13 @@ class BCMatchGroups(commands.Cog):
             all_dates.sort()
             all_matches = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
 
-        if today in all_matches:
-            new_match_day = all_matches.index(today) + diff
-            if channel:
-                await channel.send(new_match_day)
-            if str(match_day) != str(new_match_day):
-                await self._save_match_day(guild, new_match_day)
-                if str(guild.id) == str(675121792741801994):
-                    if not channel:
-                        channel = guild.get_channel(741758967260250213)
-                        await channel.send("New match day: {}".format(new_match_day))
-        else:
-            await channel.send("?")
+        new_match_day = all_matches.index(today) + diff
+        if str(match_day) != str(new_match_day):
+            await self._save_match_day(guild, new_match_day)
+            if str(guild.id) == str(675121792741801994):
+                if not channel:
+                    channel = guild.get_channel(741758967260250213)
+                    await channel.send("New match day: {}".format(new_match_day))
 
     def is_captain(self, member: discord.Member):
         for role in member.roles:
