@@ -66,7 +66,7 @@ class BCSixMans(commands.Cog):
 
         await self._process_six_mans_replays(game)
 
-    @commands.command(aliases=["sbcg", "setTopLevelGroup", "setTLG"])
+    @commands.command(aliases=["sbcg", "setSixMansGroup", "setSMG"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def setBCGroup(self, ctx, top_level_group_id):
