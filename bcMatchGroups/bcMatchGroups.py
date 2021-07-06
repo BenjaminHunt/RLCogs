@@ -587,21 +587,22 @@ class BCMatchGroups(commands.Cog):
         num_match_days = int(await self._get_match_day(ctx.guild))
         for match_day in range(1, num_match_days+1):
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-            wins, losses, opponent = results
-            total_wins += wins 
-            total_losses += losses
-            if match_day == num_match_days and not opponent:
-                break 
+            for result in results:
+                wins, losses, opponent = result
+                total_wins += wins 
+                total_losses += losses
+                if match_day == num_match_days and not opponent:
+                    break 
+                
+                match_days.append(str(match_day))
+                opponents.append("MD {} vs {}".format(match_day, opponent))
+                if wins > losses:
+                    all_results.append("{}-{} W".format(wins, losses))
+                elif losses > wins:
+                    all_results.append("{}-{} L".format(wins, losses))
+                else:
+                    all_results.append("{}-{} T".format(wins, losses))
             
-            match_days.append(str(match_day))
-            opponents.append("MD {} vs {}".format(match_day, opponent))
-            if wins > losses:
-                all_results.append("{}-{} W".format(wins, losses))
-            elif losses > wins:
-                all_results.append("{}-{} L".format(wins, losses))
-            else:
-                all_results.append("{}-{} T".format(wins, losses))
-        
         match_days.append("")
         opponents.append("**Total**")
         wp_str = self._get_wp_str(total_wins, total_losses)
@@ -679,18 +680,22 @@ class BCMatchGroups(commands.Cog):
                 auth_token = await self._get_member_bc_token(owner)
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-            wins, losses, opponent = results
-            total_wins += wins 
-            total_losses += losses
+            team_scores = []
+            for result in results:
+                wins, losses, opponent = result
+                total_wins += wins 
+                total_losses += losses
+                
+                if wins > losses:
+                    team_scores.append("{}-{} W".format(wins, losses))
+                elif losses > wins:
+                    team_scores.append("{}-{} L".format(wins, losses))
+                else:
+                    team_scores.append("{}-{} T".format(wins, losses))
             
             teams.append(team_name)
             tiers.append(self._get_team_tier(team_role))
-            if wins > losses:
-                all_results.append("{}-{} W".format(wins, losses))
-            elif losses > wins:
-                all_results.append("{}-{} L".format(wins, losses))
-            else:
-                all_results.append("{}-{} T".format(wins, losses))
+            all_results.append(', '.join(team_scores))
         
         teams.append("**Franchise**")
         tiers.append("-")
@@ -729,46 +734,47 @@ class BCMatchGroups(commands.Cog):
         if 'list' not in data:
             return 0, 0, opposing_team
 
-        match_group_code = ''
+        results = []
         for group in data['list']:
+            match_group_code = ''
             if '{}'.format(match_day).zfill(2) in group['name']:
                 match_group_code = group['id']
                 opposing_team = group['name'].split(' vs ')[-1]
-                break 
 
-        if not match_group_code:
-            return 0, 0, opposing_team
+            if not match_group_code:
+                continue
 
-        r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
-        data = r.json()
-        if 'list' not in data:
-            return 0, 0, opposing_team
-        
-        if not data['list']:
-            return 0, 0, opposing_team
+            r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
+            data = r.json()
+            if 'list' not in data:
+                continue
+            
+            if not data['list']:
+                continue
 
-        franchise_wins = 0
-        franchise_losses = 0
-        for replay in data['list']:
-            is_blue = await self._check_if_blue(replay, team_role)
+            franchise_wins = 0
+            franchise_losses = 0
+            for replay in data['list']:
+                is_blue = await self._check_if_blue(replay, team_role)
 
-            blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
-            orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
+                blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
+                orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
 
-            if is_blue:
-                if blue_goals > orange_goals:
-                    franchise_wins += 1
+                if is_blue:
+                    if blue_goals > orange_goals:
+                        franchise_wins += 1
+                    else:
+                        franchise_losses += 1
                 else:
-                    franchise_losses += 1
-            else:
-                if blue_goals > orange_goals:
-                    franchise_losses += 1
-                else:
-                    franchise_wins += 1
-        
-        if franchise_wins or franchise_losses:
-            return franchise_wins, franchise_losses, opposing_team
-        return 0, 0, opposing_team
+                    if blue_goals > orange_goals:
+                        franchise_losses += 1
+                    else:
+                        franchise_wins += 1
+            
+            if franchise_wins or franchise_losses:
+                results.append((franchise_wins, franchise_losses, opposing_team))
+            
+            return results
     
     async def _check_if_blue(self, replay, team_role):
         franchise_team = self._get_team_name(team_role)
