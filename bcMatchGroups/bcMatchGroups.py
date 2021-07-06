@@ -680,7 +680,9 @@ class BCMatchGroups(commands.Cog):
         if not auth_token:
             use_invoker_auth_token = False
 
+        await ctx.send("A")
         for team_role in team_roles:
+            await ctx.send("B")
             if not use_invoker_auth_token:
                 owner = team_role.guild.get_member((await self._get_top_level_group(team_role.guild, team_role))[0])
                 auth_token = await self._get_member_bc_token(owner)
@@ -702,7 +704,7 @@ class BCMatchGroups(commands.Cog):
             teams.append(team_name)
             tiers.append(self._get_team_tier(team_role))
             all_results.append(', '.join(team_scores))
-        
+        await ctx.send("C")
         teams.append("**Franchise**")
         tiers.append("-")
         wp_str = self._get_wp_str(total_wins, total_losses)
