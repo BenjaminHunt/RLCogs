@@ -453,7 +453,6 @@ class BCSixMans(commands.Cog):
             await debug_channel.send(url)
             await debug_channel.send("No data")
             await debug_channel.send(data)
-            return None
 
         # Dynamically create sub-group
         current_subgroup_id = top_level_group
