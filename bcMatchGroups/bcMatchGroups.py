@@ -409,8 +409,13 @@ class BCMatchGroups(commands.Cog):
         match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
 
         if not match_reported:
-            embed.description = ":x: This match was never reported."
-            return await output_msg.edit(embed=embed)
+            if last:
+                match_day = int(match_day) - 1
+                match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
+            
+            if not match_reported:
+                embed.description = ":x: This match was never reported."
+                return await output_msg.edit(embed=embed)
 
         summary, code, opposing_team = match_reported
         link = "https://ballchasing.com/group/{}".format(code)
@@ -689,6 +694,9 @@ class BCMatchGroups(commands.Cog):
             await ctx.send(team_name)
             await ctx.send(results)
             team_scores = []
+            if team_name.lower() == 'dart frogs':
+                await ctx.send(results)
+
             for result in results:
                 wins, losses, opponent = result
                 total_wins += wins 
