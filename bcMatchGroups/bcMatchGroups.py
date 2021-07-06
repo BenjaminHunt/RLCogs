@@ -785,8 +785,10 @@ class BCMatchGroups(commands.Cog):
             if franchise_wins or franchise_losses:
                 results.append((franchise_wins, franchise_losses, opposing_team))
             
-            return results
-    
+            if results:
+                return results
+            return [(0, 0, '')]
+
     async def _check_if_blue(self, replay, team_role):
         franchise_team = self._get_team_name(team_role)
         try:
