@@ -965,6 +965,8 @@ class BCMatchGroups(commands.Cog):
                     if not channel:
                         channel = guild.get_channel(741758967260250213)
                         await channel.send("New match day: {}".format(new_match_day))
+        else:
+            await channel.send("?")
 
     def is_captain(self, member: discord.Member):
         for role in member.roles:
