@@ -66,7 +66,7 @@ class BCSixMans(commands.Cog):
 
         await self._process_six_mans_replays(game)
 
-    @commands.command(aliases=["sbcg"])
+    @commands.command(aliases=["sbcg", "setSixMansGroup", "setSMG"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def setBCGroup(self, ctx, top_level_group_id):
@@ -348,7 +348,7 @@ class BCSixMans(commands.Cog):
     async def _is_six_mans_replay(self, guild, uploader, sm_game, replay_data, use_account=None):
         """searches for the uploader's appearance in the replay under any registered account"""
         if use_account:
-            account_register = {uploader.id: [account]}
+            account_register = {uploader.id: [use_account]}
         else:
             account_register = await self._get_account_register()
         

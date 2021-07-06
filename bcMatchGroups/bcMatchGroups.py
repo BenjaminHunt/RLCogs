@@ -102,11 +102,11 @@ class BCMatchGroups(commands.Cog):
         await self.config.guild(ctx.guild).MatchDay.set(match_day)
         await ctx.send("Done")
 
-    @commands.command()
+    @commands.command(aliases=['umd'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def updateMatchDay(self, ctx):
-        await self._update_match_day(ctx.guild, ctx.channel, force_set=True)
+        await self._update_match_day(ctx.guild, channel=ctx.channel, force_set=True)
         await ctx.send("Done")
 
     @commands.command()
@@ -938,13 +938,13 @@ class BCMatchGroups(commands.Cog):
     async def _update_match_day(self, guild, channel=None, force_set=False):
         all_matches = await self._get_match_dates(guild)
         match_day = await self._get_match_day(guild)
-        if not match_day or not all_matches:
+        if match_day == None or not all_matches:
             return
         now = datetime.now()
+        diff = 1
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = now)
         # await channel.send(today)
         # await channel.send([str("{}".format(match)) for match in all_matches])
-        
         if today not in all_matches and force_set:
             all_dates = []
             for match in all_matches:
@@ -954,14 +954,15 @@ class BCMatchGroups(commands.Cog):
             this_date = datetime(now.year, now.month, now.day)
             if this_date not in all_dates:
                 all_dates.append(this_date)
+                diff = 0
             all_dates.sort()
             all_matches = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
 
-        if today in all_matches:
-            new_match_day = all_matches.index(today)
-            if str(match_day) != str(new_match_day):
-                await self._save_match_day(guild, new_match_day)
-                if str(guild.id) == str(675121792741801994):
+        new_match_day = all_matches.index(today) + diff
+        if str(match_day) != str(new_match_day):
+            await self._save_match_day(guild, new_match_day)
+            if str(guild.id) == str(675121792741801994):
+                if not channel:
                     channel = guild.get_channel(741758967260250213)
                     await channel.send("New match day: {}".format(new_match_day))
 
