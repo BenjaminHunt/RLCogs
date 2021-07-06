@@ -959,10 +959,10 @@ class BCMatchGroups(commands.Cog):
             all_dates.sort()
             all_matches = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
 
-        elif today in all_matches:
+        if today in all_matches:
             new_match_day = all_matches.index(today)
             if str(match_day) != str(new_match_day):
-                await self._save_match_day(guild, new_match_day+1)
+                await self._save_match_day(guild, new_match_day)
                 if str(guild.id) == str(675121792741801994):
                     if not channel:
                         channel = guild.get_channel(741758967260250213)
