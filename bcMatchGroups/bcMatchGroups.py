@@ -102,7 +102,7 @@ class BCMatchGroups(commands.Cog):
         await self.config.guild(ctx.guild).MatchDay.set(match_day)
         await ctx.send("Done")
 
-    @commands.command()
+    @commands.command(aliases=['umd'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def updateMatchDay(self, ctx):
@@ -937,7 +937,7 @@ class BCMatchGroups(commands.Cog):
     async def _update_match_day(self, guild, channel=None, force_set=False):
         all_matches = await self._get_match_dates(guild)
         match_day = await self._get_match_day(guild)
-        if match_day != None or not all_matches:
+        if match_day == None or not all_matches:
             return
         now = datetime.now()
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = now)
