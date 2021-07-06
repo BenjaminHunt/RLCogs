@@ -373,7 +373,10 @@ class BCMatchGroups(commands.Cog):
         Default Match Day: Current
         """
         if match_day == 'last':
-            match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
+            match_day = str(int(await self._get_match_day(ctx.guild)))
+            last = True
+        else:
+            last = False
 
         if not match_day:
             match_day = await self._get_match_day(ctx.guild)
@@ -648,6 +651,9 @@ class BCMatchGroups(commands.Cog):
         
         if match_day == 'last':
             match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
+            last = True
+        else:
+            last = False
 
         if not match_day:
             match_day = await self._get_match_day(ctx.guild)
@@ -720,6 +726,7 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         
         await output_msg.edit(embed=embed)
+        await ctx.send("Done!")
     
     # TODO: reduce duplicate code with _check_if_reported
     async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
