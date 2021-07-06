@@ -942,6 +942,7 @@ class BCMatchGroups(commands.Cog):
         if match_day == None or not all_matches:
             return
         now = datetime.now()
+        diff = 1
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt = now)
         # await channel.send(today)
         # await channel.send([str("{}".format(match)) for match in all_matches])
@@ -956,11 +957,12 @@ class BCMatchGroups(commands.Cog):
             this_date = datetime(now.year, now.month, now.day)
             if this_date not in all_dates:
                 all_dates.append(this_date)
+                diff = 0
             all_dates.sort()
             all_matches = ["{dt.month}/{dt.day}/{dt.year}".format(dt = date) for date in all_dates]
 
         if today in all_matches:
-            new_match_day = all_matches.index(today)
+            new_match_day = all_matches.index(today) + diff
             if channel:
                 await channel.send(new_match_day)
             if str(match_day) != str(new_match_day):
