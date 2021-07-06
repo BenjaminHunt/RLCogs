@@ -966,7 +966,7 @@ class BCMatchGroups(commands.Cog):
             if channel:
                 await channel.send(new_match_day)
             if str(match_day) != str(new_match_day):
-                await self._save_match_day(guild, new_match_day+1)
+                await self._save_match_day(guild, new_match_day)
                 if str(guild.id) == str(675121792741801994):
                     if not channel:
                         channel = guild.get_channel(741758967260250213)
