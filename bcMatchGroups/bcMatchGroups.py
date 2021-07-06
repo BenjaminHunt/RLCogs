@@ -308,12 +308,13 @@ class BCMatchGroups(commands.Cog):
         match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
 
         if match_reported:
-            summary, code, opposing_team = match_reported
+            summary, code, reported_opposing_team = match_reported
             link = "https://ballchasing.com/group/{}".format(code)
             embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
-            embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
-            await bc_status_msg.edit(embed=embed)
-            return
+            if reported_opposing_team == reported_opposing_team:
+                embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
+                await bc_status_msg.edit(embed=embed)
+                return
 
         replays_found = await self._find_match_replays(ctx, auth_token, member, match)
 
