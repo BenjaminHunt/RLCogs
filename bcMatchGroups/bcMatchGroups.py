@@ -937,6 +937,8 @@ class BCMatchGroups(commands.Cog):
     async def _update_match_day(self, guild, channel=None, force_set=False):
         all_matches = await self._get_match_dates(guild)
         match_day = await self._get_match_day(guild)
+        if channel:
+            await channel.send(".")
         if match_day == None or not all_matches:
             return
         now = datetime.now()
