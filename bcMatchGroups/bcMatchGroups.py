@@ -571,7 +571,6 @@ class BCMatchGroups(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
 # other functions
-
     # big helpers
     async def _get_season_performance(self, ctx, team_name):
         member = ctx.message.author
