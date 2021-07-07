@@ -407,21 +407,22 @@ class BCMatchGroups(commands.Cog):
             group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
             auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
         match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
-
-        if not match_reported:
+        results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+        if not results:
             if last:
                 match_day = int(match_day) - 1
-                match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
+                results = await self._get_team_results(ctx, team_name, match_day, auth_token)
             
-            if not match_reported:
+            if not results:
                 embed.description = ":x: This match was never reported."
                 return await output_msg.edit(embed=embed)
 
-        summary, code, opposing_team = match_reported
-        link = "https://ballchasing.com/group/{}".format(code)
-        embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
-        embed.description = "{}\n\n[Click here to view this group!]({})".format(summary, link)
-        await output_msg.edit(embed=embed)
+        if len(results) == 1:
+            summary, code, opposing_team = results[0]
+            link = "https://ballchasing.com/group/{}".format(code)
+            embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
+            embed.description = "{}\n\n[Click here to view this group!]({})".format(summary, link)
+            await output_msg.edit(embed=embed)
 
     @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
