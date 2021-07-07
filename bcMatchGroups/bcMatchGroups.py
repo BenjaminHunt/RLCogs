@@ -305,10 +305,10 @@ class BCMatchGroups(commands.Cog):
         owner_auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
         if not auth_token:
             auth_token = owner_auth_token
-        match_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
+        matches_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
 
-        if match_reported:
-            summary, code, reported_opposing_team = match_reported
+        if matches_reported:
+            summary, code, reported_opposing_team = matches_reported[0]
             link = "https://ballchasing.com/group/{}".format(code)
             embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
             if reported_opposing_team == reported_opposing_team:
@@ -406,20 +406,18 @@ class BCMatchGroups(commands.Cog):
         if not auth_token:
             group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
             auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
-        match_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
-        results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-        if not results:
+        matches_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
+        if not matches_reported:
             if last:
                 match_day = int(match_day) - 1
-                results = await self._get_team_results(ctx, team_name, match_day, auth_token)
+                matches_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
             
-            if not results:
+            if not matches_reported:
                 embed.description = ":x: This match was never reported."
                 return await output_msg.edit(embed=embed)
 
-        await ctx.send(results)
-        if len(results) == 1:
-            summary, code, opposing_team = results[0]
+        if len(matches_reported) == 1:
+            summary, code, opposing_team = matches_reported[0]
             link = "https://ballchasing.com/group/{}".format(code)
             embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
             embed.description = "{}\n\n[Click here to view this group!]({})".format(summary, link)
@@ -738,7 +736,6 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
     
-    # TODO: reduce duplicate code with _check_if_reported
     async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
         guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
@@ -836,49 +833,55 @@ class BCMatchGroups(commands.Cog):
         if 'list' not in data:
             return None
 
+        result_summaries = []
         match_group_code = ''
         opposing_team = ''
         for group in data['list']:
             if '{}'.format(match_day).zfill(2) in group['name']:
                 match_group_code = group['id']
                 opposing_team = group['name'].split(' vs ')[-1]
-                break 
 
-        if not match_group_code:
-            return None
+            if not match_group_code:
+                continue
 
-        r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
-        data = r.json()
-        if 'list' not in data:
-            return None
-        
-        if not data['list']:
-            return None
+            r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
+            data = r.json()
+            result_data = self._get_reported_match_data(ctx, data)
+            if 'list' not in data:
+                continue
+            
+            if not data['list']:
+                continue
 
-        franchise_wins = 0
-        franchise_losses = 0
-        for replay in data['list']:
-            is_blue = await self._check_if_blue(replay, team_role)
-            blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
-            orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
+            franchise_wins = 0
+            franchise_losses = 0
+            for replay in data['list']:
+                is_blue = await self._check_if_blue(replay, team_role)
+                blue_goals = replay['blue']['goals'] if 'goals' in replay['blue'] else 0
+                orange_goals = replay['orange']['goals'] if 'goals' in replay['orange'] else 0
 
-            if is_blue:
-                if blue_goals > orange_goals:
-                    franchise_wins += 1
+                if is_blue:
+                    if blue_goals > orange_goals:
+                        franchise_wins += 1
+                    else:
+                        franchise_losses += 1
                 else:
-                    franchise_losses += 1
-            else:
-                if blue_goals > orange_goals:
-                    franchise_losses += 1
-                else:
-                    franchise_wins += 1
+                    if blue_goals > orange_goals:
+                        franchise_losses += 1
+                    else:
+                        franchise_wins += 1
+            
+            if franchise_wins or franchise_losses:    
+                summary = "**{}** {} - {} **{}**".format(franchise_team, franchise_wins, franchise_losses, opposing_team)
+                result_summaries.append((summary, match_group_code, opposing_team))
         
-        if franchise_wins or franchise_losses:    
-            summary = "**{}** {} - {} **{}**".format(franchise_team, franchise_wins, franchise_losses, opposing_team)
-            return summary, match_group_code, opposing_team
-        
-        return None
-     
+        return result_summaries
+    
+    # TODO: Use this to reduce dup code between _check_if_reported and _get_team_results
+    async def _get_reported_match_data(self, ctx, response_data, team):
+        pass 
+
+
     async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None):
         
         if not auth_token:
