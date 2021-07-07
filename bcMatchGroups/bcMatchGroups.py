@@ -390,6 +390,8 @@ class BCMatchGroups(commands.Cog):
         else:
             team_role = await self._get_team_role(ctx.guild, team_name)
 
+        if team_name and not team_role:
+            return ctx.send(":x: **{}** is not a valid team name or tier".format(team_name))
         team_name = self._get_team_name(team_role)
         
         embed = discord.Embed(
@@ -1051,7 +1053,7 @@ class BCMatchGroups(commands.Cog):
                 player_team_roles.append(role)
         return player_team_roles
     
-    def _get_team_name(self, role):
+    def _get_team_name(self, role: discord.Role):
         if role.name[-1] == ')' and ' (' in role.name:
             return ' '.join((role.name).split()[:-1])
         return role.name
