@@ -390,7 +390,7 @@ class BCMatchGroups(commands.Cog):
         else:
             team_role = await self._get_team_role(ctx.guild, team_name)
 
-        if team_name and not team_role:
+        if not team_role:
             return ctx.send(":x: **{}** is not a valid team name or tier".format(team_name))
         team_name = self._get_team_name(team_role)
         
