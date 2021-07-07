@@ -417,6 +417,7 @@ class BCMatchGroups(commands.Cog):
                 embed.description = ":x: This match was never reported."
                 return await output_msg.edit(embed=embed)
 
+        await ctx.send(results)
         if len(results) == 1:
             summary, code, opposing_team = results[0]
             link = "https://ballchasing.com/group/{}".format(code)
