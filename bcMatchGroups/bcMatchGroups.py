@@ -1,6 +1,6 @@
 import abc
 from .config import config
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 import tempfile
 import discord
 import asyncio
@@ -200,7 +200,6 @@ class BCMatchGroups(commands.Cog):
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
-        #TODO: derive player/captain, team from owner of ballchasing group upon lookup
         member = ctx.message.author
         if not team_role:
             team_roles = (await self._get_member_team_roles(ctx.guild, member))
@@ -660,10 +659,9 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
 
-    # standard
+    # standard -- maybe rework so each guild gets a scheduled update based on their time zone
     async def auto_update_match_day(self):
         """Loop task to auto-update match day"""
-        update_time = 3600 #  Check hourly
         await self.bot.wait_until_ready()
         while True:  # self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.guilds:
@@ -672,11 +670,18 @@ class BCMatchGroups(commands.Cog):
                 if str(guild.id) == '675121792741801994':
                     channel = guild.get_channel(741758967260250213)
                     await channel.send("**event**")
+            update_time = self._schedule_next_update()
             await asyncio.sleep(update_time)
+
+    async def _schedule_next_update(self):
+        # wait_time = 3600  # one hour
+        today = datetime.date(datetime.now())
+        tomorrow = today + timedelta(days=1)
+        tomorrow_dt = datetime.combine(date.today(), datetime.min.time())
+        wait_time = (tomorrow_dt - datetime.now()).seconds
 
     async def _match_day_summary(self, ctx, match_day=None):
         # team_roles = await self._get_team_roles(ctx.guild)
-        
         if match_day == 'last':
             match_day = str(int(await self._get_match_day(ctx.guild)) - 1)
             last = True
