@@ -692,13 +692,6 @@ class BCMatchGroups(commands.Cog):
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
             team_scores = []
-            if team_name.lower() == 'dart frogs':
-                await ctx.send(team_name)
-                await ctx.send(type(results))
-                w, l, o = results[0]
-                await ctx.send('w')
-                await ctx.send(w)
-                await ctx.send(results)
 
             for result in results:
                 wins, losses, opponent = result
@@ -709,6 +702,8 @@ class BCMatchGroups(commands.Cog):
                     team_scores.append("{}-{} W".format(wins, losses))
                 elif losses > wins:
                     team_scores.append("{}-{} L".format(wins, losses))
+                elif wins == 0 and losses == 0:
+                     team_scores.append("<Not Reported>")
                 else:
                     team_scores.append("{}-{} T".format(wins, losses))
             
