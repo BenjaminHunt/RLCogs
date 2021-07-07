@@ -265,7 +265,7 @@ class BCMatchGroups(commands.Cog):
         
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['bcr', 'bcpull'])
+    @commands.command(aliases=['bcr', 'bcpull', 'played'])
     @commands.guild_only()
     async def bcreport(self, ctx, opposing_team, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
@@ -311,7 +311,7 @@ class BCMatchGroups(commands.Cog):
             summary, code, reported_opposing_team = matches_reported[0]
             link = "https://ballchasing.com/group/{}".format(code)
             embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
-            if reported_opposing_team == reported_opposing_team:
+            if opposing_team == reported_opposing_team:
                 embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
                 await bc_status_msg.edit(embed=embed)
                 return
