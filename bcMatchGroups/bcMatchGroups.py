@@ -407,9 +407,18 @@ class BCMatchGroups(commands.Cog):
             group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
             auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
         matches_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
+        
+        await ctx.send(type(matches_reported))
+        await ctx.send(matches_reported)
         if not matches_reported:
             if last:
                 match_day = int(match_day) - 1
+                embed = discord.Embed(
+                    title="Match Day {}: {} vs ...".format(match_day, team_name),
+                    description="_Finding Group for the {} from match day {}..._".format(team_name, match_day),
+                    color=team_role.color
+                )
+                await output_msg.edit(embed=embed)
                 matches_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
             
             if not matches_reported:
