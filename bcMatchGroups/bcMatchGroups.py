@@ -691,10 +691,9 @@ class BCMatchGroups(commands.Cog):
                 auth_token = await self._get_member_bc_token(owner)
             team_name = self._get_team_name(team_role)
             results = await self._get_team_results(ctx, team_name, match_day, auth_token)
-            await ctx.send(team_name)
-            await ctx.send(results)
             team_scores = []
             if team_name.lower() == 'dart frogs':
+                await ctx.send(team_name)
                 await ctx.send(results)
 
             for result in results:
@@ -711,10 +710,7 @@ class BCMatchGroups(commands.Cog):
             
             teams.append(team_name)
             tiers.append(self._get_team_tier(team_role))
-            if team_scores:
-                all_results.append(', '.join(team_scores))
-            else:
-                all_results.append('<Not Reported>')
+            all_results.append(', '.join(team_scores))
             # here
             # await ctx.send("B ({})".format(len(results)))
         teams.append("**Franchise**")
@@ -753,7 +749,7 @@ class BCMatchGroups(commands.Cog):
 
         opposing_team = ''
         if 'list' not in data:
-            return 0, 0, opposing_team
+            return [0, 0, opposing_team]
 
         results = []
         for group in data['list']:
