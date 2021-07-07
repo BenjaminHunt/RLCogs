@@ -846,7 +846,7 @@ class BCMatchGroups(commands.Cog):
 
             r = self._bc_get_request(auth_token, '/replays', params=['group={}'.format(match_group_code)])
             data = r.json()
-            result_data = self._get_reported_match_data(ctx, data)
+            # result_data = self._get_reported_match_data(ctx, data)
             if 'list' not in data:
                 continue
             
