@@ -608,6 +608,8 @@ class BCMatchGroups(commands.Cog):
                     all_results.append("{}-{} W".format(wins, losses))
                 elif losses > wins:
                     all_results.append("{}-{} L".format(wins, losses))
+                elif wins == 0 and losses == 0:
+                     all_results.append("(Not Reported)")
                 else:
                     all_results.append("{}-{} T".format(wins, losses))
             
@@ -703,15 +705,13 @@ class BCMatchGroups(commands.Cog):
                 elif losses > wins:
                     team_scores.append("{}-{} L".format(wins, losses))
                 elif wins == 0 and losses == 0:
-                     team_scores.append("<Not Reported>")
+                     team_scores.append("(Not Reported)")
                 else:
                     team_scores.append("{}-{} T".format(wins, losses))
             
             teams.append(team_name)
             tiers.append(self._get_team_tier(team_role))
             all_results.append(', '.join(team_scores))
-            # here
-            # await ctx.send("B ({})".format(len(results)))
         teams.append("**Franchise**")
         tiers.append("-")
         wp_str = self._get_wp_str(total_wins, total_losses)
@@ -735,7 +735,6 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         
         await output_msg.edit(embed=embed)
-        await ctx.send("Done!")
     
     # TODO: reduce duplicate code with _check_if_reported
     async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
