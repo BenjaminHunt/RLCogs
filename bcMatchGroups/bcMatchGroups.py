@@ -408,8 +408,6 @@ class BCMatchGroups(commands.Cog):
             auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
         matches_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
         
-        await ctx.send(type(matches_reported))
-        await ctx.send(matches_reported)
         if not matches_reported:
             if last:
                 match_day = int(match_day) - 1
@@ -431,6 +429,19 @@ class BCMatchGroups(commands.Cog):
             embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
             embed.description = "{}\n\n[Click here to view this group!]({})".format(summary, link)
             await output_msg.edit(embed=embed)
+        else:
+            # here
+            embed.description = ""
+            for match_report in matches_reported:
+                summary, code, opposing_team = match_report
+                link = "https://ballchasing.com/group/{}".format(code)
+                embed.title = "Match Day {}".format(match_day)
+                summary = summary.replace('*', '')
+                bc_link = "[View Group]({})".format(link)
+                embed.add_field(name=summary, value=bc_link, inline=False)
+                
+            await output_msg.edit(embed=embed)
+
 
     @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
@@ -889,7 +900,6 @@ class BCMatchGroups(commands.Cog):
     # TODO: Use this to reduce dup code between _check_if_reported and _get_team_results
     async def _get_reported_match_data(self, ctx, response_data, team):
         pass 
-
 
     async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None):
         
