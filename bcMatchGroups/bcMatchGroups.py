@@ -694,7 +694,10 @@ class BCMatchGroups(commands.Cog):
             team_scores = []
             if team_name.lower() == 'dart frogs':
                 await ctx.send(team_name)
+                await ctx.send(type(results))
                 w, l, o = results[0]
+                await ctx.send('w')
+                await ctx.send(w)
                 await ctx.send(results)
 
             for result in results:
