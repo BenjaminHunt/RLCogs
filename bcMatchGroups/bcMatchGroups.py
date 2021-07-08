@@ -255,7 +255,7 @@ class BCMatchGroups(commands.Cog):
                 embed.add_field(name=team_role.name, value="https://ballchasing.com/group/{}".format(group_code), inline=False)
             except:
                 pass
-            
+
         emoji_url = ctx.guild.icon_url
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
@@ -665,10 +665,11 @@ class BCMatchGroups(commands.Cog):
             for guild in self.bot.guilds:
                 await self._update_match_day(guild, force_set=True)
                 # TODO: leave for a while :)
+                update_time = self._schedule_next_update()
                 if str(guild.id) == '675121792741801994':
                     channel = guild.get_channel(741758967260250213)
                     await channel.send("**event**")
-            update_time = self._schedule_next_update()
+                    await channel.send("Next update in **{}** seconds.".format(update_time))
             await asyncio.sleep(update_time)
 
     async def _schedule_next_update(self):
