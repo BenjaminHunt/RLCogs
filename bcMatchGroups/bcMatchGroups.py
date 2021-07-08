@@ -672,7 +672,7 @@ class BCMatchGroups(commands.Cog):
                     await channel.send("Next update in **{}** seconds.".format(update_time))
             await asyncio.sleep(update_time)
 
-    async def _schedule_next_update(self):
+    def _schedule_next_update(self):
         # wait_time = 3600  # one hour
         today = datetime.date(datetime.now())
         tomorrow = today + timedelta(days=1)
