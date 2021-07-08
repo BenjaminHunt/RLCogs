@@ -678,6 +678,7 @@ class BCMatchGroups(commands.Cog):
         tomorrow = today + timedelta(days=1)
         tomorrow_dt = datetime.combine(date.today(), datetime.min.time())
         wait_time = (tomorrow_dt - datetime.now()).seconds
+        return wait_time
 
     async def _match_day_summary(self, ctx, match_day=None):
         # team_roles = await self._get_team_roles(ctx.guild)
