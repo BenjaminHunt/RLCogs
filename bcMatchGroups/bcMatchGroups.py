@@ -539,6 +539,21 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(embed=embed)
     
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def test(self, ctx):
+        await ctx.send('A')
+        update_time = 10
+        await asyncio.sleep(update_time)
+        await ctx.send('C')
+    
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def test2(self, ctx):
+        await ctx.send(':eyes:')
+    
+    
+
 # ballchasing functions
     def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
