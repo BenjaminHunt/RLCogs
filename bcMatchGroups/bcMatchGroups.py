@@ -564,7 +564,12 @@ class BCMatchGroups(commands.Cog):
             url += "?{}".format(params)
         
         # url = urllib.parse.quote_plus(url)
-        return requests.get(url, headers={'Authorization': auth_token})
+        # return requests.get(url, headers={'Authorization': auth_token})
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
+
 
     async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
