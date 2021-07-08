@@ -262,104 +262,26 @@ class BCMatchGroups(commands.Cog):
         
         await ctx.send(embed=embed)
 
+    
+
+    @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
+    @commands.guild_only()
+    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day=None):
+        """Finds match games from recent public uploads for a specified franchise team, and adds them to the correct Ballchasing subgroup
+        """
+        await self._process_bcreport(ctx, franchise_team, opposing_team, match_day)
+
     @commands.command(aliases=['bcr', 'bcpull', 'played'])
     @commands.guild_only()
     async def bcreport(self, ctx, opposing_team, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
-        member = ctx.message.author
         try:
-            team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
+            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
         except:
             return await ctx.send(":x: You are not rostered to a team in this server.")
         team_name = self._get_team_name(team_role)
-
-        # Get team/tier information
-        if not match_day:
-            match_day = await self._get_match_day(ctx.guild)
-        emoji_url = ctx.guild.icon_url
-
-        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
-        embed = discord.Embed(
-            title="Match Day {}: {} vs {}".format(match_day, team_name, opposing_team),
-            description="Searching https://ballchasing.com for publicly uploaded replays of this match...",
-            color=team_role.color
-        )
-        if emoji_url:
-            embed.set_thumbnail(url=emoji_url)
-        bc_status_msg = await ctx.send(embed=embed)
-
-        # Find replays from ballchasing
-        match = {
-            "home": team_name,
-            "away": opposing_team,
-            "matchDay": match_day,
-            "matchDate": datetime.today()
-        }
-
-        bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
-        auth_token = await self._get_member_bc_token(member)
-        owner_auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
-        if not auth_token:
-            auth_token = owner_auth_token
-        matches_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
-
-        if matches_reported:
-            summary, code, reported_opposing_team = matches_reported[0]
-            link = "https://ballchasing.com/group/{}".format(code)
-            embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
-            if opposing_team == reported_opposing_team:
-                embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
-                await bc_status_msg.edit(embed=embed)
-                return
-
-        replays_found = await self._find_match_replays(ctx, auth_token, member, match)
-
-        ## Not found:
-        if not replays_found:
-            embed.description = ":x: No matching replays found on ballchasing."
-            await bc_status_msg.edit(embed=embed)
-            return False
-        
-        ## Found:
-        replay_ids, summary, winner = replays_found
-
-        if winner:
-            pass
-            # TODO: check for team emoji
-        
-        # Prepare embed edits for score confirmation
-        prompt_embed = discord.Embed.from_dict(embed.to_dict())
-        prompt_embed.description = "Match summary:\n{}".format(summary)
-        prompt_embed.set_thumbnail(url=emoji_url)
-        prompt_embed.description += "\n\nPlease react to confirm the score summary for this match."
-
-        success_embed = discord.Embed.from_dict(prompt_embed.to_dict())
-        success_embed.description = "Match summary:\n{}".format(summary)
-        success_embed.description += "\n\n:signal_strength: Results confirmed. Creating a ballchasing replay group. This may take a few seconds..." # "\U0001F4F6"
-
-        reject_embed = discord.Embed.from_dict(prompt_embed.to_dict())
-        reject_embed.description = "Match summary:\n{}".format(summary)
-        reject_embed.description += "\n\n:x: Ballchasing upload has been cancelled."
-        
-        if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
-            return False
-        
-        # Find or create ballchasing subgroup
-        match_subgroup_id = await self._get_replay_destination(ctx, match)
-        if not match_subgroup_id:
-            return False
-
-        # Download and upload replays
-        tmp_replay_files = await self._download_replays(auth_token, replay_ids)
-        uploaded_ids = await self._upload_replays(ctx, owner_auth_token, match_subgroup_id, tmp_replay_files)
-        # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
-        
-        renamed = await self._rename_replays(ctx, owner_auth_token, uploaded_ids)
-
-        embed.description = "Match summary:\n{}\n\n[View the ballchasing group!](https://ballchasing.com/group/{})\n\n:white_check_mark: Done".format(summary, match_subgroup_id)
-        # embed.set_thumbnail(url=emoji_url)
-        await bc_status_msg.edit(embed=embed)
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day)
 
     @commands.command(aliases=['getmatch'])
     @commands.guild_only()
@@ -429,7 +351,6 @@ class BCMatchGroups(commands.Cog):
             embed.description = "{}\n\n[Click here to view this group!]({})".format(summary, link)
             await output_msg.edit(embed=embed)
         else:
-            # here
             embed.description = ""
             for match_report in matches_reported:
                 summary, code, opposing_team = match_report
@@ -665,6 +586,100 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         
         await output_msg.edit(embed=embed)
+
+    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day):
+        member = ctx.message.author
+        team_role = await self._get_team_role(team_name)
+
+        if not team_role:
+            return await ctx.send(":x: **{}** is not a valid team name.".format(team_name))
+
+        # Get team/tier information
+        if not match_day:
+            match_day = await self._get_match_day(ctx.guild)
+        emoji_url = ctx.guild.icon_url
+
+        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
+        embed = discord.Embed(
+            title="Match Day {}: {} vs {}".format(match_day, team_name, opposing_team),
+            description="Searching https://ballchasing.com for publicly uploaded replays of this match...",
+            color=team_role.color
+        )
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        bc_status_msg = await ctx.send(embed=embed)
+
+        # Find replays from ballchasing
+        match = {
+            "home": team_name,
+            "away": opposing_team,
+            "matchDay": match_day,
+            "matchDate": datetime.today()
+        }
+
+        bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
+        auth_token = await self._get_member_bc_token(member)
+        owner_auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
+        if not auth_token:
+            auth_token = owner_auth_token
+        matches_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
+
+        if matches_reported:
+            summary, code, reported_opposing_team = matches_reported[0]
+            link = "https://ballchasing.com/group/{}".format(code)
+            embed.title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
+            if opposing_team == reported_opposing_team:
+                embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(summary, link)
+                await bc_status_msg.edit(embed=embed)
+                return
+
+        replays_found = await self._find_match_replays(ctx, auth_token, member, match)
+
+        ## Not found:
+        if not replays_found:
+            embed.description = ":x: No matching replays found on ballchasing."
+            await bc_status_msg.edit(embed=embed)
+            return False
+        
+        ## Found:
+        replay_ids, summary, winner = replays_found
+
+        if winner:
+            pass
+            # TODO: check for team emoji
+        
+        # Prepare embed edits for score confirmation
+        prompt_embed = discord.Embed.from_dict(embed.to_dict())
+        prompt_embed.description = "Match summary:\n{}".format(summary)
+        prompt_embed.set_thumbnail(url=emoji_url)
+        prompt_embed.description += "\n\nPlease react to confirm the score summary for this match."
+
+        success_embed = discord.Embed.from_dict(prompt_embed.to_dict())
+        success_embed.description = "Match summary:\n{}".format(summary)
+        success_embed.description += "\n\n:signal_strength: Results confirmed. Creating a ballchasing replay group. This may take a few seconds..." # "\U0001F4F6"
+
+        reject_embed = discord.Embed.from_dict(prompt_embed.to_dict())
+        reject_embed.description = "Match summary:\n{}".format(summary)
+        reject_embed.description += "\n\n:x: Ballchasing upload has been cancelled."
+        
+        if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
+            return False
+        
+        # Find or create ballchasing subgroup
+        match_subgroup_id = await self._get_replay_destination(ctx, match)
+        if not match_subgroup_id:
+            return False
+
+        # Download and upload replays
+        tmp_replay_files = await self._download_replays(auth_token, replay_ids)
+        uploaded_ids = await self._upload_replays(ctx, owner_auth_token, match_subgroup_id, tmp_replay_files)
+        # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
+        
+        renamed = await self._rename_replays(ctx, owner_auth_token, uploaded_ids)
+
+        embed.description = "Match summary:\n{}\n\n[View the ballchasing group!](https://ballchasing.com/group/{})\n\n:white_check_mark: Done".format(summary, match_subgroup_id)
+        # embed.set_thumbnail(url=emoji_url)
+        await bc_status_msg.edit(embed=embed)
 
     # standard -- maybe rework so each guild gets a scheduled update based on their time zone
     async def auto_update_match_day(self):
@@ -918,6 +933,8 @@ class BCMatchGroups(commands.Cog):
 
     async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None):
         
+        # TODO: allow opposing_team to be None => ask in helper function
+        
         if not auth_token:
             return None
         
@@ -952,6 +969,7 @@ class BCMatchGroups(commands.Cog):
         # Search all players in game for replays until match is found
         for player in team_players:
             for steam_id in await self._get_steam_ids(player.id):
+                # TODO: compare results to format, maybe add "skipped replays" field?
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
 
@@ -997,6 +1015,9 @@ class BCMatchGroups(commands.Cog):
                         return replay_ids, series_summary, winner
         return None
     
+    async def _discover_match_opponent(self, ctx, match_data):
+        pass 
+
     async def _update_match_day(self, guild, channel=None, force_set=False):
         all_matches = await self._get_match_dates(guild)
         match_day = await self._get_match_day(guild)
@@ -1071,6 +1092,13 @@ class BCMatchGroups(commands.Cog):
         if role.name[-1] == ')' and ' (' in role.name:
             return ' '.join((role.name).split()[:-1])
         return role.name
+    
+    async def _get_team_role(self, guild, team_name):
+        team_roles = await self._get_team_roles(guild)
+        for role in team_roles:
+            if team_name.lower() in role.name.lower():
+                return role
+        return None
     
     def _get_team_tier(self, role):
         if role.name[-1] == ')' and ' (' in role.name:
@@ -1331,13 +1359,6 @@ class BCMatchGroups(commands.Cog):
 
             game_number += 1
         return renamed
-    
-    async def _get_team_role(self, guild, team_name):
-        team_roles = await self._get_team_roles(guild)
-        for role in team_roles:
-            if team_name.lower() in role.name.lower():
-                return role
-        return None
     
     def _find_role_by_name(self, guild, role_name):
         for role in guild.roles:
