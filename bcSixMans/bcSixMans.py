@@ -437,7 +437,7 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        r, url = self._bc_get_request(auth_token, endpoint, params=params, debug=True)
+        r = self._bc_get_request(auth_token, endpoint, params=params, debug=True)
 
         data = r.json()
 
@@ -450,7 +450,7 @@ class BCSixMans(commands.Cog):
         
         if channel and not data['list']:
             await debug_channel.send(auth_token)
-            await debug_channel.send(url)
+            await debug_channel.send("{}?{}".format(endpoint, "&".join(params)))
             await debug_channel.send("No data")
             await debug_channel.send(data)
 
@@ -483,12 +483,15 @@ class BCSixMans(commands.Cog):
 
             # ## Creating next sub-group
             else:
+                # here
                 payload = {
                     'name': next_group_name,
                     'parent': current_subgroup_id,
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
+                await debug_channel.send("POST: {}".format(endpoint))
+                await debug_channel.send("parms: {}".format(payload))
                 r = self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 
