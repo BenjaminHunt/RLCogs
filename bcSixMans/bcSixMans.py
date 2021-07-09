@@ -234,6 +234,8 @@ class BCSixMans(commands.Cog):
             embed.description = ":x: No matching replays found."
             await embed_message.edit(embed=embed)
             return
+        else:
+            await game.queue.send_message(message="@nullidea: {} replays found".format(len(replays_found)))
 
         await channel.send('A')
         series_subgroup_id = await self._get_replay_destination(game)
