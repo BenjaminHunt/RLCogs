@@ -239,6 +239,7 @@ class BCSixMans(commands.Cog):
 
         await channel.send('A')
         series_subgroup_id = await self._get_replay_destination(game)
+        await channel.send(series_subgroup_id)
         await channel.send('B')
         # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
@@ -470,7 +471,7 @@ class BCSixMans(commands.Cog):
                 for data_subgroup in data['list']:
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
-                        break
+                        continue
             
             # Prepare & Execute  Next request:
             # ## Next subgroup found: request its contents
