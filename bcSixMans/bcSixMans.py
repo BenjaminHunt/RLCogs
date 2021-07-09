@@ -144,7 +144,7 @@ class BCSixMans(commands.Cog):
     async def update(self, game):
         try:
             guild = game.queue.guild
-            await self.six_mans_cog._pre_load_games(guild)
+            # await self.six_mans_cog._pre_load_games(guild)
             if not await self._get_top_level_group(guild):
                 return
         except:
