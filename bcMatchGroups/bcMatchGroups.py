@@ -700,8 +700,8 @@ class BCMatchGroups(commands.Cog):
         # wait_time = 3600  # one hour
         today = datetime.date(datetime.now())
         tomorrow = today + timedelta(days=1)
-        tomorrow_dt = datetime.combine(date.today(), datetime.min.time())
-        wait_time = (tomorrow_dt - datetime.now()).seconds + 60
+        tomorrow_dt = datetime.combine(tomorrow, datetime.min.time())
+        wait_time = (tomorrow_dt - datetime.now()).seconds + 30
         return wait_time
 
     async def _match_day_summary(self, ctx, match_day=None):
