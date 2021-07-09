@@ -417,10 +417,13 @@ class BCSixMans(commands.Cog):
     async def _get_replay_destination(self, game):
         queue = game.queue
         guild = queue.guild
+        await guild.send_message("A.a")
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
         top_level_group = await self._get_top_level_group(guild)
 
+        
+        await guild.send_message("A.b")
         # /<top level group>/<queue name>/<game id>
         game_id = game.id
         blue_players = game.blue 
@@ -443,7 +446,8 @@ class BCSixMans(commands.Cog):
         r = self._bc_get_request(auth_token, endpoint, params=params, debug=True)
 
         data = r.json()
-
+        
+        await guild.send_message("A.c")
         ## TEST OUTPUT - admin-input
         debug_channel = None
         for channel in guild.text_channels:
@@ -451,12 +455,14 @@ class BCSixMans(commands.Cog):
                 debug_channel = channel
                 break
         
+        
         if channel and not data['list']:
             await debug_channel.send(auth_token)
             await debug_channel.send("{}?{}".format(endpoint, "&".join(params)))
             await debug_channel.send("No data")
             await debug_channel.send(data)
 
+        await guild.send_message("A.d")
         # Dynamically create sub-group
         current_subgroup_id = top_level_group
         next_subgroup_id = None
@@ -503,7 +509,10 @@ class BCSixMans(commands.Cog):
                         next_subgroup_id = data['id']
                     except:
                         return False
-            
+        
+        
+        await guild.send_message("A.e")
+        
         return next_subgroup_id
 
     async def _find_series_replays(self, guild, game):
