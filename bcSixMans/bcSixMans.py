@@ -496,7 +496,7 @@ class BCSixMans(commands.Cog):
         ]
 
         await queue.send_message("A.b")
-        r = self._bc_get_request(auth_token, endpoint, params=params, debug=True)
+        r = self._bc_get_request(auth_token, endpoint, params=params)
 
         await queue.send_message("A.c")
         data = r.json()
