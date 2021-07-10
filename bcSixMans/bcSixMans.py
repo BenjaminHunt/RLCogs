@@ -471,7 +471,6 @@ class BCSixMans(commands.Cog):
     async def _get_series_destination(self, game):
         queue = game.queue
         guild = queue.guild
-        await queue.send_message("A.a")
         # here
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
@@ -495,10 +494,10 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        await queue.send_message("A.b")
+        await queue.send_message("A.a")
         r = self._bc_get_request(auth_token, endpoint, params=params)
 
-        await queue.send_message("A.c")
+        await queue.send_message("A.b")
         data = r.json()
         
         ## TEST OUTPUT - admin-input
@@ -509,6 +508,7 @@ class BCSixMans(commands.Cog):
                 break
         
         
+        await queue.send_message("A.c")
         if channel and not data['list']:
             await debug_channel.send(auth_token)
             await debug_channel.send("{}?{}".format(endpoint, "&".join(params)))
