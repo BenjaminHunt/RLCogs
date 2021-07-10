@@ -160,7 +160,7 @@ class BCSixMans(commands.Cog):
 ###########################################################
 
 # ballchasing
-    def _bc_get_request(self, auth_token, endpoint, params=[], debug=False):
+    def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
@@ -168,9 +168,6 @@ class BCSixMans(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        # url = urllib.parse.quote_plus(url)
-        if debug:
-            return requests.get(url, headers={'Authorization': auth_token}), url
         return requests.get(url, headers={'Authorization': auth_token})
 
     def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -481,11 +478,8 @@ class BCSixMans(commands.Cog):
         top_level_group = await self._get_top_level_group(guild)
 
         
-        await queue.send_message("A.b")
         # /<top level group>/<queue name>/<game id>
         game_id = game.id
-        blue_players = game.blue 
-        oran_players = game.orange
         queue_name = queue.name # next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
 
         ordered_subgroups = [
@@ -501,11 +495,12 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
+        await queue.send_message("A.b")
         r = self._bc_get_request(auth_token, endpoint, params=params, debug=True)
 
+        await queue.send_message("A.c")
         data = r.json()
         
-        await queue.send_message("A.c")
         ## TEST OUTPUT - admin-input
         debug_channel = None
         for channel in queue.text_channels:
