@@ -431,7 +431,7 @@ class BCSixMans(commands.Cog):
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
         ]
-        
+        await asyncio.sleep(5) # wait 5 seconds for insta-reports
         for player in game.players:
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
