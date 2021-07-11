@@ -262,8 +262,6 @@ class BCMatchGroups(commands.Cog):
         
         await ctx.send(embed=embed)
 
-    
-
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
     @commands.guild_only()
     async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day=None):
