@@ -469,7 +469,7 @@ class BCMatchGroups(commands.Cog):
         mention_roles = True  # can also be list[roles]
         mention_users = True  # can also be list[users]
         allowed_mentions = discord.AllowedMentions(everyone=False, roles=mention_roles, users=mention_users)
-        await ctx.send("No Ping: {}".format(member.mention), allowed_mentions=False)
+        await ctx.send("No Ping: {}".format(member.mention), allowed_mentions=None)
         await ctx.send("No Ping: {}".format(member.mention), allowed_mentions=allowed_mentions)
 
         embed = discord.Embed(
