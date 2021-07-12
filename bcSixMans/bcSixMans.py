@@ -144,7 +144,7 @@ class BCSixMans(commands.Cog):
     async def update(self, game):
         try:
             guild = game.queue.guild
-            await self.six_mans_cog._pre_load_games(guild)
+            # await self.six_mans_cog._pre_load_games(guild)
             if not await self._get_top_level_group(guild):
                 return
         except:
@@ -160,7 +160,7 @@ class BCSixMans(commands.Cog):
 ###########################################################
 
 # ballchasing
-    def _bc_get_request(self, auth_token, endpoint, params=[], debug=False):
+    def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
@@ -168,9 +168,6 @@ class BCSixMans(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        # url = urllib.parse.quote_plus(url)
-        if debug:
-            return requests.get(url, headers={'Authorization': auth_token}), url
         return requests.get(url, headers={'Authorization': auth_token})
 
     def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -229,15 +226,20 @@ class BCSixMans(commands.Cog):
         
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game) 
-
+        if replays_found:
+            replay_ids, summary = replays_found
         if not replays_found:
             embed.description = ":x: No matching replays found."
             await embed_message.edit(embed=embed)
             return
+        else:
+            await game.queue.send_message(message="@nullidea: {} replays found".format(len(replay_ids)))
 
+        await channel.send(replays_found)
         await channel.send('A')
-        series_subgroup_id = await self._get_replay_destination(game)
+        series_subgroup_id = await self._get_series_destination(game)
         await channel.send('B')
+        await channel.send(series_subgroup_id)
         # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
             await channel.send('XXX')
@@ -246,7 +248,6 @@ class BCSixMans(commands.Cog):
             return
 
         await channel.send('C')
-        replay_ids, summary = replays_found
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
         try:
@@ -411,17 +412,73 @@ class BCSixMans(commands.Cog):
                     return True
         return False
 
-    async def _get_replay_destination(self, game):
+    async def _find_series_replays(self, guild, game):
+        # search for appearances in private matches
+        endpoint = "/replays"
+        sort = 'replay-date'
+        sort_dir = 'desc'
+        count = 7
+        # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
+        queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
+        queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
+        auth_token = await self._get_auth_token(guild)
+        
+        params = [
+            'playlist=private',
+            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
+            'replay-date-after={}'.format(queue_pop_time),
+            'count={}'.format(count),
+            'sort-by={}'.format(sort),
+            'sort-dir={}'.format(sort_dir)
+        ]
+        await asyncio.sleep(5) # wait 5 seconds for insta-reports
+        for player in game.players:
+            for steam_id in await self._get_steam_ids(guild, player.id):
+                uploaded_by_param='uploader={}'.format(steam_id)
+                params.append(uploaded_by_param)
+                r = self._bc_get_request(auth_token, endpoint, params=params)
+
+                params.remove(uploaded_by_param)
+                data = r.json()
+
+                # checks for correct replays
+                oran_wins = 0
+                blue_wins = 0
+                replay_ids = []
+                if 'list' in data:
+                    await game.textChannel.send("{} has {} replays uploaded...".format(player.name, len(data['list'])))
+                    for replay in data['list']:
+                        winner = await self._is_six_mans_replay(guild, player, game, replay)
+                        if winner.lower() == 'blue':
+                            blue_wins += 1
+                        elif winner.lower() == 'orange':
+                            oran_wins += 1
+                        else:
+                            await game.textChannel.send("Winner not defined :/")
+                            break
+                        replay_ids.append(replay['id'])
+
+                    series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
+                        blue_wins=blue_wins, oran_wins=oran_wins
+                    )
+
+                    if replay_ids:
+                        await game.textChannel.send(":)")
+                        return replay_ids, series_summary
+            
+        return None
+
+    async def _get_series_destination(self, game):
         queue = game.queue
         guild = queue.guild
+        # here
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
         top_level_group = await self._get_top_level_group(guild)
 
+        
         # /<top level group>/<queue name>/<game id>
         game_id = game.id
-        blue_players = game.blue 
-        oran_players = game.orange
         queue_name = queue.name # next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
 
         ordered_subgroups = [
@@ -437,23 +494,28 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        r = self._bc_get_request(auth_token, endpoint, params=params, debug=True)
+        await queue.send_message("A.a")
+        r = self._bc_get_request(auth_token, endpoint, params=params)
 
+        await queue.send_message("A.b")
         data = r.json()
-
+        
         ## TEST OUTPUT - admin-input
         debug_channel = None
-        for channel in guild.text_channels:
+        for channel in queue.text_channels:
             if channel.id == 816122799679864902:
                 debug_channel = channel
                 break
         
+        
+        await queue.send_message("A.c")
         if channel and not data['list']:
             await debug_channel.send(auth_token)
             await debug_channel.send("{}?{}".format(endpoint, "&".join(params)))
             await debug_channel.send("No data")
             await debug_channel.send(data)
 
+        await queue.send_message("A.d")
         # Dynamically create sub-group
         current_subgroup_id = top_level_group
         next_subgroup_id = None
@@ -468,7 +530,7 @@ class BCSixMans(commands.Cog):
                 for data_subgroup in data['list']:
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
-                        break
+                        continue
             
             # Prepare & Execute  Next request:
             # ## Next subgroup found: request its contents
@@ -500,64 +562,11 @@ class BCSixMans(commands.Cog):
                         next_subgroup_id = data['id']
                     except:
                         return False
-            
+        
+        
+        await queue.send_message("A.e")
+
         return next_subgroup_id
-
-    async def _find_series_replays(self, guild, game):
-        # search for appearances in private matches
-        endpoint = "/replays"
-        sort = 'replay-date'
-        sort_dir = 'desc'
-        count = 7
-        # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
-        queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
-        queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
-        auth_token = await self._get_auth_token(guild)
-        
-        params = [
-            'playlist=private',
-            # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
-            'replay-date-after={}'.format(queue_pop_time),
-            'count={}'.format(count),
-            'sort-by={}'.format(sort),
-            'sort-dir={}'.format(sort_dir)
-        ]
-        
-        for player in game.players:
-            for steam_id in await self._get_steam_ids(guild, player.id):
-                uploaded_by_param='uploader={}'.format(steam_id)
-                params.append(uploaded_by_param)
-                r = self._bc_get_request(auth_token, endpoint, params=params)
-
-                params.remove(uploaded_by_param)
-                data = r.json()
-
-                # checks for correct replays
-                oran_wins = 0
-                blue_wins = 0
-                replay_ids = []
-                if 'list' in data:
-                    await game.textChannel.send("{} has {} replays uploaded...".format(player.name, len(data['list'])))
-                    for replay in data['list']:
-                        winner = await self._is_six_mans_replay(guild, player, game, replay)
-                        if winner == 'blue':
-                            blue_wins += 1
-                        elif winner == 'orange':
-                            oran_wins += 1
-                        else:
-                            await game.textChannel.send("Winner not defined :/")
-                            break
-                        replay_ids.append(replay['id'])
-
-                    series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
-                        blue_wins=blue_wins, oran_wins=oran_wins
-                    )
-
-                    if replay_ids:
-                        await game.textChannel.send(":)")
-                        return replay_ids, series_summary
-            
-        return None
 
     async def _download_replays(self, guild, replay_ids):
         auth_token = await self._get_auth_token(guild)
