@@ -474,7 +474,7 @@ class BCMatchGroups(commands.Cog):
 
         embed = discord.Embed(
             title="Test ping in embed",
-            description="Ping maybe? ... {}".format(member.mention)
+            description="Ping maybe? ... {}".format(mention_roles[0].mention)
         )
         await ctx.send(embed=embed, allowed_mentions=allowed_mentions)
         
