@@ -460,7 +460,7 @@ class BCMatchGroups(commands.Cog):
     
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
-    async def testping(self, ctx: discord.Context, member: discord.Member=None):
+    async def testping(self, ctx, member: discord.Member=None):
         """Test ping behavior"""
         await asyncio.sleep(2)
         if not member:
