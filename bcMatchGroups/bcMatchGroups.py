@@ -460,6 +460,27 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(embed=embed)
     
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def testping(self, ctx: discord.Context, member: discord.Member=None):
+        """Test ping behavior"""
+        await asyncio.sleep(2)
+        if not member:
+            member = ctx.message.author
+        
+        mention_roles = True  # can also be list[roles]
+        mention_users = True  # can also be list[users]
+        allowed_mentions = discord.AllowedMentions(everyone=False, roles=mention_roles, users=mention_users)
+        await ctx.send("No Ping: {}".format(member.mention))
+        await ctx.send("No Ping: {}".format(member.mention), allowed_mentions=allowed_mentions)
+
+        embed = discord.Embed(
+            title="Test ping in embed",
+            description="Ping maybe? ... {}".format(member.mention)
+        )
+        await ctx.send(embed=embed, allowed_mentions=allowed_mentions)
+        
+
 
 # ballchasing functions
     # references:
@@ -589,7 +610,7 @@ class BCMatchGroups(commands.Cog):
 
     async def _process_bcreport(self, ctx, team_name, opposing_team, match_day):
         member = ctx.message.author
-        team_role = await self._get_team_role(team_name)
+        team_role = await self._get_team_role(ctx.guild, team_name)
 
         if not team_role:
             return await ctx.send(":x: **{}** is not a valid team name.".format(team_name))
