@@ -215,7 +215,7 @@ class BCMatchGroups(commands.Cog):
         )
         await ctx.send(message)
 
-    @commands.command(aliases=['seasonGroup', 'myGroup', 'mygroup'])
+    @commands.command(aliases=['seasonGroup', 'myGroup', 'mygroup', 'gsg'])
     @commands.guild_only()
     async def getSeasonGroup(self, ctx, *, team_name=None):
         """Views this season's ballchasing group for your team"""
