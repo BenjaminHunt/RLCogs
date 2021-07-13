@@ -1322,16 +1322,7 @@ class BCMatchGroups(commands.Cog):
                 try:
                     next_subgroup_id = data['id']
                 except:
-                    import sys
-                    e = sys.exc_info()[0]
-                    await ctx.send("```\n{}\n```".format(e))
-                    if 'list' in data:
-                        await ctx.send("```\nPOST Request:\n{}```".format(endpoint))
-                        for item in data['list']:
-                            await ctx.send('```\nitem:\n{}```'.format(item))
-                        # await ctx.send("```\n{}: {}\n```".format(key, str(value)[0:1800]))
                     await ctx.send(":x: Error creating Ballchasing group: {}".format(next_group_name))
-                    # await ctx.send(data)
                     return False
             
         return next_subgroup_id
