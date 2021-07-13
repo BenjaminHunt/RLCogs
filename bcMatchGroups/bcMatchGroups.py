@@ -1325,7 +1325,8 @@ class BCMatchGroups(commands.Cog):
                     import sys
                     e = sys.exc_info()[0]
                     await ctx.send("```\n{}\n```".format(e))
-                    await ctx.send("```\n{}\n```".format(data.keys()))
+                    for key, value in data.items():
+                        await ctx.send("```\n{}: {}\n```".format(key, value))
                     await ctx.send(":x: Error creating Ballchasing group: {}".format(next_group_name))
                     # await ctx.send(data)
                     return False
