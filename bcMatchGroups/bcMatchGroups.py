@@ -812,6 +812,7 @@ class BCMatchGroups(commands.Cog):
         top_level_group_info = await self._get_top_level_group(guild, team_role)
 
         r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
+        r = await r
         data = r.json()
 
         opposing_team = ''
