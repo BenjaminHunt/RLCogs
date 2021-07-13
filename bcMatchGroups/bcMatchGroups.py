@@ -812,7 +812,7 @@ class BCMatchGroups(commands.Cog):
         top_level_group_info = await self._get_top_level_group(guild, team_role)
 
         r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
-        r = await r
+        
         data = r.json()
 
         opposing_team = ''
@@ -1252,7 +1252,20 @@ class BCMatchGroups(commands.Cog):
             'group={}'.format(top_group_code)
         ]
 
-        r = await self._bc_get_request(auth_token, endpoint, params=params)
+        # issue here
+        # r = await self._bc_get_request(auth_token, endpoint, params=params)
+
+        # replace helper function
+        url = 'https://ballchasing.com/api'
+        url += endpoint
+        # params = [urllib.parse.quote(p) for p in params]
+        params = '&'.join(params)
+        if params:
+            url += "?{}".format(params)
+        
+        r = requests.get(url, headers={'Authorization': auth_token})
+        ## end replaces helper function
+        
         data = r.json()
 
         debug = False
