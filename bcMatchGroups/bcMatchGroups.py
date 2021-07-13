@@ -497,7 +497,6 @@ class BCMatchGroups(commands.Cog):
         future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
         response = await future
         return response
-        # return requests.get(url, headers={'Authorization': auth_token})
 
 
     async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -507,7 +506,11 @@ class BCMatchGroups(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
+        # return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}, json=json, data=data, files=files))
+        response = await future
+        return response
 
     async def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
@@ -516,7 +519,11 @@ class BCMatchGroups(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+        # return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}, json=json, data=data))
+        response = await future
+        return response
 
 # other functions
     # big helpers
