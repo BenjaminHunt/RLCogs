@@ -492,7 +492,7 @@ class BCMatchGroups(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        url = urllib.parse.quote_plus(url)
+        # url = urllib.parse.quote_plus(url)
         loop = asyncio.get_event_loop()
         future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
         response = await future
