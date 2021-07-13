@@ -508,7 +508,7 @@ class BCMatchGroups(commands.Cog):
         
         # return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
         loop = asyncio.get_event_loop()
-        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}, json=json, data=data, files=files))
+        future = loop.run_in_executor(None, lambda: requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files))
         response = await future
         return response
 
@@ -521,7 +521,7 @@ class BCMatchGroups(commands.Cog):
         
         # return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
         loop = asyncio.get_event_loop()
-        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}, json=json, data=data))
+        future = loop.run_in_executor(None, lambda: requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data))
         response = await future
         return response
 
