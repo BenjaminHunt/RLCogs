@@ -1383,7 +1383,7 @@ class BCMatchGroups(commands.Cog):
             payload = {
                 'title': 'Game {}'.format(game_number)
             }
-            r = self._bc_patch_request(auth_token, endpoint, json=payload)
+            r = await self._bc_patch_request(auth_token, endpoint, json=payload)
             status_code = r.status_code
 
             if status_code == 204:
