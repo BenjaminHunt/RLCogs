@@ -492,13 +492,12 @@ class BCMatchGroups(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        # url = urllib.parse.quote_plus(url)
+        url = urllib.parse.quote_plus(url)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
         # return requests.get(url, headers={'Authorization': auth_token})
-        # loop = asyncio.get_event_loop()
-        # future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
-        # response = await future
-        # return response
-        return requests.get(url, headers={'Authorization': auth_token})
 
 
     async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -1253,17 +1252,17 @@ class BCMatchGroups(commands.Cog):
         ]
 
         # issue here
-        # r = await self._bc_get_request(auth_token, endpoint, params=params)
+        r = await self._bc_get_request(auth_token, endpoint, params=params)
 
         # replace helper function
-        url = 'https://ballchasing.com/api'
-        url += endpoint
-        # params = [urllib.parse.quote(p) for p in params]
-        params = '&'.join(params)
-        if params:
-            url += "?{}".format(params)
+        # url = 'https://ballchasing.com/api'
+        # url += endpoint
+        # # params = [urllib.parse.quote(p) for p in params]
+        # params = '&'.join(params)
+        # if params:
+        #     url += "?{}".format(params)
         
-        r = requests.get(url, headers={'Authorization': auth_token})
+        # r = requests.get(url, headers={'Authorization': auth_token})
         ## end replaces helper function
         
         data = r.json()
