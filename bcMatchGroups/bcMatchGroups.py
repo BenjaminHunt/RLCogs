@@ -1311,7 +1311,7 @@ class BCMatchGroups(commands.Cog):
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
-                r = self._bc_post_request(auth_token, endpoint, json=payload)
+                r = await self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 try:
                     next_subgroup_id = data['id']
