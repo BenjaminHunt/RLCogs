@@ -1352,7 +1352,7 @@ class BCMatchGroups(commands.Cog):
             replay_file.seek(0)
             files = {'file': replay_file}
 
-            r = self._bc_post_request(auth_token, endpoint, params=params, files=files)
+            r = await self._bc_post_request(auth_token, endpoint, params=params, files=files)
         
             status_code = r.status_code
             data = r.json()
@@ -1364,7 +1364,7 @@ class BCMatchGroups(commands.Cog):
                     payload = {
                         'group': subgroup_id
                     }
-                    r = self._bc_patch_request(auth_token, '/replays/{}'.format(data['id']), json=payload)
+                    r = await self._bc_patch_request(auth_token, '/replays/{}'.format(data['id']), json=payload)
                     if r.status_code == 204:
                         replay_ids_in_group.append(data['id'])
                     else:
