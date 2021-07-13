@@ -494,10 +494,11 @@ class BCMatchGroups(commands.Cog):
         
         # url = urllib.parse.quote_plus(url)
         # return requests.get(url, headers={'Authorization': auth_token})
-        loop = asyncio.get_event_loop()
-        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
-        response = await future
-        return response
+        # loop = asyncio.get_event_loop()
+        # future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
+        # response = await future
+        # return response
+        return requests.get(url, headers={'Authorization': auth_token})
 
 
     async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -811,6 +812,7 @@ class BCMatchGroups(commands.Cog):
         top_level_group_info = await self._get_top_level_group(guild, team_role)
 
         r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
+        
         data = r.json()
 
         opposing_team = ''
@@ -1250,7 +1252,20 @@ class BCMatchGroups(commands.Cog):
             'group={}'.format(top_group_code)
         ]
 
-        r = await self._bc_get_request(auth_token, endpoint, params=params)
+        # issue here
+        # r = await self._bc_get_request(auth_token, endpoint, params=params)
+
+        # replace helper function
+        url = 'https://ballchasing.com/api'
+        url += endpoint
+        # params = [urllib.parse.quote(p) for p in params]
+        params = '&'.join(params)
+        if params:
+            url += "?{}".format(params)
+        
+        r = requests.get(url, headers={'Authorization': auth_token})
+        ## end replaces helper function
+        
         data = r.json()
 
         debug = False
@@ -1296,7 +1311,7 @@ class BCMatchGroups(commands.Cog):
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
-                r = self._bc_post_request(auth_token, endpoint, json=payload)
+                r = await self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 try:
                     next_subgroup_id = data['id']
@@ -1337,7 +1352,7 @@ class BCMatchGroups(commands.Cog):
             replay_file.seek(0)
             files = {'file': replay_file}
 
-            r = self._bc_post_request(auth_token, endpoint, params=params, files=files)
+            r = await self._bc_post_request(auth_token, endpoint, params=params, files=files)
         
             status_code = r.status_code
             data = r.json()
@@ -1349,7 +1364,7 @@ class BCMatchGroups(commands.Cog):
                     payload = {
                         'group': subgroup_id
                     }
-                    r = self._bc_patch_request(auth_token, '/replays/{}'.format(data['id']), json=payload)
+                    r = await self._bc_patch_request(auth_token, '/replays/{}'.format(data['id']), json=payload)
                     if r.status_code == 204:
                         replay_ids_in_group.append(data['id'])
                     else:
@@ -1368,7 +1383,7 @@ class BCMatchGroups(commands.Cog):
             payload = {
                 'title': 'Game {}'.format(game_number)
             }
-            r = self._bc_patch_request(auth_token, endpoint, json=payload)
+            r = await self._bc_patch_request(auth_token, endpoint, json=payload)
             status_code = r.status_code
 
             if status_code == 204:
