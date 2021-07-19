@@ -478,6 +478,10 @@ class BCMatchGroups(commands.Cog):
         )
         await ctx.send(embed=embed, allowed_mentions=allowed_mentions)
         
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def test(self, ctx):
+        await ctx.author.send("Channel: {}".format(ctx.channel.mention))
 
 
 # ballchasing functions
