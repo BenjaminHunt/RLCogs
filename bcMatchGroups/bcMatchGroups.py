@@ -215,7 +215,7 @@ class BCMatchGroups(commands.Cog):
         )
         await ctx.send(message)
 
-    @commands.command(aliases=['seasonGroup', 'myGroup', 'mygroup'])
+    @commands.command(aliases=['seasonGroup', 'myGroup', 'mygroup', 'gsg'])
     @commands.guild_only()
     async def getSeasonGroup(self, ctx, *, team_name=None):
         """Views this season's ballchasing group for your team"""
@@ -478,6 +478,10 @@ class BCMatchGroups(commands.Cog):
         )
         await ctx.send(embed=embed, allowed_mentions=allowed_mentions)
         
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def test(self, ctx):
+        await ctx.author.send("Channel: {}".format(ctx.channel.mention))
 
 
 # ballchasing functions
@@ -493,12 +497,10 @@ class BCMatchGroups(commands.Cog):
             url += "?{}".format(params)
         
         # url = urllib.parse.quote_plus(url)
-        # return requests.get(url, headers={'Authorization': auth_token})
-        # loop = asyncio.get_event_loop()
-        # future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
-        # response = await future
-        # return response
-        return requests.get(url, headers={'Authorization': auth_token})
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
 
 
     async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
@@ -508,7 +510,11 @@ class BCMatchGroups(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
+        # return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files))
+        response = await future
+        return response
 
     async def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
@@ -517,7 +523,11 @@ class BCMatchGroups(commands.Cog):
         if params:
             url += "?{}".format(params)
         
-        return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+        # return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data))
+        response = await future
+        return response
 
 # other functions
     # big helpers
@@ -1253,17 +1263,17 @@ class BCMatchGroups(commands.Cog):
         ]
 
         # issue here
-        # r = await self._bc_get_request(auth_token, endpoint, params=params)
+        r = await self._bc_get_request(auth_token, endpoint, params=params)
 
         # replace helper function
-        url = 'https://ballchasing.com/api'
-        url += endpoint
-        # params = [urllib.parse.quote(p) for p in params]
-        params = '&'.join(params)
-        if params:
-            url += "?{}".format(params)
+        # url = 'https://ballchasing.com/api'
+        # url += endpoint
+        # # params = [urllib.parse.quote(p) for p in params]
+        # params = '&'.join(params)
+        # if params:
+        #     url += "?{}".format(params)
         
-        r = requests.get(url, headers={'Authorization': auth_token})
+        # r = requests.get(url, headers={'Authorization': auth_token})
         ## end replaces helper function
         
         data = r.json()
@@ -1317,7 +1327,6 @@ class BCMatchGroups(commands.Cog):
                     next_subgroup_id = data['id']
                 except:
                     await ctx.send(":x: Error creating Ballchasing group: {}".format(next_group_name))
-                    # await ctx.send(data)
                     return False
             
         return next_subgroup_id
