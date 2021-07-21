@@ -50,13 +50,13 @@ class BCSixMans(commands.Cog):
         member = ctx.message.author
         self.six_mans_cog = self.bot.get_cog("SixMans")
         game = None
-        for g in self.six_mans_cog.games:
+        for g in self.six_mans_cog.games[ctx.guild]:
             if g.textChannel == ctx.message.channel:
                 game = g
                 break
         
 
-        if not len(self.six_mans_cog.games):
+        if not len(self.six_mans_cog.games[ctx.guild]):
             return
             # await game_text_channel.send("no ongoing games")
 
@@ -107,6 +107,14 @@ class BCSixMans(commands.Cog):
     async def bct(self, ctx):
         """ballchasing... time?"""
         key = await self.account_manager
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def test(self, ctx):
+        await self.six_mans_cog._pre_load_data()
+        s = "in" if ctx.guild in self.six_mans_cog.queues else "not in"
+        await ctx.send("Guild {} queues object.")
 
     # @commands.command()
     # @commands.guild_only()
