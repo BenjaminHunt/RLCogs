@@ -111,7 +111,7 @@ class BCSixMans(commands.Cog):
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def test(self, ctx):
+    async def testa(self, ctx):
         await self.six_mans_cog._pre_load_data()
         s = "in" if ctx.guild in self.six_mans_cog.queues else "not in"
         await ctx.send("Guild {} queues object.")
