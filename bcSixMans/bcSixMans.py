@@ -106,7 +106,8 @@ class BCSixMans(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def bct(self, ctx):
         """ballchasing... time?"""
-        key = await self.account_manager
+        # key = await self.account_manager
+        return 
 
     @commands.command()
     @commands.guild_only()
