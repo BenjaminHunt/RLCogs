@@ -28,8 +28,8 @@ To register one or more teams, the `<p>addTeamRoles` command must be used.
 Examples:
 
 ```
-?addTeamRoles Panthers
-?addTeamRoles "Jaguars (Elite)" "Panters (Major)" "Ocelots (Minor)"
+<p>addTeamRoles Panthers
+<p>addTeamRoles "Jaguars (Elite)" "Piranhas (Major)" "Ocelots (Minor)"
 ```
 
 ---
