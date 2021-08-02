@@ -42,6 +42,7 @@ class BCMatchGroups(commands.Cog):
         if self.task:
             self.task.cancel()
 
+# Admin Commands - Season Configuration
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
@@ -125,6 +126,7 @@ class BCMatchGroups(commands.Cog):
         match_day = await self.config.guild(ctx.guild).MatchDay()
         await ctx.send("Match Day {}.".format(match_day))
 
+# Admin Settings - Team Mgmt
     @commands.command()
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
@@ -167,6 +169,7 @@ class BCMatchGroups(commands.Cog):
             await self._save_team_roles(ctx.guild, [])
             await ctx.send("Done")
 
+# Ballchasing Group Setup Commands
     @commands.command(aliases=['setMyBCAuthKey'])
     async def setMyBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests for the given user.
@@ -215,6 +218,89 @@ class BCMatchGroups(commands.Cog):
         )
         await ctx.send(message)
 
+# Score Reporting
+    @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
+    @commands.guild_only()
+    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day=None):
+        """Finds match games from recent public uploads for a specified franchise team, and adds them to the correct Ballchasing subgroup
+        """
+        await self._process_bcreport(ctx, franchise_team, opposing_team, match_day)
+
+    @commands.command(aliases=['bcr', 'bcpull', 'played'])
+    @commands.guild_only()
+    async def bcreport(self, ctx, opposing_team, match_day=None):
+        """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
+        """
+        try:
+            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
+        except:
+            return await ctx.send(":x: You are not rostered to a team in this server.")
+        team_name = self._get_team_name(team_role)
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day)
+
+# General Use
+    # region info commands
+    @commands.command(aliases=['team'])
+    @commands.guild_only()
+    async def roster(self, ctx, team_name=None):
+        member = ctx.message.author
+        if not team_name:
+            try:
+                team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
+            except:
+                return await ctx.send(":x: You are not rostered to a team in this server.")
+        else:
+            team_role = await self._get_team_role(ctx.guild, team_name)
+
+        team_name = self._get_team_name(team_role)
+        emoji_url = ctx.guild.icon_url
+        players = []
+        for player in await self._get_roster(team_role):
+            p_str = player.mention
+            if self.is_captain(player):
+                p_str = "{} (C)".format(p_str)
+            players.append(p_str)
+        embed = discord.Embed(
+            title="{} Roster".format(team_name),
+            description='\n'.join(players),
+            color=team_role.color
+        )
+        if emoji_url:
+            embed.set_thumbnail(url=emoji_url)
+        
+        await ctx.send(embed=embed)
+
+    @commands.command(aliases=['teams'])
+    @commands.guild_only()
+    async def listTeams(self, ctx):
+        """List all registered teams"""
+        member = ctx.message.author
+        team_roles = await self._get_team_roles(ctx.guild)
+        await ctx.send('Teams: {}'.format(', '.join(role.mention for role in team_roles)))
+
+    @commands.command()
+    @commands.guild_only()
+    async def rosters(self, ctx):
+        emoji_url = ctx.guild.icon_url
+        team_roles = await self._get_team_roles(ctx.guild)
+        for team_role in team_roles:
+            team_name = self._get_team_name(team_role)
+            players = []
+            for player in await self._get_roster(team_role):
+                p_str = player.mention
+                if self.is_captain(player):
+                    p_str = "{} (C)".format(p_str)
+                players.append(p_str)
+            embed = discord.Embed(
+                title="{} Roster".format(team_name),
+                description='\n'.join(players),
+                color=team_role.color
+            )
+            if emoji_url:
+                embed.set_thumbnail(url=emoji_url)
+            
+            await ctx.send(embed=embed)
+
     @commands.command(aliases=['seasonGroup', 'myGroup', 'mygroup', 'gsg'])
     @commands.guild_only()
     async def getSeasonGroup(self, ctx, *, team_name=None):
@@ -261,25 +347,6 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         
         await ctx.send(embed=embed)
-
-    @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
-    @commands.guild_only()
-    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day=None):
-        """Finds match games from recent public uploads for a specified franchise team, and adds them to the correct Ballchasing subgroup
-        """
-        await self._process_bcreport(ctx, franchise_team, opposing_team, match_day)
-
-    @commands.command(aliases=['bcr', 'bcpull', 'played'])
-    @commands.guild_only()
-    async def bcreport(self, ctx, opposing_team, match_day=None):
-        """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
-        """
-        try:
-            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
-        except:
-            return await ctx.send(":x: You are not rostered to a team in this server.")
-        team_name = self._get_team_name(team_role)
-        await self._process_bcreport(ctx, team_name, opposing_team, match_day)
 
     @commands.command(aliases=['getmatch'])
     @commands.guild_only()
@@ -359,131 +426,21 @@ class BCMatchGroups(commands.Cog):
                 embed.add_field(name=summary, value=bc_link, inline=False)
                 
             await output_msg.edit(embed=embed)
+    # endregion info commands
 
-
+    # region performance
     @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None, team=None):
         """Returns Franchise performance for the current, or provided match day"""
         asyncio.create_task(self._match_day_summary(ctx, match_day))
     
-    @commands.command()
-    @commands.guild_only()
-    async def tmds(self, ctx, match_day=None):
-        """Returns Franchise performance for the current, or provided match day"""
-        # try:
-        #     thread.start_new_thread(await self._match_day_summary, (ctx, match_day))
-        # except:
-        #     await ctx.send(":x: An error occured while running this command.")
-        #     await self._match_day_summary(ctx, match_day)
-    
     @commands.command(aliases=['gsp', 'getSeasonResults', 'gsr'])
     @commands.guild_only()
     async def getSeasonPerformance(self, ctx, *, team_name=None):
         """Returns the season performance for the given team (invoker's team by default)"""
         asyncio.create_task(self._get_season_performance(ctx, team_name))
-
-    @commands.command()
-    @commands.guild_only()
-    async def rosters(self, ctx):
-        emoji_url = ctx.guild.icon_url
-        team_roles = await self._get_team_roles(ctx.guild)
-        for team_role in team_roles:
-            team_name = self._get_team_name(team_role)
-            players = []
-            for player in await self._get_roster(team_role):
-                p_str = player.mention
-                if self.is_captain(player):
-                    p_str = "{} (C)".format(p_str)
-                players.append(p_str)
-            embed = discord.Embed(
-                title="{} Roster".format(team_name),
-                description='\n'.join(players),
-                color=team_role.color
-            )
-            if emoji_url:
-                embed.set_thumbnail(url=emoji_url)
-            
-            await ctx.send(embed=embed)
-
-    @commands.command(aliases=['team'])
-    @commands.guild_only()
-    async def roster(self, ctx, team_name=None):
-        member = ctx.message.author
-        if not team_name:
-            try:
-                team_role = (await self._get_member_team_roles(ctx.guild, member))[0]
-            except:
-                return await ctx.send(":x: You are not rostered to a team in this server.")
-        else:
-            team_role = await self._get_team_role(ctx.guild, team_name)
-
-        team_name = self._get_team_name(team_role)
-        emoji_url = ctx.guild.icon_url
-        players = []
-        for player in await self._get_roster(team_role):
-            p_str = player.mention
-            if self.is_captain(player):
-                p_str = "{} (C)".format(p_str)
-            players.append(p_str)
-        embed = discord.Embed(
-            title="{} Roster".format(team_name),
-            description='\n'.join(players),
-            color=team_role.color
-        )
-        if emoji_url:
-            embed.set_thumbnail(url=emoji_url)
-        
-        await ctx.send(embed=embed)
-
-    @commands.command(aliases=['teams'])
-    @commands.guild_only()
-    async def listTeams(self, ctx):
-        """List all registered teams"""
-        member = ctx.message.author
-        team_roles = await self._get_team_roles(ctx.guild)
-        await ctx.send('Teams: {}'.format(', '.join(role.mention for role in team_roles)))
-
-    @commands.command()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def testwp(self, ctx, wins:int, losses:int):
-        """Tests WP embed color"""
-        color = self._get_win_percentage_color(wins, losses)
-        try:
-            wp = (wins)/(wins+losses)
-        except:
-            wp = "N/A"
-        description = "**Wins:** {}\n**Losses:** {}\n**WP:** {}".format(wins, losses, wp)
-        embed = discord.Embed(title="WP Color Test", description=description, color=color)
-
-        await ctx.send(embed=embed)
-    
-    @commands.command()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def testping(self, ctx, member: discord.Member=None):
-        """Test ping behavior"""
-        await asyncio.sleep(2)
-        if not member:
-            member = ctx.message.author
-        
-        mention_roles = [member.roles[1]]  # can also be list[roles]
-        mention_users = False  # can also be list[users]
-        allowed_mentions = discord.AllowedMentions(everyone=False, roles=mention_roles, users=mention_users)
-        await ctx.send("No Ping: {}".format(mention_roles[0].mention), allowed_mentions=None)
-        await ctx.send("Ping: {}".format(mention_roles[0].mention), allowed_mentions=allowed_mentions)
-
-        embed = discord.Embed(
-            title="Test ping in embed",
-            description="Ping maybe? ... {}".format(mention_roles[0].mention)
-        )
-        await ctx.send(embed=embed, allowed_mentions=allowed_mentions)
-        
-    @commands.command()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def test(self, ctx):
-        await ctx.author.send("Channel: {}".format(ctx.channel.mention))
-
-
+    # endregion performance
 # ballchasing functions
     # references:
     # https://stackoverflow.com/questions/22190403/how-could-i-use-requests-in-asyncio
