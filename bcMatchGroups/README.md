@@ -98,7 +98,7 @@ For example:
 
 <br>
 
-## Regular Usage:
+## Regular Usage
 
 To have the bot create a replay group with the games from your recently played match, run the following command:
 
@@ -109,7 +109,7 @@ To have the bot create a replay group with the games from your recently played m
 Notes:
 
 - `bcr` is short for **ballchasing report**. This will automatically search for replays that your team played.
-- If `opponent` is more than one word, you must put quotation marks around it. (i.e. `?bcr "Killer Whales"`)
+- If `opponent` is more than one word, you must put quotation marks around it. (i.e. `<p>bcr "Killer Whales"`)
 - The `match_day` argument is optional, but the command might still find your old games if you didn't report on time. For context, it searches the past 20 private games you've played.
 - Any member on the team who has registered an auth token can run this command
 
