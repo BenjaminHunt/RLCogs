@@ -459,7 +459,6 @@ class BCMatchGroups(commands.Cog):
         response = await future
         return response
 
-
     async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
@@ -675,12 +674,7 @@ class BCMatchGroups(commands.Cog):
         while True:  # self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.guilds:
                 await self._update_match_day(guild, force_set=True)
-                # TODO: leave for a while :)
                 update_time = self._schedule_next_update()
-                if str(guild.id) == '675121792741801994':
-                    channel = guild.get_channel(741758967260250213)
-                    await channel.send("**event**")
-                    await channel.send("Next update in **{}** seconds.".format(update_time))
             await asyncio.sleep(update_time)
 
     def _schedule_next_update(self):
@@ -1033,8 +1027,8 @@ class BCMatchGroups(commands.Cog):
         if str(match_day) != str(new_match_day):
             await self._save_match_day(guild, new_match_day)
             if str(guild.id) == str(675121792741801994):
-                if not channel:
-                    channel = guild.get_channel(741758967260250213)
+                if guild.system_channel and not channel:
+                    channel = guild.system_channel
                     await channel.send("New match day: {}".format(new_match_day))
 
     def is_captain(self, member: discord.Member):
