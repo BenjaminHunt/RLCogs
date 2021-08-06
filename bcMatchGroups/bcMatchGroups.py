@@ -228,7 +228,7 @@ class BCMatchGroups(commands.Cog):
 
     @commands.command(aliases=['bcr', 'bcpull', 'played'])
     @commands.guild_only()
-    async def bcreport(self, ctx, opposing_team, match_day=None):
+    async def bcReport(self, ctx, opposing_team, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         try:
@@ -236,7 +236,34 @@ class BCMatchGroups(commands.Cog):
         except:
             return await ctx.send(":x: You are not rostered to a team in this server.")
         team_name = self._get_team_name(team_role)
-        await self._process_bcreport(ctx, team_name, opposing_team, match_day)
+        match_type = "Regular Season"
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
+    
+    @commands.command(aliases=['bcrps', 'postSeasonGame', 'psg'])
+    @commands.guild_only()
+    async def bcReportPostSeason(self, ctx, opposing_team, match_day=None):
+        """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
+        """
+        try:
+            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
+        except:
+            return await ctx.send(":x: You are not rostered to a team in this server.")
+        team_name = self._get_team_name(team_role)
+        match_type = "Post-Season"
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
+    
+    @commands.command(aliases=['bcrscrim', 'scrim'])
+    @commands.guild_only()
+    async def bcScrim(self, ctx, opposing_team, match_day=None):
+        """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
+        """
+        try:
+            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
+        except:
+            return await ctx.send(":x: You are not rostered to a team in this server.")
+        team_name = self._get_team_name(team_role)
+        match_type = "Scrims"
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
 
 # General Use
     # region info commands
@@ -573,7 +600,7 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
 
-    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day):
+    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day, match_type):
         member = ctx.message.author
         team_role = await self._get_team_role(ctx.guild, team_name)
 
@@ -652,7 +679,7 @@ class BCMatchGroups(commands.Cog):
             return False
         
         # Find or create ballchasing subgroup
-        match_subgroup_id = await self._get_replay_destination(ctx, match)
+        match_subgroup_id = await self._get_replay_destination(ctx, match, match_type)
         if not match_subgroup_id:
             return False
 
@@ -1193,7 +1220,7 @@ class BCMatchGroups(commands.Cog):
             await ctx.send("Sorry {}, you didn't react quick enough. Please try again.".format(user.mention))
             return False
     
-    async def _get_replay_destination(self, ctx, match):
+    async def _get_replay_destination(self, ctx, match, match_type="Regular Season"):
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
         bc_group_owner = ctx.guild.get_member(top_level_group_info[0])
@@ -1203,6 +1230,7 @@ class BCMatchGroups(commands.Cog):
         
         # <top level group>/MD <Match Day> vs <Opposing Team>
         ordered_subgroups = [
+            # match_type,
             "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
         ]
 
