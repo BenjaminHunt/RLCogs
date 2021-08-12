@@ -178,7 +178,8 @@ class BCMatchGroups(commands.Cog):
         if not await self._react_prompt(ctx, "Are you sure you wish to clear all rosters?", "No roster changes made."):
             return 
         removed = 0
-        team_roles = await self.config.guild(ctx.guild).TeamRoles()
+        team_roles = await self._get_team_roles(ctx.guild)
+        await ctx.send("team roles: {}".format())
         for role in team_roles:
             for member in role.members:
                 await member.remove_roles(role)
