@@ -179,7 +179,6 @@ class BCMatchGroups(commands.Cog):
             return 
         removed = 0
         team_roles = await self._get_team_roles(ctx.guild)
-        await ctx.send("team roles: {}".format())
         for role in team_roles:
             for member in role.members:
                 await member.remove_roles(role)
