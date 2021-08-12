@@ -169,6 +169,19 @@ class BCMatchGroups(commands.Cog):
             await self._save_team_roles(ctx.guild, [])
             await ctx.send("Done")
 
+# Admin Commands - Misc
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def clearRosters(self, ctx):
+        removed = 0
+        team_roles = await self.config.guild(ctx.guild).TeamRoles()
+        for role in team_roles:
+            for member in role.members:
+                await member.remove_roles(role)
+                removed += 1
+        await ctx.send("Removed team roles for {} players.".format(removed))
+
 # Ballchasing Group Setup Commands
     @commands.command(aliases=['setMyBCAuthKey'])
     async def setMyBCAuthToken(self, ctx, auth_token):
