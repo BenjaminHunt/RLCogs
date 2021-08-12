@@ -174,6 +174,9 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def clearRosters(self, ctx):
+        """Removes all team roles from members within the guild server."""
+        if not await self._react_prompt(ctx, "Are you sure you wish to clear all rosters?", "No roster changes made."):
+            return 
         removed = 0
         team_roles = await self.config.guild(ctx.guild).TeamRoles()
         for role in team_roles:
