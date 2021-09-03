@@ -9,13 +9,6 @@ import random
 import urllib.parse
 import traceback
 
-# try:
-#     import thread
-# except ImportError:
-#     from pip._internal import main as pip
-#     pip(['install', '--user', 'thread'])
-#     import thread
-
 from redbot.core import Config
 from redbot.core import commands
 from redbot.core import checks
@@ -457,6 +450,16 @@ class BCMatchGroups(commands.Cog):
         """Returns the season performance for the given team (invoker's team by default)"""
         asyncio.create_task(self._get_season_performance(ctx, team_name))
     # endregion performance
+
+    # region action
+    @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
+    @commands.guild_only()
+    async def copyGroup(self, ctx, team_name, parent_group_code=None):
+        """Executes a process to create a copy of a specified team's replay group, and 
+        saves it to the invoker's ballchasing account. This is a deep copy."""
+        asyncio.create_task(self._process_group_copy(ctx, team_name, parent_group_code))
+
+    # endregion action
 # ballchasing functions
     # references:
     # https://stackoverflow.com/questions/22190403/how-could-i-use-requests-in-asyncio
@@ -503,19 +506,40 @@ class BCMatchGroups(commands.Cog):
 
 # other functions
     # big helpers
+
+    async def _process_group_copy(self, ctx, team_name, parent_code=None, status_msg=None):
+        member = ctx.message.author
+        # TODO: status messages
+        
+        # Get origin replay group
+        initial_update = "Embed: Matching to team replay group..."
+        if status_msg:
+            await status_msg.edit(message=initial_update)
+        else:
+            status_msg = await ctx.send(message=initial_update)
+        team_role = await self._match_team_role(ctx.guild, member, team_name)
+        if not team_role:
+            return await ctx.send(":x: Team not found.")
+        team_name = self._get_team_name(team_role)
+
+
+        # Verify Group Can be Copied to Destination
+        await status_msg.edit(message="Embed: Verifying valid destination...")
+        auth_token = await self._get_member_bc_token(member)
+        if not auth_token:
+            await status_msg.edit(message="Embed: :x: Member has not registered a ballchasing auth token.")
+            return 
+        
+        if parent_code:
+            pass # TODO: validate group
+
+        # Initiate copy process
+        await status_msg.edit(message="Embed: Preparing to copy groups...")
+        # here
+
     async def _get_season_performance(self, ctx, team_name):
         member = ctx.message.author
-        team_roles = await self._get_team_roles(ctx.guild)
-        team_role = None
-        if team_name:
-            for role in team_roles:
-                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
-                    team_role = role
-        else:
-            for role in team_roles:
-                if role in member.roles:
-                    team_role = role
-                    break
+        team_role = await self._match_team_role(ctx.guild, member, team_name)
         if not team_role:
             return await ctx.send(":x: Team not found.")
         team_name = self._get_team_name(team_role)
@@ -1086,6 +1110,23 @@ class BCMatchGroups(commands.Cog):
                 player_team_roles.append(role)
         return player_team_roles
     
+    async def _match_team_role(self, guild, member, team_name):
+        """Retreives the role for a specified team. If teaam_name is not provided, matches to the invoker's team."""
+        team_roles = await self._get_team_roles(guild)
+        team_role = None
+        # Find from team_name
+        if team_name:
+            for role in team_roles:
+                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
+                    return role
+            return None
+        
+        # Find member's team
+        for role in team_roles:
+            if role in member.roles:
+                return role
+        return None
+
     def _get_team_name(self, role: discord.Role):
         if role.name[-1] == ')' and ' (' in role.name:
             return ' '.join((role.name).split()[:-1])

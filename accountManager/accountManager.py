@@ -443,13 +443,35 @@ class AccountManager(commands.Cog):
     async def _save_bc_auth_token(self, guild, token):
         await self.config.guild(guild).BCAuthToken.set(token)
   
-    # disabled
+    # TODO: move member tokens from bcMatchGroups to accountManager
+    async def _get_member_bc_token(self, member: discord.Member):
+        try:
+            return (await self.config.BCTokens())[str(member.id)]
+        except:
+            try:
+                return (await self.config.BCTokens())[member.id]
+            except:
+                return None
+    
+    async def _save_member_bc_token(self, member: discord.Member, token):
+        tokens = await self.config.BCTokens()
+        if token:
+            tokens[str(member.id)] = token
+            await self.config.BCTokens.set(tokens)
+        else:
+            try:
+                del tokens[str(member.id)]
+                await self.config.BCTokens.set(tokens)
+            except:
+                pass 
+
+    # region disabled
     async def _get_trn_auth_token(self, guild):
         return await self.config.guild(guild).TRNAuthToken()
     
-    # disabled
     async def _save_trn_auth_token(self, guild, token):
         await self.config.guild(guild).TRNAuthToken.set(token)
+    # endregion disabled
 
     async def get_account_register(self):
         return await self.config.AccountRegister()
