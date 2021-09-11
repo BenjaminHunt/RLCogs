@@ -537,10 +537,10 @@ class BCMatchGroups(commands.Cog):
             await status_msg.edit(content="Embed: :x: Member has not registered a ballchasing auth token.")
             return 
         
-        await ctx.send("A")
         # Initiate copy process
         status_msg = await status_msg.edit(content="Embed: Preparing to copy groups...")
 
+        await ctx.send("A")
         # TODO: make top_level_group IN parent_code instead of them being topographically equal
         if parent_code:
             r = await self._bc_get_request(auth_token, '/groups{}'.format(parent_code))
