@@ -519,7 +519,7 @@ class BCMatchGroups(commands.Cog):
         # Get origin replay group
         initial_update = "Embed: Matching to team replay group..."
         if status_msg:
-            await status_msg.edit(message=initial_update)
+            status_msg = await status_msg.edit(message=initial_update)
         else:
             status_msg = await ctx.send(initial_update)
         team_role = await self._match_team_role(ctx.guild, member, team_name)
@@ -532,14 +532,14 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send('top group: {}'.format(top_level_group))
         # Verify Group Can be Copied to Destination
-        await status_msg.edit(message="Embed: Verifying valid destination...")
+        status_msg = await status_msg.edit(message="Embed: Verifying valid destination...")
         auth_token = await self._get_member_bc_token(member)
         if not auth_token:
             await status_msg.edit(message="Embed: :x: Member has not registered a ballchasing auth token.")
             return 
         
         # Initiate copy process
-        await status_msg.edit(message="Embed: Preparing to copy groups...")
+        status_msg = await status_msg.edit(message="Embed: Preparing to copy groups...")
 
         # TODO: make top_level_group IN parent_code instead of them being topographically equal
         if parent_code:
