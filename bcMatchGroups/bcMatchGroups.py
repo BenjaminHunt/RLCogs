@@ -519,7 +519,7 @@ class BCMatchGroups(commands.Cog):
         # Get origin replay group
         initial_update = "Embed: Matching to team replay group..."
         if status_msg:
-            status_msg = await status_msg.edit(message=initial_update)
+            status_msg = await status_msg.edit(content=initial_update)
         else:
             status_msg = await ctx.send(initial_update)
         team_role = await self._match_team_role(ctx.guild, member, team_name)
@@ -532,24 +532,24 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send('top group: {}'.format(top_level_group))
         # Verify Group Can be Copied to Destination
-        status_msg = await status_msg.edit(message="Embed: Verifying valid destination...")
+        status_msg = await status_msg.edit(content="Embed: Verifying valid destination...")
         auth_token = await self._get_member_bc_token(member)
         if not auth_token:
-            await status_msg.edit(message="Embed: :x: Member has not registered a ballchasing auth token.")
+            await status_msg.edit(content="Embed: :x: Member has not registered a ballchasing auth token.")
             return 
         
         # Initiate copy process
-        status_msg = await status_msg.edit(message="Embed: Preparing to copy groups...")
+        status_msg = await status_msg.edit(content="Embed: Preparing to copy groups...")
 
         # TODO: make top_level_group IN parent_code instead of them being topographically equal
         if parent_code:
             r = await self._bc_get_request(auth_token, '/groups{}'.format(parent_code))
             if r.status_code != 200:
-                return await status_msg.edit(message=":x: **{}** is not a valid ballchasing group code.".format(parent_code))
+                return await status_msg.edit(content=":x: **{}** is not a valid ballchasing group code.".format(parent_code))
         else:
             r = await self._bc_get_request(auth_token, '/groups/{}'.format(top_level_group))
             if r.status_code != 200:
-                return await status_msg.edit(message=":x: Error copying season group.")
+                return await status_msg.edit(content=":x: Error copying season group.")
             data = r.json()
             payload = {
                 "name": "Copy of {}".format(data['name']),
@@ -561,7 +561,7 @@ class BCMatchGroups(commands.Cog):
                 data = r.json()
                 parent_code = data['id']
             else:
-                return await status_msg.edit(message=":x: Error copying season group.")
+                return await status_msg.edit(content=":x: Error copying season group.")
 
         # Perform Copy
         await self._perform_recursive_copy(auth_token, top_level_group, parent_code)
