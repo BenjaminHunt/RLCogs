@@ -558,7 +558,8 @@ class BCMatchGroups(commands.Cog):
 
         copy_params = ['group={}'.format(parent_origin)]
 
-        # Step 1: Create copy for all subgroups
+        # Step 1: Copy all subgroups in current group
+        # Get existing subgroups
         r = await self._bc_get_request(auth_token, '/groups', params=copy_params)
         if r.status_code != 200:
             return
@@ -575,7 +576,7 @@ class BCMatchGroups(commands.Cog):
                 }
                 subgroup_id_payloads.append({subgroup['id']: sub_payload})
 
-
+        # Create subgroup copies
         for subgroup_id, subgroup_payload in subgroup_id_payloads.items():
             # TODO: check if subgroup mirror already exists
 
@@ -589,8 +590,9 @@ class BCMatchGroups(commands.Cog):
             await self._perform_recursive_copy(ctx, auth_token, subgroup_id, mirror_subgroup_id, wait_time=10)
         
 
-        # Step 2: Get all replays in current group
+        # Step 2: Copy all replays in current group
         # TODO: patch if original uploader is creating a copy
+        # Get existing replays
         r = await self._bc_get_request(auth_token, '/replays', params=copy_params)
         if r.status_code != 200:
             return 
