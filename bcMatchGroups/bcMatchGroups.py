@@ -523,6 +523,7 @@ class BCMatchGroups(commands.Cog):
         else:
             status_msg = await ctx.send(initial_update)
         team_role = await self._match_team_role(ctx.guild, member, team_name)
+        await ctx.send('matched')
         if not team_role:
             return await ctx.send(":x: Team not found.")
         team_name = self._get_team_name(team_role)
