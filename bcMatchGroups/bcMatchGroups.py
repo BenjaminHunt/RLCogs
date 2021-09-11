@@ -444,7 +444,7 @@ class BCMatchGroups(commands.Cog):
     # endregion info commands
 
     # region performance
-    @commands.command(aliases=['matchResultSummary', 'mrs'])
+    @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None, team=None):
         """Returns Franchise performance for the current, or provided match day"""
