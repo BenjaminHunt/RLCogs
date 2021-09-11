@@ -519,7 +519,7 @@ class BCMatchGroups(commands.Cog):
         # Get origin replay group
         initial_update = "Embed: Matching to team replay group..."
         if status_msg:
-            status_msg = await status_msg.edit(content=initial_update)
+            await status_msg.edit(content=initial_update)
         else:
             status_msg = await ctx.send(initial_update)
         team_role = await self._match_team_role(ctx.guild, member, team_name)
@@ -531,16 +531,15 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send('top group: {}'.format(top_level_group))
         # Verify Group Can be Copied to Destination
-        status_msg = await status_msg.edit(content="Embed: Verifying valid destination...")
+        await status_msg.edit(content="Embed: Verifying valid destination...")
         auth_token = await self._get_member_bc_token(member)
         if not auth_token:
             await status_msg.edit(content="Embed: :x: Member has not registered a ballchasing auth token.")
             return 
         
-        asyncio.sleep(2)
         # Initiate copy process
-        status_msg = await status_msg.edit(content="Embed: Preparing to copy groups...")
-
+        # status_msg = await status_msg.edit(content="Embed: Preparing to copy groups...")
+        
         await ctx.send("A")
         # TODO: make top_level_group IN parent_code instead of them being topographically equal
         if parent_code:
@@ -564,6 +563,7 @@ class BCMatchGroups(commands.Cog):
             else:
                 return await status_msg.edit(content=":x: Error copying season group.")
 
+        await ctx.send("B")
         # Perform Copy
         await self._perform_recursive_copy(auth_token, top_level_group, parent_code)
 
