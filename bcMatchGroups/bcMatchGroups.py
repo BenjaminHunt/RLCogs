@@ -527,7 +527,7 @@ class BCMatchGroups(commands.Cog):
             return await ctx.send(":x: Team not found.")
         team_name = self._get_team_name(team_role)
 
-        top_level_group = None
+        top_level_group = await self._get_top_level_group(ctx.guild, team_role)[1]
 
         # Verify Group Can be Copied to Destination
         await status_msg.edit(message="Embed: Verifying valid destination...")
