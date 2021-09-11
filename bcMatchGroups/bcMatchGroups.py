@@ -523,14 +523,11 @@ class BCMatchGroups(commands.Cog):
         else:
             status_msg = await ctx.send(initial_update)
         team_role = await self._match_team_role(ctx.guild, member, team_name)
-        await ctx.send('matched')
         if not team_role:
             return await ctx.send(":x: Team not found.")
         team_name = self._get_team_name(team_role)
 
-        await ctx.send("A")
         top_level_group = (await self._get_top_level_group(ctx.guild, team_role))[1]
-        await ctx.send("B")
 
         await ctx.send('top group: {}'.format(top_level_group))
         # Verify Group Can be Copied to Destination
@@ -540,6 +537,7 @@ class BCMatchGroups(commands.Cog):
             await status_msg.edit(content="Embed: :x: Member has not registered a ballchasing auth token.")
             return 
         
+        await ctx.send("A")
         # Initiate copy process
         status_msg = await status_msg.edit(content="Embed: Preparing to copy groups...")
 
