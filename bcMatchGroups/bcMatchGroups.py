@@ -530,6 +530,7 @@ class BCMatchGroups(commands.Cog):
 
         top_level_group = await self._get_top_level_group(ctx.guild, team_role)[1]
 
+        await ctx.send('top group: {}'.format(top_level_group))
         # Verify Group Can be Copied to Destination
         await status_msg.edit(message="Embed: Verifying valid destination...")
         auth_token = await self._get_member_bc_token(member)
