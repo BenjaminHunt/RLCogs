@@ -537,6 +537,7 @@ class BCMatchGroups(commands.Cog):
             await status_msg.edit(content="Embed: :x: Member has not registered a ballchasing auth token.")
             return 
         
+        asyncio.sleep(2)
         # Initiate copy process
         status_msg = await status_msg.edit(content="Embed: Preparing to copy groups...")
 
