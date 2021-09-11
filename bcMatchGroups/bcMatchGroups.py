@@ -542,8 +542,16 @@ class BCMatchGroups(commands.Cog):
             if r.status_code != 200:
                 return await status_msg.edit(message=":x: **{}** is not a valid ballchasing group code.".format(parent_code))
         else:
-            pass
             # TODO: create top level group as parent
+            r = await self._bc_get_request(auth_token, '/groups/{}'.format(top_level_group))
+            if r.status_code != 200:
+                return await status_msg.edit(message=":x: Error copying season group.")
+            data = r.json()
+            payload = {
+                "name": "Copy of {}".format(data['name']),
+                "player_identification": data["by-id"],
+                "team_identification": data["by-distinct-players"]
+            }
 
         # Initiate copy process
         await status_msg.edit(message="Embed: Preparing to copy groups...")
@@ -564,6 +572,7 @@ class BCMatchGroups(commands.Cog):
         if r.status_code != 200:
             return
 
+        # prepare all subgroup copies
         data = r.json()
         if data['list']:
             subgroup_id_payloads = {}
