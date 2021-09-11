@@ -444,7 +444,7 @@ class BCMatchGroups(commands.Cog):
     # endregion info commands
 
     # region performance
-    @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
+    @commands.command(aliases=['matchResultSummary', 'mrs'])
     @commands.guild_only()
     async def matchDaySummary(self, ctx, match_day=None, team=None):
         """Returns Franchise performance for the current, or provided match day"""
@@ -458,7 +458,7 @@ class BCMatchGroups(commands.Cog):
     # endregion performance
 
     # region action
-    @commands.command(aliases=['mds', 'matchResultSummary', 'mrs'])
+    @commands.command()
     @commands.guild_only()
     async def copyGroup(self, ctx, team_name, parent_group_code=None):
         """Executes a process to create a copy of a specified team's replay group, and 
