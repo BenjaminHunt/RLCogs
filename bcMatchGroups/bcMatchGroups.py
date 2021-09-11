@@ -515,7 +515,6 @@ class BCMatchGroups(commands.Cog):
 
     async def _process_group_copy(self, ctx, team_name, parent_code=None, status_msg=None):
         member = ctx.message.author
-        # TODO: status messages
         
         # Get origin replay group
         initial_update = "Embed: Matching to team replay group..."
@@ -537,12 +536,15 @@ class BCMatchGroups(commands.Cog):
             await status_msg.edit(message="Embed: :x: Member has not registered a ballchasing auth token.")
             return 
         
+        # Initiate copy process
+        await status_msg.edit(message="Embed: Preparing to copy groups...")
+
+        # TODO: make top_level_group IN parent_code instead of them being topographically equal
         if parent_code:
             r = await self._bc_get_request(auth_token, '/groups{}'.format(parent_code))
             if r.status_code != 200:
                 return await status_msg.edit(message=":x: **{}** is not a valid ballchasing group code.".format(parent_code))
         else:
-            # TODO: create top level group as parent
             r = await self._bc_get_request(auth_token, '/groups/{}'.format(top_level_group))
             if r.status_code != 200:
                 return await status_msg.edit(message=":x: Error copying season group.")
@@ -552,10 +554,12 @@ class BCMatchGroups(commands.Cog):
                 "player_identification": data["by-id"],
                 "team_identification": data["by-distinct-players"]
             }
-
-        # Initiate copy process
-        await status_msg.edit(message="Embed: Preparing to copy groups...")
-        # here
+            r = await self._bc_post_request(auth_token, '/groups', data=payload)
+            if r.status_code == 201:
+                data = r.json()
+                parent_code = data['id']
+            else:
+                return await status_msg.edit(message=":x: Error copying season group.")
 
         # Perform Copy
         await self._perform_recursive_copy(auth_token, top_level_group, parent_code)
@@ -565,15 +569,19 @@ class BCMatchGroups(commands.Cog):
             await asyncio.sleep(wait_time)
 
         copy_params = ['group={}'.format(parent_origin)]
+        mirror_params = ['group={}'.format(parent_mirror)]
 
         # Step 1: Copy all subgroups in current group
         # Get existing subgroups
         r = await self._bc_get_request(auth_token, '/groups', params=copy_params)
-        if r.status_code != 200:
+        r_mirror = await self._bc_get_request(auth_token, '/groups', params=mirror_params)
+        
+        if r.status_code != 200 or r_mirror.status_code != 200:
             return
 
         # prepare all subgroup copies
         data = r.json()
+        mirror_data = r_mirror.json()
         if data['list']:
             subgroup_id_payloads = {}
             for subgroup in data['list']:
@@ -587,13 +595,19 @@ class BCMatchGroups(commands.Cog):
 
         # Create subgroup copies
         for subgroup_id, subgroup_payload in subgroup_id_payloads.items():
-            # TODO: check if subgroup mirror already exists
+            group_exists = False
+            if mirror_data['count'] > 0:
+                for mirror_subgroup in mirror_data['list']:
+                    if subgroup_payload['name'] == mirror_subgroup['name']:
+                        group_exists = True
+                        break 
 
             # If not, create it
-            r = await self._bc_post_request(auth_token, '/groups', data=sub_payload)
-            if r.status_code == 201:
-                data = r.json()
-                mirror_subgroup_id = data['id']
+            if not group_exists:
+                r = await self._bc_post_request(auth_token, '/groups', data=subgroup_payload)
+                if r.status_code == 201:
+                    data = r.json()
+                    mirror_subgroup_id = data['id']
 
             # Perform recursive copy
             await self._perform_recursive_copy(ctx, auth_token, subgroup_id, mirror_subgroup_id, wait_time=10)
@@ -752,7 +766,7 @@ class BCMatchGroups(commands.Cog):
 
         if winner:
             pass
-            # TODO: check for team emoji
+            # TODO: check for franchise team emoji
         
         # Prepare embed edits for score confirmation
         prompt_embed = discord.Embed.from_dict(embed.to_dict())
@@ -984,8 +998,21 @@ class BCMatchGroups(commands.Cog):
         data = r.json()
         if 'list' not in data:
             return None
+        
+        match_type_group = None
+        for group in data['list']:
+            if group['name'] == match_type:
+                match_type_group = group['id']
+                break 
+        
+        if not match_type_group:
+            return None
 
-        # TODO: Get correct subgroup for specified match_type (i.e. top/type/match)
+        r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(match_type_group)])
+        data = r.json()
+        if 'list' not in data:
+            return None
+
         result_summaries = []
         for group in data['list']:
             match_group_code = ''
