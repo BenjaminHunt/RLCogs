@@ -70,7 +70,7 @@ class BCMatchGroups(commands.Cog):
         """Clears all match dates registered with the bot.
         """
         await self._save_match_dates(ctx.guild, [])
-        await ctx.send("Done.")
+        await ctx.send("Done")
 
     @commands.command(aliases=['matches', 'getMatchDays'])
     @commands.guild_only()
@@ -118,6 +118,19 @@ class BCMatchGroups(commands.Cog):
     async def getMatchDay(self, ctx):
         match_day = await self.config.guild(ctx.guild).MatchDay()
         await ctx.send("Match Day {}.".format(match_day))
+
+    @commands.command(aliases=['endseason'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
+    async def endSeason(self, ctx):
+        prompt = "Are you sure you want to clear all data for this season?"
+        if_not_prompt = "No changes have been made to the current season."
+        if await self._react_prompt(ctx, prompt, if_not_prompt):
+            await self._save_top_level_groups(ctx.guild, {})
+            await self._save_match_day(ctx.guild, 0)
+            await self._save_match_dates(ctx.guild, [])
+            await ctx.send("Done")
+
 
 # Admin Settings - Team Mgmt
     @commands.command(aliases=['addTeams'])
