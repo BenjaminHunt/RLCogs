@@ -253,6 +253,18 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_day)
 
+    @commands.command(aliases=['rs', 'scrimmed'])
+    @commands.guild_only()
+    async def reportScrim(self, ctx, *, opposing_team):
+        """Finds scrim games from recent public uploads, and adds them to the correct Ballchasing subgroup
+        """
+        try:
+            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
+        except:
+            return await ctx.send(":x: You are not rostered to a team in this server.")
+        team_name = self._get_team_name(team_role)
+        await self._process_bcreport(ctx, team_name, opposing_team, match_type="Scrim")
+
 # General Use
     # region info commands
     @commands.command(aliases=['team'])
@@ -709,7 +721,7 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
 
-    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day, match_type="Regular Season"):
+    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day=None, match_type="Regular Season"):
         member = ctx.message.author
         team_role = await self._get_team_role(ctx.guild, team_name)
 
@@ -756,7 +768,11 @@ class BCMatchGroups(commands.Cog):
                 await bc_status_msg.edit(embed=embed)
                 return
 
-        replays_found = await self._find_match_replays(ctx, auth_token, member, match)
+        if match_type == "Scrim":
+            search_count = 30
+        else:
+            search_count = 20
+        replays_found = await self._find_match_replays(ctx, auth_token, member, match, search_count=search_count)
 
         ## Not found:
         if not replays_found:
@@ -1084,7 +1100,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_reported_match_data(self, ctx, response_data, team):
         pass 
 
-    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None):
+    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None, search_count=None):
         
         # TODO: allow opposing_team to be None => ask in helper function
         
@@ -1101,18 +1117,19 @@ class BCMatchGroups(commands.Cog):
         # date_string = match['matchDate']
         # match_date = datetime.strptime(date_string, '%B %d, %Y').strftime('%Y-%m-%d')
         match_date = match['matchDate']
-        start_match_date_rfc3339 = "{}T00:00:00{}".format(match_date - timedelta(days=1), zone_adj)
-        end_match_date_rfc3339 = "{}T23:59:59{}".format(match_date, zone_adj)
+        # start_match_date_rfc3339 = "{}T00:00:00{}".format(match_date - timedelta(days=1), zone_adj)
+        # end_match_date_rfc3339 = "{}T23:59:59{}".format(match_date, zone_adj)
 
         params = [
             # 'uploader={}'.format(uploader),
             'playlist=private',
             # 'replay-date-after={}'.format(start_match_date_rfc3339),  # Filters by matches played on this day
             # 'replay-date-before={}'.format(end_match_date_rfc3339),
-            'count={}'.format(config.search_count),
             'sort-by={}'.format(config.sort_by),
             'sort-dir={}'.format(config.sort_dir)
         ]
+        if search_count:
+            params.append('count={}'.format(search_count))
 
         # Search invoker's replay uploads first
         if member in team_players:
@@ -1390,9 +1407,15 @@ class BCMatchGroups(commands.Cog):
         bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
         
         # <top level group>/MD <Match Day> vs <Opposing Team>
+
+        if match['type'] == "Scrim":
+            match_title = "{} vs {}".format("00/00", match['away'].title())
+        else:
+            match_title = "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
+
         ordered_subgroups = [
             match['type'],
-            "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
+            match_title
         ]
 
         
