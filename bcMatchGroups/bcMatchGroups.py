@@ -904,11 +904,12 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
     
-    async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
+    async def _get_team_results(self, ctx, franchise_team, match_day, auth_token, match_type="Regular Season"):
         guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
         top_level_group_info = await self._get_top_level_group(guild, team_role)
 
+        # Get match_type subgroup from top-level-group
         r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
         
         data = r.json()
@@ -916,13 +917,32 @@ class BCMatchGroups(commands.Cog):
         opposing_team = ''
         if 'list' not in data:
             return [0, 0, opposing_team]
+        
+        match_type_group_code = None
+        for sub_group in data['list']:
+            if sub_group['name'] == match_type:
+                match_type_group_code = sub_group['id']
+                break
+        
+        if not match_type_group_code:
+            return [0, 0, opposing_team]
+        
+        # Get match replay group from match_type subgroup
+        r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(match_type_group_code)])
+        
+        data = r.json()
 
+        opposing_team = ''
+        if 'list' not in data:
+            return [0, 0, opposing_team]
+
+        # Get match summary from replays in group
         results = []
-        for group in data['list']:
+        for match_group in data['list']:
             match_group_code = ''
-            if '{}'.format(match_day).zfill(2) in group['name']:
-                match_group_code = group['id']
-                opposing_team = group['name'].split(' vs ')[-1]
+            if '{}'.format(match_day).zfill(2) in match_group['name']:
+                match_group_code = match_group['id']
+                opposing_team = match_group['name'].split(' vs ')[-1]
 
             if not match_group_code:
                 continue
