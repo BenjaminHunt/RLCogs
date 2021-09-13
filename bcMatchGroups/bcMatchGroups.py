@@ -137,7 +137,7 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def addTeamRoles(self, ctx, *roleList):
-        """Adds the role to every member that can be found from the userList"""
+        """Registers each role with the bot as a franchise team role"""
         team_roles = [role.id for role in await self._get_team_roles(ctx.guild)]
         found = []
         failed = []
@@ -165,6 +165,21 @@ class BCMatchGroups(commands.Cog):
             return await ctx.send('\n'.join(message_components))
         
         await ctx.send(":x: No roles provided.")
+
+    @commands.command(aliases=['removeTeam', 'rmteam'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
+    async def removeTeamRole(self, ctx, *, team_name):
+        """Removes a specified role from the list of team roles."""
+        team_role = await self._match_team_role(ctx.guild, team_name=team_name)
+        team_roles = [role.id for role in await self._get_team_roles(ctx.guild)]
+
+        if team_role in team_roles:
+            team_roles.remove(team_role)
+            await self._save_team_roles(ctx.guild, team_roles)
+            await ctx.send("Done")
+        else:
+            await ctx.send(":x: {} is not a valid team identifier.".format(team_name))
 
     @commands.command(aliases=['clearTeams'])
     @commands.guild_only()
@@ -1271,10 +1286,9 @@ class BCMatchGroups(commands.Cog):
                 player_team_roles.append(role)
         return player_team_roles
     
-    async def _match_team_role(self, guild, member, team_name):
+    async def _match_team_role(self, guild, member=None, team_name=None):
         """Retreives the role for a specified team. If teaam_name is not provided, matches to the invoker's team."""
         team_roles = await self._get_team_roles(guild)
-        team_role = None
         # Find from team_name
         if team_name:
             for role in team_roles:
@@ -1282,6 +1296,9 @@ class BCMatchGroups(commands.Cog):
                     return role
             return None
         
+        if not member:
+            return None
+
         # Find member's team
         for role in team_roles:
             if role in member.roles:
