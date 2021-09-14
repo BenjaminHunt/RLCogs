@@ -9,13 +9,6 @@ import random
 import urllib.parse
 import traceback
 
-# try:
-#     import thread
-# except ImportError:
-#     from pip._internal import main as pip
-#     pip(['install', '--user', 'thread'])
-#     import thread
-
 from redbot.core import Config
 from redbot.core import commands
 from redbot.core import checks
@@ -77,7 +70,7 @@ class BCMatchGroups(commands.Cog):
         """Clears all match dates registered with the bot.
         """
         await self._save_match_dates(ctx.guild, [])
-        await ctx.send("Done.")
+        await ctx.send("Done")
 
     @commands.command(aliases=['matches', 'getMatchDays'])
     @commands.guild_only()
@@ -126,12 +119,25 @@ class BCMatchGroups(commands.Cog):
         match_day = await self.config.guild(ctx.guild).MatchDay()
         await ctx.send("Match Day {}.".format(match_day))
 
+    @commands.command(aliases=['endseason'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
+    async def endSeason(self, ctx):
+        prompt = "Are you sure you want to clear all data for this season?"
+        if_not_prompt = "No changes have been made to the current season."
+        if await self._react_prompt(ctx, prompt, if_not_prompt):
+            await self._save_top_level_groups(ctx.guild, {})
+            await self._save_match_day(ctx.guild, 0)
+            await self._save_match_dates(ctx.guild, [])
+            await ctx.send("Done")
+
+
 # Admin Settings - Team Mgmt
-    @commands.command()
+    @commands.command(aliases=['addTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def addTeamRoles(self, ctx, *roleList):
-        """Adds the role to every member that can be found from the userList"""
+        """Registers each role with the bot as a franchise team role"""
         team_roles = [role.id for role in await self._get_team_roles(ctx.guild)]
         found = []
         failed = []
@@ -160,7 +166,24 @@ class BCMatchGroups(commands.Cog):
         
         await ctx.send(":x: No roles provided.")
 
-    @commands.command()
+    @commands.command(aliases=['removeTeam', 'rmteam'])
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_roles=True)
+    async def removeTeamRole(self, ctx, *, team_name):
+        """Removes a specified role from the list of team roles."""
+        team_role = await self._match_team_role(ctx.guild, team_name=team_name)
+        await ctx.send(team_role)
+        return 
+        team_roles = [role.id for role in await self._get_team_roles(ctx.guild)]
+
+        if team_role in team_roles:
+            team_roles.remove(team_role)
+            await self._save_team_roles(ctx.guild, team_roles)
+            await ctx.send("Done")
+        else:
+            await ctx.send(":x: {} is not a valid team identifier.".format(team_name))
+
+    @commands.command(aliases=['clearTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def clearTeamRoles(self, ctx):
@@ -168,6 +191,28 @@ class BCMatchGroups(commands.Cog):
         if await self._react_prompt(ctx, prompt, "Teams not cleared."):
             await self._save_team_roles(ctx.guild, [])
             await ctx.send("Done")
+
+# Admin Commands - Misc
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def transferGroupOwner(self, ctx, team_name, new_owner: discord.Member):
+        pass 
+
+    @commands.command()
+    @commands.guild_only()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def clearRosters(self, ctx):
+        """Removes all team roles from members within the guild server."""
+        if not await self._react_prompt(ctx, "Are you sure you wish to clear all rosters?", "No roster changes made."):
+            return 
+        removed = 0
+        team_roles = await self._get_team_roles(ctx.guild)
+        for role in team_roles:
+            for member in role.members:
+                await member.remove_roles(role)
+                removed += 1
+        await ctx.send("Removed team roles for {} players.".format(removed))
 
 # Ballchasing Group Setup Commands
     @commands.command(aliases=['setMyBCAuthKey'])
@@ -264,6 +309,18 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         match_type = "Scrims"
         await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
+
+    @commands.command(aliases=['rs', 'scrimmed'])
+    @commands.guild_only()
+    async def reportScrim(self, ctx, *, opposing_team):
+        """Finds scrim games from recent public uploads, and adds them to the correct Ballchasing subgroup
+        """
+        try:
+            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
+        except:
+            return await ctx.send(":x: You are not rostered to a team in this server.")
+        team_name = self._get_team_name(team_role)
+        await self._process_bcreport(ctx, team_name, opposing_team, match_type="Scrim")
 
 # General Use
     # region info commands
@@ -419,7 +476,7 @@ class BCMatchGroups(commands.Cog):
         if not auth_token:
             group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
             auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
-        matches_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
+        matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type="Regular Season")
         
         if not matches_reported:
             if last:
@@ -430,7 +487,7 @@ class BCMatchGroups(commands.Cog):
                     color=team_role.color
                 )
                 await output_msg.edit(embed=embed)
-                matches_reported = await self._check_if_reported(ctx, team_name, match_day, auth_token)
+                matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type="Regular Season")
             
             if not matches_reported:
                 embed.description = ":x: This match was never reported."
@@ -468,6 +525,16 @@ class BCMatchGroups(commands.Cog):
         """Returns the season performance for the given team (invoker's team by default)"""
         asyncio.create_task(self._get_season_performance(ctx, team_name))
     # endregion performance
+
+    # region action
+    @commands.command()
+    @commands.guild_only()
+    async def copyGroup(self, ctx, team_name, parent_group_code=None):
+        """Executes a process to create a copy of a specified team's replay group, and 
+        saves it to the invoker's ballchasing account. This is a deep copy."""
+        asyncio.create_task(self._process_group_copy(ctx, team_name, parent_group_code))
+
+    # endregion action
 # ballchasing functions
     # references:
     # https://stackoverflow.com/questions/22190403/how-could-i-use-requests-in-asyncio
@@ -514,19 +581,130 @@ class BCMatchGroups(commands.Cog):
 
 # other functions
     # big helpers
+
+    async def _process_group_copy(self, ctx, team_name, parent_code=None, status_msg=None):
+        member = ctx.message.author
+        
+        # Get origin replay group
+        initial_update = "Embed: Matching to team replay group..."
+        if status_msg:
+            await status_msg.edit(content=initial_update)
+        else:
+            status_msg = await ctx.send(initial_update)
+        team_role = await self._match_team_role(ctx.guild, member, team_name)
+        if not team_role:
+            return await ctx.send(":x: Team not found.")
+        team_name = self._get_team_name(team_role)
+
+        top_level_group = (await self._get_top_level_group(ctx.guild, team_role))[1]
+
+        await ctx.send('top group: {}'.format(top_level_group))
+        # Verify Group Can be Copied to Destination
+        await status_msg.edit(content="Embed: Verifying valid destination...")
+        auth_token = await self._get_member_bc_token(member)
+        if not auth_token:
+            await status_msg.edit(content="Embed: :x: Member has not registered a ballchasing auth token.")
+            return 
+        
+        # Initiate copy process
+        # status_msg = await status_msg.edit(content="Embed: Preparing to copy groups...")
+        
+        await ctx.send("A")
+        # TODO: make top_level_group IN parent_code instead of them being topographically equal
+        if parent_code:
+            r = await self._bc_get_request(auth_token, '/groups{}'.format(parent_code))
+            if r.status_code != 200:
+                return await status_msg.edit(content=":x: **{}** is not a valid ballchasing group code.".format(parent_code))
+        else:
+            r = await self._bc_get_request(auth_token, '/groups/{}'.format(top_level_group))
+            if r.status_code != 200:
+                return await status_msg.edit(content=":x: Error copying season group.")
+            data = r.json()
+            payload = {
+                "name": "Copy of {}".format(data['name']),
+                "player_identification": data["by-id"],
+                "team_identification": data["by-distinct-players"]
+            }
+            r = await self._bc_post_request(auth_token, '/groups', data=payload)
+            if r.status_code == 201:
+                data = r.json()
+                parent_code = data['id']
+            else:
+                return await status_msg.edit(content=":x: Error copying season group.")
+
+        await ctx.send("B")
+        # Perform Copy
+        await self._perform_recursive_copy(auth_token, top_level_group, parent_code)
+
+    async def _perform_recursive_copy(self, ctx, auth_token, parent_origin, parent_mirror, wait_time=0):
+        if wait_time:
+            await asyncio.sleep(wait_time)
+
+        copy_params = ['group={}'.format(parent_origin)]
+        mirror_params = ['group={}'.format(parent_mirror)]
+
+        # Step 1: Copy all subgroups in current group
+        # Get existing subgroups
+        r = await self._bc_get_request(auth_token, '/groups', params=copy_params)
+        r_mirror = await self._bc_get_request(auth_token, '/groups', params=mirror_params)
+        
+        if r.status_code != 200 or r_mirror.status_code != 200:
+            return
+
+        # prepare all subgroup copies
+        data = r.json()
+        mirror_data = r_mirror.json()
+        if data['list']:
+            subgroup_id_payloads = {}
+            for subgroup in data['list']:
+                sub_payload = {
+                    'name': subgroup['name'],
+                    'player_identification': subgroup['player_identification'],
+                    'team_identification': subgroup['team_identification'],
+                    'parent': parent_mirror
+                }
+                subgroup_id_payloads.append({subgroup['id']: sub_payload})
+
+        # Create subgroup copies
+        for subgroup_id, subgroup_payload in subgroup_id_payloads.items():
+            group_exists = False
+            if mirror_data['count'] > 0:
+                for mirror_subgroup in mirror_data['list']:
+                    if subgroup_payload['name'] == mirror_subgroup['name']:
+                        group_exists = True
+                        break 
+
+            # If not, create it
+            if not group_exists:
+                r = await self._bc_post_request(auth_token, '/groups', data=subgroup_payload)
+                if r.status_code == 201:
+                    data = r.json()
+                    mirror_subgroup_id = data['id']
+
+            # Perform recursive copy
+            await self._perform_recursive_copy(ctx, auth_token, subgroup_id, mirror_subgroup_id, wait_time=10)
+        
+
+        # Step 2: Copy all replays in current group
+        # TODO: patch if original uploader is creating a copy
+        # Get existing replays
+        r = await self._bc_get_request(auth_token, '/replays', params=copy_params)
+        if r.status_code != 200:
+            return 
+        
+        data = r.json()
+        if data['count']:
+            replay_ids = []
+            for replay in data['list']:
+                replay_ids.append(replay['id']) # fix
+        
+            # Copy over replays
+            tmp_replay_files = await self._download_replays(auth_token, replay_ids)
+            uploaded_ids = await self._upload_replays(auth_token, parent_mirror, tmp_replay_files, ctx=ctx)
+
     async def _get_season_performance(self, ctx, team_name):
         member = ctx.message.author
-        team_roles = await self._get_team_roles(ctx.guild)
-        team_role = None
-        if team_name:
-            for role in team_roles:
-                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
-                    team_role = role
-        else:
-            for role in team_roles:
-                if role in member.roles:
-                    team_role = role
-                    break
+        team_role = await self._match_team_role(ctx.guild, member, team_name)
         if not team_role:
             return await ctx.send(":x: Team not found.")
         team_name = self._get_team_name(team_role)
@@ -600,7 +778,7 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
 
-    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day, match_type):
+    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day=None, match_type="Regular Season"):
         member = ctx.message.author
         team_role = await self._get_team_role(ctx.guild, team_name)
 
@@ -627,7 +805,8 @@ class BCMatchGroups(commands.Cog):
             "home": team_name,
             "away": opposing_team,
             "matchDay": match_day,
-            "matchDate": datetime.today()
+            "matchDate": datetime.today(),
+            "type": match_type
         }
 
         bc_group_owner = ctx.guild.get_member((await self._get_top_level_group(ctx.guild, team_role))[0])
@@ -635,7 +814,7 @@ class BCMatchGroups(commands.Cog):
         owner_auth_token = await self._get_member_bc_token(ctx.guild.get_member(bc_group_owner.id))
         if not auth_token:
             auth_token = owner_auth_token
-        matches_reported = await self._check_if_reported(ctx, match['home'], match['matchDay'], auth_token)
+        matches_reported = await self._check_if_reported(ctx, auth_token, match['home'], match['matchDay'], match['type'])
 
         if matches_reported:
             summary, code, reported_opposing_team = matches_reported[0]
@@ -646,7 +825,11 @@ class BCMatchGroups(commands.Cog):
                 await bc_status_msg.edit(embed=embed)
                 return
 
-        replays_found = await self._find_match_replays(ctx, auth_token, member, match)
+        if match_type == "Scrim":
+            search_count = 30
+        else:
+            search_count = 20
+        replays_found = await self._find_match_replays(ctx, auth_token, member, match, search_count=search_count)
 
         ## Not found:
         if not replays_found:
@@ -659,7 +842,7 @@ class BCMatchGroups(commands.Cog):
 
         if winner:
             pass
-            # TODO: check for team emoji
+            # TODO: check for franchise team emoji
         
         # Prepare embed edits for score confirmation
         prompt_embed = discord.Embed.from_dict(embed.to_dict())
@@ -685,7 +868,7 @@ class BCMatchGroups(commands.Cog):
 
         # Download and upload replays
         tmp_replay_files = await self._download_replays(auth_token, replay_ids)
-        uploaded_ids = await self._upload_replays(ctx, owner_auth_token, match_subgroup_id, tmp_replay_files)
+        uploaded_ids = await self._upload_replays(owner_auth_token, match_subgroup_id, tmp_replay_files, ctx=ctx)
         # await ctx.send("replays in subgroup: {}".format(", ".join(uploaded_ids)))
         
         renamed = await self._rename_replays(ctx, owner_auth_token, uploaded_ids)
@@ -794,11 +977,12 @@ class BCMatchGroups(commands.Cog):
         
         await output_msg.edit(embed=embed)
     
-    async def _get_team_results(self, ctx, franchise_team, match_day, auth_token):
+    async def _get_team_results(self, ctx, franchise_team, match_day, auth_token, match_type="Regular Season"):
         guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
         top_level_group_info = await self._get_top_level_group(guild, team_role)
 
+        # Get match_type subgroup from top-level-group
         r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
         
         data = r.json()
@@ -806,13 +990,32 @@ class BCMatchGroups(commands.Cog):
         opposing_team = ''
         if 'list' not in data:
             return [0, 0, opposing_team]
+        
+        match_type_group_code = None
+        for sub_group in data['list']:
+            if sub_group['name'] == match_type:
+                match_type_group_code = sub_group['id']
+                break
+        
+        if not match_type_group_code:
+            return [0, 0, opposing_team]
+        
+        # Get match replay group from match_type subgroup
+        r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(match_type_group_code)])
+        
+        data = r.json()
 
+        opposing_team = ''
+        if 'list' not in data:
+            return [0, 0, opposing_team]
+
+        # Get match summary from replays in group
         results = []
-        for group in data['list']:
+        for match_group in data['list']:
             match_group_code = ''
-            if '{}'.format(match_day).zfill(2) in group['name']:
-                match_group_code = group['id']
-                opposing_team = group['name'].split(' vs ')[-1]
+            if '{}'.format(match_day).zfill(2) in match_group['name']:
+                match_group_code = match_group['id']
+                opposing_team = match_group['name'].split(' vs ')[-1]
 
             if not match_group_code:
                 continue
@@ -882,12 +1085,26 @@ class BCMatchGroups(commands.Cog):
             players.append([player['id']['platform'], player['id']['id']])
         return players
 
-    async def _check_if_reported(self, ctx, franchise_team, match_day, auth_token):
+    async def _check_if_reported(self, ctx, auth_token, franchise_team, match_day, match_type="Regular Season"):
         guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
         top_level_group_info = await self._get_top_level_group(guild, team_role)
 
         r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(top_level_group_info[1])])
+        data = r.json()
+        if 'list' not in data:
+            return None
+        
+        match_type_group = None
+        for group in data['list']:
+            if group['name'] == match_type:
+                match_type_group = group['id']
+                break 
+        
+        if not match_type_group:
+            return None
+
+        r = await self._bc_get_request(auth_token, '/groups', params=['group={}'.format(match_type_group)])
         data = r.json()
         if 'list' not in data:
             return None
@@ -940,7 +1157,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_reported_match_data(self, ctx, response_data, team):
         pass 
 
-    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None):
+    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None, search_count=None):
         
         # TODO: allow opposing_team to be None => ask in helper function
         
@@ -957,18 +1174,19 @@ class BCMatchGroups(commands.Cog):
         # date_string = match['matchDate']
         # match_date = datetime.strptime(date_string, '%B %d, %Y').strftime('%Y-%m-%d')
         match_date = match['matchDate']
-        start_match_date_rfc3339 = "{}T00:00:00{}".format(match_date - timedelta(days=1), zone_adj)
-        end_match_date_rfc3339 = "{}T23:59:59{}".format(match_date, zone_adj)
+        # start_match_date_rfc3339 = "{}T00:00:00{}".format(match_date - timedelta(days=1), zone_adj)
+        # end_match_date_rfc3339 = "{}T23:59:59{}".format(match_date, zone_adj)
 
         params = [
             # 'uploader={}'.format(uploader),
             'playlist=private',
             # 'replay-date-after={}'.format(start_match_date_rfc3339),  # Filters by matches played on this day
             # 'replay-date-before={}'.format(end_match_date_rfc3339),
-            'count={}'.format(config.search_count),
             'sort-by={}'.format(config.sort_by),
             'sort-dir={}'.format(config.sort_dir)
         ]
+        if search_count:
+            params.append('count={}'.format(search_count))
 
         # Search invoker's replay uploads first
         if member in team_players:
@@ -1097,6 +1315,25 @@ class BCMatchGroups(commands.Cog):
                 player_team_roles.append(role)
         return player_team_roles
     
+    async def _match_team_role(self, guild, member=None, team_name=None):
+        """Retreives the role for a specified team. If teaam_name is not provided, matches to the invoker's team."""
+        team_roles = await self._get_team_roles(guild)
+        # Find from team_name
+        if team_name:
+            for role in team_roles:
+                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
+                    return role
+            return None
+        
+        if not member:
+            return None
+
+        # Find member's team
+        for role in team_roles:
+            if role in member.roles:
+                return role
+        return None
+
     def _get_team_name(self, role: discord.Role):
         if role.name[-1] == ')' and ' (' in role.name:
             return ' '.join((role.name).split()[:-1])
@@ -1229,9 +1466,15 @@ class BCMatchGroups(commands.Cog):
         bc_group_owner_steam = await self._get_steam_id_from_token(auth_token)
         
         # <top level group>/MD <Match Day> vs <Opposing Team>
+
+        if match['type'] == "Scrim":
+            match_title = "{} vs {}".format("MM/DD", match['away'].title())
+        else:
+            match_title = "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
+
         ordered_subgroups = [
-            # match_type,
-            "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
+            match['type'],
+            match_title
         ]
 
         
@@ -1241,20 +1484,7 @@ class BCMatchGroups(commands.Cog):
             'group={}'.format(top_group_code)
         ]
 
-        # issue here
         r = await self._bc_get_request(auth_token, endpoint, params=params)
-
-        # replace helper function
-        # url = 'https://ballchasing.com/api'
-        # url += endpoint
-        # # params = [urllib.parse.quote(p) for p in params]
-        # params = '&'.join(params)
-        # if params:
-        #     url += "?{}".format(params)
-        
-        # r = requests.get(url, headers={'Authorization': auth_token})
-        ## end replaces helper function
-        
         data = r.json()
 
         debug = False
@@ -1328,7 +1558,7 @@ class BCMatchGroups(commands.Cog):
 
         return tmp_replay_files
     
-    async def _upload_replays(self, ctx, auth_token, subgroup_id, files_to_upload):
+    async def _upload_replays(self, auth_token, subgroup_id, files_to_upload, ctx=None):
         endpoint = "/v2/upload"
         params = [
             'visibility={}'.format(config.visibility),
@@ -1355,10 +1585,11 @@ class BCMatchGroups(commands.Cog):
                     r = await self._bc_patch_request(auth_token, '/replays/{}'.format(data['id']), json=payload)
                     if r.status_code == 204:
                         replay_ids_in_group.append(data['id'])
-                    else:
+                    elif ctx:
                         await ctx.send(":x: {} error: {}".format(r.status_code, r.json()['error']))
             except:
-                await ctx.send(":x: {} error: {}".format(status_code, data['error']))
+                if ctx:
+                    await ctx.send(":x: {} error: {}".format(status_code, data['error']))
         
         return replay_ids_in_group
 

@@ -32,6 +32,8 @@ Examples:
 <p>addTeamRoles "Jaguars (Elite)" "Piranhas (Major)" "Ocelots (Minor)"
 ```
 
+<br>
+
 ---
 
 <br>
@@ -62,6 +64,7 @@ Registering match dates with the bot will enable automatic updates throughout th
 If the match day appears to be incorrect, the command `<p>updateMatchDay` should force the bot to update the current match day.
 
 **Note: There is currently no way the bot can differentiate between the Preseason, Regular Season, Or Playoffs.**
+
 <br>
 
 ---
@@ -80,6 +83,7 @@ If the match day appears to be incorrect, the command `<p>updateMatchDay` should
 
 Notes:
 
+- Each steam account for each team player is checked for uplaods. Registering non-steam accounts will not help find replays.
 - When using `<p>accountRegister`, you must use the steam64 ID (i.e. `<p>accountRegister steam 76561198380344413`)
 - You should only need to report your primary account. Teammates who play on steam should register their primary accounts as well as a backup.
 - Non-steam accounts have minimal to no impact in this area.
