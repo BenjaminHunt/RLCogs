@@ -175,7 +175,7 @@ class BCMatchGroups(commands.Cog):
         team_role_ids = [role.id for role in await self._get_team_roles(ctx.guild)]
 
         if team_role.id in team_role_ids:
-            team_role_ids.remove(team_role)
+            team_role_ids.remove(team_role.id)
             await self._save_team_roles(ctx.guild, team_role_ids)
             await ctx.send("Done")
         else:
