@@ -388,17 +388,8 @@ class BCMatchGroups(commands.Cog):
     async def getSeasonGroup(self, ctx, *, team_name=None):
         """Views this season's ballchasing group for your team"""
         member = ctx.message.author
-        
-        team_roles = await self._get_team_roles(ctx.guild)
-        team_role = None
-        if team_name:
-            for role in team_roles:
-                if team_name.lower() in ' '.join(role.name.split()[:-1]).lower() or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
-                    team_role = role
-        else:
-            for role in team_roles:
-                if role in member.roles:
-                    team_role = role
+
+        team_role = await self._match_team_role(ctx.guild, member, team_name)
         
         if not team_role:
             return await ctx.send(":x: Team not found.")
