@@ -318,7 +318,7 @@ class BCMatchGroups(commands.Cog):
         except:
             return await ctx.send(":x: You are not rostered to a team in this server.")
         team_name = self._get_team_name(team_role)
-        await self._process_bcreport(ctx, team_name, opposing_team, match_type="Scrim")
+        await self._process_bcreport(ctx, team_name, opposing_team, match_type="Scrims")
 
 # General Use
     # region info commands
