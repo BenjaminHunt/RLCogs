@@ -172,13 +172,11 @@ class BCMatchGroups(commands.Cog):
     async def removeTeamRole(self, ctx, *, team_name):
         """Removes a specified role from the list of team roles."""
         team_role = await self._match_team_role(ctx.guild, team_name=team_name)
-        await ctx.send(team_role)
-        return 
-        team_roles = [role.id for role in await self._get_team_roles(ctx.guild)]
+        team_role_ids = [role.id for role in await self._get_team_roles(ctx.guild)]
 
-        if team_role in team_roles:
-            team_roles.remove(team_role)
-            await self._save_team_roles(ctx.guild, team_roles)
+        if team_role.id in team_role_ids:
+            team_role_ids.remove(team_role)
+            await self._save_team_roles(ctx.guild, team_role_ids)
             await ctx.send("Done")
         else:
             await ctx.send(":x: {} is not a valid team identifier.".format(team_name))
