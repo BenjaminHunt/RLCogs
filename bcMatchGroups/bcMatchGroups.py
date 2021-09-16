@@ -280,7 +280,7 @@ class BCMatchGroups(commands.Cog):
             'team_identification': 'by-player-clusters',
             'player_identification': 'by-id'
         }
-        r = await self._bc_patch_request(auth_token, '/groups/{}'.format(group_code), data=payload)
+        r = await self._bc_patch_request(auth_token, '/groups/{}'.format(group_code), json=payload)
 
         if r.status_code in [200, 204]:
             # save group
