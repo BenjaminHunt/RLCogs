@@ -292,8 +292,6 @@ class BCMatchGroups(commands.Cog):
             )
         else:
             message = ":x: **{}** is not a valid group code.".format(group_code)
-            await ctx.send("auth token: {}".format(auth_token))
-            await ctx.send("response code: {}".format(r.status_code))
         await ctx.send(message)
 
 # Score Reporting
