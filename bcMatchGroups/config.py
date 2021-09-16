@@ -6,7 +6,7 @@ from datetime import datetime
 class config:
     search_count = 10
     visibility = 'public'
-    team_identification = 'by-distinct-players'     # setting -- Alternative: 'by-player-clusters'
+    team_identification = 'by-player-clusters'     # setting -- Alternative: 'by-distinct-players'
     player_identification = 'by-id'                 # setting -- Alternative 'by-name'
     sort_by = 'replay-date'                         # 'created
     sort_dir = 'desc'                               # 'asc'

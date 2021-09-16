@@ -275,7 +275,11 @@ class BCMatchGroups(commands.Cog):
                 return await ctx.send(":x: Team role could not be found.")
         
         # validate group, enable sharing
-        payload = {'shared': True}
+        payload = {
+            'shared': True,
+            'team_identification': 'by-player-clusters',
+            'player_identification': 'by-id'
+        }
         r = await self._bc_patch_request(auth_token, '/groups/{}'.format(group_code), data=payload)
 
         if r.status_code in [200, 204]:
@@ -287,7 +291,7 @@ class BCMatchGroups(commands.Cog):
                 group_code
             )
         else:
-            message = ":x: **{}** is not a valid group code."
+            message = ":x: **{}** is not a valid group code.".format(group_code)
         await ctx.send(message)
 
 # Score Reporting
@@ -537,6 +541,7 @@ class BCMatchGroups(commands.Cog):
         """Returns Franchise performance for the current, or provided match day"""
         asyncio.create_task(self._match_day_summary(ctx, match_day))
     
+    # TODO: add 'franchise' as team name -- use /groups/{id} on regular season to get team record summary
     @commands.command(aliases=['gsp', 'getSeasonResults', 'gsr'])
     @commands.guild_only()
     async def getSeasonPerformance(self, ctx, *, team_name=None):
