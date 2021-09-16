@@ -213,7 +213,7 @@ class BCMatchGroups(commands.Cog):
         await ctx.send("Removed team roles for {} players.".format(removed))
 
 # Ballchasing Group Setup Commands
-    @commands.command(aliases=['setMyBCAuthKey'])
+    @commands.command(aliases=['setMyBCAuthKey', 'setMyUploadToken'])
     async def setMyBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests for the given user.
         """
@@ -223,8 +223,16 @@ class BCMatchGroups(commands.Cog):
                 await ctx.message.delete()
             except:
                 pass
-            await self._save_member_bc_token(member, auth_token)
-            await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been set.".format(member.name))
+            r = await self._bc_get_request(auth_token, '')
+
+            if r.status_code == 200:
+                await self._save_member_bc_token(member, auth_token)
+                await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been set.".format(member.name))
+
+                # steam_id = r.json()['steam_id']
+                # TODO: automatically register account
+            else:
+                await ctx.send(":x: The upload token you passed is invalid.")
         except:
             await ctx.send(":x: Error setting auth token.")
     
