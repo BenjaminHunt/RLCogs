@@ -255,18 +255,39 @@ class BCMatchGroups(commands.Cog):
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role:discord.Role=None):
         member = ctx.message.author
+
+        # validate auth token
+        auth_token = await self._get_member_bc_token(member)
+        if not auth_token:
+            return await ctx.send(":x: {} you must first register your auth token before setting your team's ballchasing group. To do so, use `{}setMyBCAuthToken`.".format(
+                member.mention, ctx.prefix
+            ))
+
+        # normalize ballchasing group full links
+        bc_group_url = 'ballchasing.com/group/'
+        if bc_group_url in group_code:
+            group_code = group_code[group_code.index(bc_group_url)+len(bc_group_url):]
+
+        # match team role
         if not team_role:
-            team_roles = (await self._get_member_team_roles(ctx.guild, member))
-            if team_roles:
-                team_role = team_roles[0]
-            else:
-                return await ctx.send(":x: Couldn't find your team")
-        await self._save_season_group(ctx.guild, team_role, member, group_code)
-        message = ":white_check_mark: Done.\n"
-        message += "You may view the {} replay group here:\nhttps://ballchasing.com/group/{}".format(
-            team_role.mention,
-            group_code
-        )
+            team_role = await self._match_team_role(ctx.guild, member, team_role)
+            if not team_role:
+                return await ctx.send(":x: Team role could not be found.")
+        
+        # validate group, enable sharing
+        payload = {'shared': True}
+        r = await self._bc_patch_request(auth_token, '/groups/{}'.format(group_code), data=payload)
+
+        if r.status_code in [200, 204]:
+            # save group
+            await self._save_season_group(ctx.guild, team_role, member, group_code)
+            message = ":white_check_mark: Done.\n"
+            message += "You may view the {} replay group here:\nhttps://ballchasing.com/group/{}".format(
+                team_role.mention,
+                group_code
+            )
+        else:
+            message = ":x: **{}** is not a valid group code."
         await ctx.send(message)
 
 # Score Reporting
@@ -1304,6 +1325,7 @@ class BCMatchGroups(commands.Cog):
                     steam_accounts.append(account[1])
         return steam_accounts
     
+    # maybe outdated?
     async def _get_member_team_roles(self, guild, member):
         team_roles = await self.config.guild(guild).TeamRoles()
         player_team_roles = []
