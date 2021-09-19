@@ -301,7 +301,8 @@ class BCMatchGroups(commands.Cog):
         """Finds match games from recent public uploads for a specified franchise team, and adds them to the correct Ballchasing subgroup
         """
         team_role = await self._match_team_role(ctx.guild, team_name=franchise_team)
-        await self._process_bcreport(ctx, team_role.name, opposing_team, match_day)
+        team_name = self._get_team_name(team_role)
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day)
 
     @commands.command(aliases=['bcr', 'bcpull', 'played'])
     @commands.guild_only()
@@ -347,10 +348,7 @@ class BCMatchGroups(commands.Cog):
     async def reportScrim(self, ctx, *, opposing_team):
         """Finds scrim games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
-        try:
-            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
-        except:
-            return await ctx.send(":x: You are not rostered to a team in this server.")
+        team_role = await self._match_team_role(ctx.guild, member=ctx.author)
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_type="Scrims")
 
@@ -1492,7 +1490,7 @@ class BCMatchGroups(commands.Cog):
         
         # <top level group>/MD <Match Day> vs <Opposing Team>
 
-        if match['type'] == "Scrim":
+        if match['type'] == "Scrimmed":
             match_title = "{} vs {}".format("MM/DD", match['away'].title())
         else:
             match_title = "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
