@@ -1490,7 +1490,7 @@ class BCMatchGroups(commands.Cog):
         
         # <top level group>/MD <Match Day> vs <Opposing Team>
 
-        if match['type'] == "Scrimmed":
+        if match['type'] == "Scrims":
             match_title = "{} vs {}".format("MM/DD", match['away'].title())
         else:
             match_title = "MD {} vs {}".format(str(match['matchDay']).zfill(2), match['away'].title())
