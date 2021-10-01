@@ -29,9 +29,11 @@ class BCMatchGroups(commands.Cog):
         self.config.register_guild(**defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
         self.task = asyncio.create_task(self.auto_update_match_day())
+        self.auto_update_md = True
 
     def cog_unload(self):
         """Clean up when cog shuts down."""
+        self.auto_update_match_day = False
         if self.task:
             self.task.cancel()
 
@@ -822,12 +824,24 @@ class BCMatchGroups(commands.Cog):
             embed.set_thumbnail(url=emoji_url)
         bc_status_msg = await ctx.send(embed=embed)
 
+
+        # get match date
+        all_matches = await self._get_match_dates(ctx.guild)
+        now = datetime.now()
+        diff = 1
+        today = "{dt.month}/{dt.day}/{dt.year}".format(dt = now)
+
+        if today in all_matches and len(all_matches) >= match_day:
+            match_date = all_matches[match_day - diff]
+        else:
+            match_date = None
+
         # Find replays from ballchasing
         match = {
             "home": team_name,
             "away": opposing_team,
             "matchDay": match_day,
-            "matchDate": datetime.today(),
+            "matchDate": match_date,
             "type": match_type
         }
 
@@ -903,7 +917,7 @@ class BCMatchGroups(commands.Cog):
     async def auto_update_match_day(self):
         """Loop task to auto-update match day"""
         await self.bot.wait_until_ready()
-        while True:  # self.bot.get_cog("bcMatchGroups") == self:
+        while self.auto_update_md:  # self.bot.get_cog("bcMatchGroups") == self:
             for guild in self.bot.guilds:
                 await self._update_match_day(guild, force_set=True)
                 update_time = self._schedule_next_update()
@@ -1196,17 +1210,21 @@ class BCMatchGroups(commands.Cog):
         # date_string = match['matchDate']
         # match_date = datetime.strptime(date_string, '%B %d, %Y').strftime('%Y-%m-%d')
         match_date = match['matchDate']
-        # start_match_date_rfc3339 = "{}T00:00:00{}".format(match_date - timedelta(days=1), zone_adj)
-        # end_match_date_rfc3339 = "{}T23:59:59{}".format(match_date, zone_adj)
 
         params = [
             # 'uploader={}'.format(uploader),
             'playlist=private',
-            # 'replay-date-after={}'.format(start_match_date_rfc3339),  # Filters by matches played on this day
-            # 'replay-date-before={}'.format(end_match_date_rfc3339),
             'sort-by={}'.format(config.sort_by),
             'sort-dir={}'.format(config.sort_dir)
         ]
+        
+        if match_date:
+            # Filters by matches played on this day
+            start_match_date_rfc3339 = "{}T00:00:00{}".format(match_date, zone_adj)
+            end_match_date_rfc3339 = "{}T23:59:59{}".format(match_date, zone_adj)
+            params.append('replay-date-after={}'.format(start_match_date_rfc3339))  
+            params.append('replay-date-before={}'.format(end_match_date_rfc3339))
+
         if search_count:
             params.append('count={}'.format(search_count))
 
@@ -1684,6 +1702,9 @@ class BCMatchGroups(commands.Cog):
             green_scale = 255
             red_scale = 255 - round(255*wp_adj)
             return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
+
+    async def _get_match_date(self, guild, match_day=None):
+        pass 
 
 # json dict
     async def _get_match_dates(self, guild):
