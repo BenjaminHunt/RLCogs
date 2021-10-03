@@ -47,9 +47,9 @@ class BCMatchGroups(commands.Cog):
     async def setMatchDates(self, ctx, *dates):
         """Sets the dates where games will be played.
 
-        Date format: MM/DD/YYYY
+        Date format: MM/DD/YY(YY)
         Example:
-        [p]setMatchDates 5/1/21 6/2/21 6/7/21 6/9/21
+        [p]setMatchDates 5/1/21 6/2/21 6/7/21 6/9/2021
         """
         century = datetime.now().strftime("%Y")[:2]
         all_dates = []
@@ -139,6 +139,7 @@ class BCMatchGroups(commands.Cog):
 
 
 # Admin Settings - Team Mgmt
+
 
     @commands.command(aliases=['addTeams'])
     @commands.guild_only()
@@ -571,7 +572,7 @@ class BCMatchGroups(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def copyGroup(self, ctx, team_name, parent_group_code=None):
-        """Executes a process to create a copy of a specified team's replay group, and 
+        """Executes a process to create a copy of a specified team's replay group, and
         saves it to the invoker's ballchasing account. This is a deep copy."""
         asyncio.create_task(self._process_group_copy(
             ctx, team_name, parent_group_code))
@@ -839,11 +840,15 @@ class BCMatchGroups(commands.Cog):
             match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
-        opposing_team = opposing_team.title() if opposing_team.upper(
-        ) != opposing_team else opposing_team
+        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
+        
+        if match_type == "Regular Season":
+            series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
+        elif match_type == "Scrims":
+            series_title = "{} Scrim vs {}".format(datetime.now().strftime("%m/%d"), opposing_team)
+
         embed = discord.Embed(
-            title="Match Day {}: {} vs {}".format(
-                match_day, team_name, opposing_team),
+            title=series_title,
             description="Searching https://ballchasing.com for publicly uploaded replays of this match...",
             color=team_role.color
         )
@@ -1304,6 +1309,14 @@ class BCMatchGroups(commands.Cog):
                                 home = 'orange'
                                 away = 'blue'
 
+                            if not match['matchDate']:
+                                mm, dd, yyyy = replay['date'][0:10].split('-')
+                                match_date = datetime(
+                                    int(yyyy), int(mm), int(dd))
+                                match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(
+                                    dt=match_date)
+                                match.update({'matchDate': match_date_str})
+
                             home_goals = replay[home]['goals'] if 'goals' in replay[home] else 0
                             away_goals = replay[away]['goals'] if 'goals' in replay[away] else 0
                             if home_goals > away_goals:
@@ -1408,7 +1421,7 @@ class BCMatchGroups(commands.Cog):
         # Find from team_name
         if team_name:
             for role in team_roles:
-                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[:-1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1:-1]).lower()):
+                if team_name.lower() == role.name.lower() or (team_name.lower() in ' '.join(role.name.split()[: -1]).lower()) or (len(role.name.split()) > 1 and team_name.lower() == (role.name.split()[-1][1: -1]).lower()):
                     return role
             return None
 
@@ -1423,7 +1436,7 @@ class BCMatchGroups(commands.Cog):
 
     def _get_team_name(self, role: discord.Role):
         if role.name[-1] == ')' and ' (' in role.name:
-            return ' '.join((role.name).split()[:-1])
+            return ' '.join((role.name).split()[: -1])
         return role.name
 
     async def _get_team_role(self, guild, team_name):
@@ -1557,7 +1570,10 @@ class BCMatchGroups(commands.Cog):
         # <top level group>/MD <Match Day> vs <Opposing Team>
 
         if match['type'] == "Scrims":
-            match_title = "{} vs {}".format("MM/DD", match['away'].title())
+            match_date = "MM/DD"
+            if match['matchDate']:
+                match_date = match['matchDate'][0:5]
+            match_title = "{} vs {}".format(match_date, match['away'].title())
         else:
             match_title = "MD {} vs {}".format(
                 str(match['matchDay']).zfill(2), match['away'].title())
@@ -1745,7 +1761,7 @@ class BCMatchGroups(commands.Cog):
             green_scale = round(255*wp_adj)
             return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
         else:
-            #sub_wp = ((wp-50)/50)*100
+            # sub_wp = ((wp-50)/50)*100
             wp_adj = (wp-0.5)/0.5
             green_scale = 255
             red_scale = 255 - round(255*wp_adj)
