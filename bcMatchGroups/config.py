@@ -3,10 +3,13 @@ from datetime import datetime
 
 # ###############################################################################
 
+
 class config:
-    search_count = 10
+    search_count = 50
     visibility = 'public'
-    team_identification = 'by-player-clusters'     # setting -- Alternative: 'by-distinct-players'
-    player_identification = 'by-id'                 # setting -- Alternative 'by-name'
+    # setting -- Alternative: 'by-distinct-players'
+    team_identification = 'by-player-clusters'
+    # setting -- Alternative 'by-name'
+    player_identification = 'by-id'
     sort_by = 'replay-date'                         # 'created
     sort_dir = 'desc'                               # 'asc'
