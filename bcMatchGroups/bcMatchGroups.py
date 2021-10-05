@@ -1262,16 +1262,16 @@ class BCMatchGroups(commands.Cog):
             'sort-dir={}'.format(config.sort_dir)
         ]
 
-        if match_date:
-            # Filters by matches played on this day
-            start_match_date_rfc3339 = "{}T00:00:00{}".format(
-                match_date, zone_adj)
-            end_match_date_rfc3339 = "{}T23:59:59{}".format(
-                match_date, zone_adj)
-            params.append(
-                'replay-date-after={}'.format(start_match_date_rfc3339))
-            params.append(
-                'replay-date-before={}'.format(end_match_date_rfc3339))
+        # if match_date:
+        #     # Filters by matches played on this day
+        #     start_match_date_rfc3339 = "{}T00:00:00{}".format(
+        #         match_date, zone_adj)
+        #     end_match_date_rfc3339 = "{}T23:59:59{}".format(
+        #         match_date, zone_adj)
+        #     params.append(
+        #         'replay-date-after={}'.format(start_match_date_rfc3339))
+        #     params.append(
+        #         'replay-date-before={}'.format(end_match_date_rfc3339))
 
         if search_count:
             params.append('count={}'.format(search_count))
