@@ -862,11 +862,12 @@ class BCMatchGroups(commands.Cog):
         diff = 1
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt=now)
 
-        await ctx.send("num matches: {}".format(len(all_matches)))
-        await ctx.send("md: {} ({})".format(match_day, type(match_day)))
+        # await ctx.send("num matches: {}".format(len(all_matches)))
+        # await ctx.send("md: {} ({})".format(match_day, type(match_day)))
+        # TODO: figure out why this needs to be parsed as an int (only when passed by command)
         if type(match_day) == str:
             match_day = int(match_day)
-            
+
         if today in all_matches and len(all_matches) >= match_day:
             match_date = all_matches[match_day - diff]
         else:
