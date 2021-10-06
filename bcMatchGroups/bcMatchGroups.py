@@ -1309,13 +1309,13 @@ class BCMatchGroups(commands.Cog):
                                 home = 'orange'
                                 away = 'blue'
 
-                            if not match['matchDate']:
-                                mm, dd, yyyy = replay['date'][0:10].split('-')
-                                match_date = datetime(
-                                    int(yyyy), int(mm), int(dd))
-                                match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(
-                                    dt=match_date)
-                                match.update({'matchDate': match_date_str})
+                            # if not match['matchDate']:
+                            #     mm, dd, yyyy = replay['date'][0:10].split('-')
+                            #     match_date = datetime(
+                            #         int(yyyy), int(mm), int(dd))
+                            #     match_date_str = "{dt.month}/{dt.day}/{dt.year}".format(
+                            #         dt=match_date)
+                            #     match.update({'matchDate': match_date_str})
 
                             home_goals = replay[home]['goals'] if 'goals' in replay[home] else 0
                             away_goals = replay[away]['goals'] if 'goals' in replay[away] else 0
