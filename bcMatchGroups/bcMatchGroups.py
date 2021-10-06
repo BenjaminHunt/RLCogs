@@ -309,7 +309,7 @@ class BCMatchGroups(commands.Cog):
 # Score Reporting
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
     @commands.guild_only()
-    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day=None):
+    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day:int=None):
         """Finds match games from recent public uploads for a specified franchise team, and adds them to the correct Ballchasing subgroup
         """
         team_role = await self._match_team_role(ctx.guild, team_name=franchise_team)
@@ -828,7 +828,7 @@ class BCMatchGroups(commands.Cog):
 
         await output_msg.edit(embed=embed)
 
-    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day=None, match_type="Regular Season"):
+    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day:int=None, match_type="Regular Season"):
         member = ctx.message.author
         team_role = await self._get_team_role(ctx.guild, team_name)
 
