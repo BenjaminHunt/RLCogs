@@ -828,7 +828,7 @@ class BCMatchGroups(commands.Cog):
 
         await output_msg.edit(embed=embed)
 
-    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day:int=None, match_type="Regular Season"):
+    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day=None, match_type="Regular Season"):
         member = ctx.message.author
         team_role = await self._get_team_role(ctx.guild, team_name)
 
@@ -864,6 +864,9 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send("num matches: {}".format(len(all_matches)))
         await ctx.send("md: {} ({})".format(match_day, type(match_day)))
+        if type(match_day) == str:
+            match_day = int(match_day)
+            
         if today in all_matches and len(all_matches) >= match_day:
             match_date = all_matches[match_day - diff]
         else:
