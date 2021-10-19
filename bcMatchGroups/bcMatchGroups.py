@@ -889,10 +889,10 @@ class BCMatchGroups(commands.Cog):
             auth_token = owner_auth_token
         matches_reported = await self._check_if_reported(ctx, auth_token, match['home'], match['matchDay'], match['type'])
 
-        if matches_reported:
+        if match_type == "Regular Season" and matches_reported:
             summary, code, reported_opposing_team = matches_reported[0]
             link = "https://ballchasing.com/group/{}".format(code)
-            embed.title = "Match Day ? {}: {} vs {}".format(
+            embed.title = "Match Day {}: {} vs {}".format(
                 match_day, team_name, opposing_team)
             if opposing_team == reported_opposing_team:
                 embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(
