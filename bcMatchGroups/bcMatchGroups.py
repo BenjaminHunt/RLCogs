@@ -921,6 +921,7 @@ class BCMatchGroups(commands.Cog):
 
         # Prepare embed edits for score confirmation
         prompt_embed = discord.Embed.from_dict(embed.to_dict())
+        prompt_embed.title = embed.title
         prompt_embed.description = "Match summary:\n{}".format(summary)
         prompt_embed.set_thumbnail(url=emoji_url)
         prompt_embed.description += "\n\nPlease react to confirm the score summary for this match."
