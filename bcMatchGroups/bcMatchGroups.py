@@ -892,7 +892,7 @@ class BCMatchGroups(commands.Cog):
         if matches_reported:
             summary, code, reported_opposing_team = matches_reported[0]
             link = "https://ballchasing.com/group/{}".format(code)
-            embed.title = "Match Day {}: {} vs {}".format(
+            embed.title = "Match Day ? {}: {} vs {}".format(
                 match_day, team_name, opposing_team)
             if opposing_team == reported_opposing_team:
                 embed.description = "This match has already been reported.\n\n{}\n\nView Here: {}".format(
