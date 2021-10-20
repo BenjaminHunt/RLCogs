@@ -1,5 +1,5 @@
 import abc
-from .config import config
+from .bcconfig import bcConfig
 from datetime import date, datetime, timedelta, timezone
 import tempfile
 import discord
@@ -16,7 +16,7 @@ from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
 defaults = {"Emoji": None, "MatchDates": [], "MatchDay": 1,
-            "TeamRoles": [], "ReplayGroups": {}, "Schedule": {}}
+            "TeamRoles": [], "ReplayGroups": {}, "Schedule": {}, "TimeZone": None}
 global_defaults = {"BCTokens": {}}
 verify_timeout = 30
 
@@ -329,7 +329,7 @@ class BCMatchGroups(commands.Cog):
         match_type = "Regular Season"
         await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
 
-    @commands.command(aliases=['bcrps', 'postSeasonGame', 'psg'])
+    @commands.command(aliases=['bcrps', 'postSeasonGame', 'psg', 'reportPlayoffMatch', 'rpm'])
     @commands.guild_only()
     async def bcReportPostSeason(self, ctx, opposing_team, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
@@ -342,20 +342,7 @@ class BCMatchGroups(commands.Cog):
         match_type = "Post-Season"
         await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
 
-    @commands.command(aliases=['bcrscrim', 'scrim'])
-    @commands.guild_only()
-    async def bcScrim(self, ctx, opposing_team, match_day=None):
-        """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
-        """
-        try:
-            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
-        except:
-            return await ctx.send(":x: You are not rostered to a team in this server.")
-        team_name = self._get_team_name(team_role)
-        match_type = "Scrims"
-        await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
-
-    @commands.command(aliases=['rs', 'scrimmed'])
+    @commands.command(aliases=['rs', 'scrimmed', 'bcScrim', 'bcscrim', 'scrim'])
     @commands.guild_only()
     async def reportScrim(self, ctx, *, opposing_team):
         """Finds scrim games from recent public uploads, and adds them to the correct Ballchasing subgroup
@@ -363,6 +350,44 @@ class BCMatchGroups(commands.Cog):
         team_role = await self._match_team_role(ctx.guild, member=ctx.author)
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_type="Scrims")
+
+    @commands.command(aliases=['bcrg', 'removeGroup', 'delgroup'])
+    @commands.guild_only()
+    async def bcRemoveGroup(self, ctx, opposing_team, match_day=None, match_type="Regular Season"):
+        """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
+        """
+        try:
+            team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
+        except:
+            return await ctx.send(":x: You are not rostered to a team in this server.")
+        team_name = self._get_team_name(team_role)
+        if not match_day:
+            match_day = await self._get_match_day(ctx.guild)
+        match_type = "Regular Season"
+
+        match_date = await self._get_match_date(ctx.guild, match_day)
+        match = {
+            "home": team_name,
+            "away": opposing_team,
+            "matchDay": match_day,
+            "matchDate": match_date,
+            "type": match_type
+        }
+
+        match_subgroup_id = await self._get_replay_destination(ctx, match, match_type)
+
+        if not match_subgroup_id:
+            return await ctx.send("Oops! Something went wrong...")
+
+        group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
+        auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
+
+        r = await self._bc_delete_request(auth_token, '/groups/{}'.format(match_subgroup_id))
+
+        if r.status_code == 204:
+            await ctx.send("Done")
+        else:
+            await ctx.send("I don't think it worked lol. feel free to check -- https://ballchasing.com/group/{}".fomrat(match_subgroup_id))
 
 # General Use
     # region info commands
@@ -582,6 +607,21 @@ class BCMatchGroups(commands.Cog):
     # references:
     # https://stackoverflow.com/questions/22190403/how-could-i-use-requests-in-asyncio
     # https://stackoverflow.com/questions/53368203/passing-args-kwargs-to-run-in-executor/53369236
+
+    async def _bc_delete_request(self, auth_token, endpoint, params=[]):
+        url = 'https://ballchasing.com/api'
+        url += endpoint
+        # params = [urllib.parse.quote(p) for p in params]
+        params = '&'.join(params)
+        if params:
+            url += "?{}".format(params)
+
+        # url = urllib.parse.quote_plus(url)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.delete(url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
+
     async def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
@@ -1265,8 +1305,8 @@ class BCMatchGroups(commands.Cog):
         params = [
             # 'uploader={}'.format(uploader),
             'playlist=private',
-            'sort-by={}'.format(config.sort_by),
-            'sort-dir={}'.format(config.sort_dir)
+            'sort-by={}'.format(bcConfig.sort_by),
+            'sort-dir={}'.format(bcConfig.sort_dir)
         ]
 
         # if match_date:
@@ -1283,7 +1323,7 @@ class BCMatchGroups(commands.Cog):
         if search_count:
             params.append('count={}'.format(search_count))
         else:
-            params.append('count={}'.format(config.search_count))
+            params.append('count={}'.format(bcConfig.search_count))
 
         # Search invoker's replay uploads first
         if member in team_players:
@@ -1446,11 +1486,22 @@ class BCMatchGroups(commands.Cog):
             return ' '.join((role.name).split()[: -1])
         return role.name
 
-    async def _get_team_role(self, guild, team_name):
+    async def _get_team_role(self, guild, team_name_or_player):
         team_roles = await self._get_team_roles(guild)
-        for role in team_roles:
-            if team_name.lower() in role.name.lower():
-                return role
+
+        if type(team_name_or_player) == discord.Member:
+            player = team_name_or_player
+            for role in player.roles:
+                if role in team_roles:
+                    return role
+
+        elif type(team_name_or_player) == str:
+            team_name = team_name_or_player
+            for role in team_roles:
+                if team_name.lower() in role.name.lower():
+                    return role
+            return None
+
         return None
 
     def _get_team_tier(self, role):
@@ -1636,8 +1687,8 @@ class BCMatchGroups(commands.Cog):
                 payload = {
                     'name': next_group_name,
                     'parent': current_subgroup_id,
-                    'player_identification': config.player_identification,
-                    'team_identification': config.team_identification
+                    'player_identification': bcConfig.player_identification,
+                    'team_identification': bcConfig.team_identification
                 }
                 r = await self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
@@ -1670,7 +1721,7 @@ class BCMatchGroups(commands.Cog):
     async def _upload_replays(self, auth_token, subgroup_id, files_to_upload, ctx=None):
         endpoint = "/v2/upload"
         params = [
-            'visibility={}'.format(config.visibility),
+            'visibility={}'.format(bcConfig.visibility),
             'group={}'.format(subgroup_id)
         ]
 
@@ -1772,7 +1823,24 @@ class BCMatchGroups(commands.Cog):
             return discord.Color.from_rgb(red_scale, green_scale, blue_scale)
 
     async def _get_match_date(self, guild, match_day=None):
-        pass
+        if not match_day:
+            match_day = self._get_match_day(guild)
+
+        all_matches = await self._get_match_dates(guild)
+
+        # if not all_matches:
+        #     return None 
+        
+        now = datetime.now()
+        diff = 1
+        today = "{dt.month}/{dt.day}/{dt.year}".format(dt=now)
+
+        match_date = today
+
+        if today in all_matches and len(all_matches) >= match_day:
+            match_date = all_matches[match_day - diff]
+        
+        return match_date
 
 # json dict
     async def _get_match_dates(self, guild):
@@ -1782,7 +1850,7 @@ class BCMatchGroups(commands.Cog):
         await self.config.guild(guild).MatchDates.set(match_dates)
 
     async def _get_match_day(self, guild):
-        return await self.config.guild(guild).MatchDay()
+        return int(await self.config.guild(guild).MatchDay())
 
     async def _save_match_day(self, guild, match_day):
         await self.config.guild(guild).MatchDay.set(match_day)
