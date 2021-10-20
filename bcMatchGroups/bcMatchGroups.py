@@ -1827,6 +1827,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_match_date(self, guild, match_day=None):
         if not match_day:
             match_day = self._get_match_day(guild)
+        match_day = int(match_day)
 
         all_matches = await self._get_match_dates(guild)
 
