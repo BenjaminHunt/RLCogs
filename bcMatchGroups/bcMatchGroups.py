@@ -1,5 +1,5 @@
 import abc
-from .bcconfig import bcConfig
+from .bcConfig import bcConfig
 from datetime import date, datetime, timedelta, timezone
 import tempfile
 import discord
