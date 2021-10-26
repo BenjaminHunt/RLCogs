@@ -1286,7 +1286,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_reported_match_data(self, ctx, response_data, team):
         pass
 
-    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None, search_count=None):
+    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None, search_count=None, sort_by=None):
 
         # TODO: allow opposing_team to be None => ask in helper function
 
@@ -1304,6 +1304,9 @@ class BCMatchGroups(commands.Cog):
         # match_date = datetime.strptime(date_string, '%B %d, %Y').strftime('%Y-%m-%d')
         match_date = match['matchDate']
 
+        if not sort_by:
+            sort_by = bcConfig.sort_by
+            
         params = [
             # 'uploader={}'.format(uploader),
             'playlist=private',
@@ -1629,7 +1632,7 @@ class BCMatchGroups(commands.Cog):
 
         # <top level group>/MD <Match Day> vs <Opposing Team>
 
-        if match['type'] == "Scrimmed":
+        if match['type'] == "Scrims":
             match_title = "{} vs {}".format("MM/DD", match['away'].title())
         else:
             match_title = "MD {} vs {}".format(
