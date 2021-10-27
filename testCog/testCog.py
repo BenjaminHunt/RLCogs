@@ -78,7 +78,7 @@ class TestCog(commands.Cog):
         """Loop task to preload guild data"""
         await self.bot.wait_until_ready()
         for guild in self.bot.guilds:
-            self.time_zones[guild] = (await self._get_time_zone(guild))
+            self.time_zones[guild] (await self._get_time_zone(guild))
 
     # db
 
@@ -87,4 +87,4 @@ class TestCog(commands.Cog):
         self.time_zones[guild] = time_zone
 
     async def _get_time_zone(self, guild):
-        return int(await self.config.guild(guild).TimeZone())
+        return await self.config.guild(guild).TimeZone()
