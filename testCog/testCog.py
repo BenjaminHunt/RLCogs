@@ -87,7 +87,4 @@ class TestCog(commands.Cog):
         self.time_zones[guild] = time_zone
 
     async def _get_time_zone(self, guild):
-        zone = await self.config.guild(guild).TimeZone()
-        if not zone:
-            zone = "America/New_York"
-        return zone
+        return await self.config.guild(guild).TimeZone()
