@@ -70,7 +70,7 @@ class TestCog(commands.Cog):
         await ctx.send('--')
 
         start = datetime.strptime(date_str, '%m/%d/%Y').astimezone(timezone(zone))
-        start_utc = start.astimezone('UTC')
+        start_utc = start.astimezone(timezone('UTC'))
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], start, start_utc))
 
