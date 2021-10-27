@@ -74,6 +74,11 @@ class TestCog(commands.Cog):
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], start, start_utc))
 
+        end = start + datetime.timedelta(days=1)
+        end_utc = start_utc + datetime.timedelta(days=1)
+
+        await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
+
     async def pre_load_data(self):
         """Loop task to preload guild data"""
         await self.bot.wait_until_ready()
