@@ -10,7 +10,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pytz import timezone, all_timezones_set
 
 defaults = {'TimeZone': 'America/New_York'}
@@ -74,8 +74,8 @@ class TestCog(commands.Cog):
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], start, start_utc))
 
-        end = start + datetime.timedelta(days=1)
-        end_utc = start_utc + datetime.timedelta(days=1)
+        end = start + timedelta(days=1)
+        end_utc = start_utc + timedelta(days=1)
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
 
