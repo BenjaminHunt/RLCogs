@@ -29,7 +29,7 @@ class TestCog(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=['time'])
     @checks.admin_or_permissions(manage_guild=True)
-    async def getTime(self, ctx, log_channel: discord.TextChannel):
+    async def getTime(self, ctx):
         """I'm not documenting a test lmao"""
 
         fmt = "%Y-%m-%d %H:%M:%S %Z%z"
