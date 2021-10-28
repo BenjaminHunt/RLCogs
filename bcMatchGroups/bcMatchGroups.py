@@ -914,6 +914,9 @@ class BCMatchGroups(commands.Cog):
             match_date = all_matches[match_day - diff]
         else:
             match_date = None
+        
+        if match_type == "Scrims":
+            match_date = today
 
         # Find replays from ballchasing
         match = {
@@ -979,6 +982,10 @@ class BCMatchGroups(commands.Cog):
         if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
             return False
 
+        # TODO: Add find_replay_date and convert_time_zone
+        # if match_type == "Scrim":
+        #     matchDate = self.find_replay_date(time_zone="America/New_York")
+        
         # Find or create ballchasing subgroup
         match_subgroup_id = await self._get_replay_destination(ctx, match, match_type)
         if not match_subgroup_id:
@@ -1633,7 +1640,8 @@ class BCMatchGroups(commands.Cog):
         # <top level group>/MD <Match Day> vs <Opposing Team>
 
         if match['type'] == "Scrims":
-            match_title = "{} vs {}".format("MM/DD", match['away'].title())
+            today = "{dt.month}/{dt.day}".format(dt=datetime.now())
+            match_title = "{} vs {}".format(today, match['away'].title())
         else:
             match_title = "MD {} vs {}".format(
                 str(match['matchDay']).zfill(2), match['away'].title())
