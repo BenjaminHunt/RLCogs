@@ -5,6 +5,8 @@ from datetime import datetime
 
 
 class bcConfig:
+
+    # REQUEST CONFIG SETTINGS
     search_count = 50
     visibility = 'public'
     # setting -- Alternative: 'by-distinct-players'
@@ -14,4 +16,12 @@ class bcConfig:
     # sort_by = 'replay-date'                         # 'created
     sort_by = 'created'
     sort_dir = 'desc'                               # 'asc'
+
+    # MATCH TYPE KEYWORDS
+
+    REGULAR_SEASON_MT = "Regular Season"
+    SCRIM_MT = "Scrims"
+    PLAYOFF_MT = "Post-Season"
+    POSTSEASON_MT = PLAYOFF_MT
+    PRESEASON_MT = "Pre-Season"
 

@@ -328,7 +328,7 @@ class BCMatchGroups(commands.Cog):
         except:
             return await ctx.send(":x: You are not rostered to a team in this server.")
         team_name = self._get_team_name(team_role)
-        match_type = "Regular Season"
+        match_type = bcConfig.REGULAR_SEASON_MT
         await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
 
     @commands.command(aliases=['bcrps', 'postSeasonGame', 'psg', 'reportPlayoffMatch', 'rpm'])
@@ -351,11 +351,11 @@ class BCMatchGroups(commands.Cog):
         """
         team_role = await self._match_team_role(ctx.guild, member=ctx.author)
         team_name = self._get_team_name(team_role)
-        await self._process_bcreport(ctx, team_name, opposing_team, match_type="Scrims")
+        await self._process_bcreport(ctx, team_name, opposing_team, match_type=bcConfig.SCRIM_MT)
 
     @commands.command(aliases=['bcrg', 'removeGroup', 'delgroup'])
     @commands.guild_only()
-    async def bcRemoveGroup(self, ctx, opposing_team, match_day=None, match_type="Regular Season"):
+    async def bcRemoveGroup(self, ctx, opposing_team, match_day=None, match_type=bcConfig.REGULAR_SEASON_MT):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
         try:
@@ -365,7 +365,7 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         if not match_day:
             match_day = await self._get_match_day(ctx.guild)
-        match_type = "Regular Season"
+        match_type = bcConfig.REGULAR_SEASON_MT
 
         match_date = await self._get_match_date(ctx.guild, match_day)
         match = {
@@ -540,7 +540,7 @@ class BCMatchGroups(commands.Cog):
         if not auth_token:
             group_owner_id = (await self._get_top_level_group(ctx.guild, team_role))[0]
             auth_token = await self._get_member_bc_token(ctx.guild.get_member(group_owner_id))
-        matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type="Regular Season")
+        matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
 
         if not matches_reported:
             if last:
@@ -553,7 +553,7 @@ class BCMatchGroups(commands.Cog):
                     color=team_role.color
                 )
                 await output_msg.edit(embed=embed)
-                matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type="Regular Season")
+                matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
 
             if not matches_reported:
                 embed.description = ":x: This match was never reported."
@@ -870,7 +870,7 @@ class BCMatchGroups(commands.Cog):
 
         await output_msg.edit(embed=embed)
 
-    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day=None, match_type="Regular Season"):
+    async def _process_bcreport(self, ctx, team_name, opposing_team, match_day=None, match_type=bcConfig.REGULAR_SEASON_MT):
         member = ctx.message.author
         team_role = await self._get_team_role(ctx.guild, team_name)
 
@@ -884,9 +884,9 @@ class BCMatchGroups(commands.Cog):
 
         opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
         
-        if match_type == "Regular Season":
+        if match_type == bcConfig.REGULAR_SEASON_MT:
             series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
-        elif match_type == "Scrims":
+        elif match_type == bcConfig.SCRIM_MT:
             series_title = "{} Scrim vs {}".format(datetime.now().strftime("%m/%d"), opposing_team)
 
         embed = discord.Embed(
@@ -915,7 +915,7 @@ class BCMatchGroups(commands.Cog):
         else:
             match_date = None
         
-        if match_type == "Scrims":
+        if match_type == bcConfig.SCRIM_MT:
             match_date = today
 
         # Find replays from ballchasing
@@ -934,7 +934,7 @@ class BCMatchGroups(commands.Cog):
             auth_token = owner_auth_token
         matches_reported = await self._check_if_reported(ctx, auth_token, match['home'], match['matchDay'], match['type'])
 
-        if match_type == "Regular Season" and matches_reported:
+        if match_type == bcConfig.REGULAR_SEASON_MT and matches_reported:
             summary, code, reported_opposing_team = matches_reported[0]
             link = "https://ballchasing.com/group/{}".format(code)
             embed.title = "Match Day {}: {} vs {}".format(
@@ -1109,7 +1109,7 @@ class BCMatchGroups(commands.Cog):
 
         await output_msg.edit(embed=embed)
 
-    async def _get_team_results(self, ctx, franchise_team, match_day, auth_token, match_type="Regular Season"):
+    async def _get_team_results(self, ctx, franchise_team, match_day, auth_token, match_type=bcConfig.REGULAR_SEASON_MT):
         guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
         top_level_group_info = await self._get_top_level_group(guild, team_role)
@@ -1219,7 +1219,7 @@ class BCMatchGroups(commands.Cog):
             players.append([player['id']['platform'], player['id']['id']])
         return players
 
-    async def _check_if_reported(self, ctx, auth_token, franchise_team, match_day, match_type="Regular Season"):
+    async def _check_if_reported(self, ctx, auth_token, franchise_team, match_day, match_type=bcConfig.REGULAR_SEASON_MT):
         guild = ctx.guild
         team_role = await self._get_team_role(guild, franchise_team)
         top_level_group_info = await self._get_top_level_group(guild, team_role)
@@ -1629,7 +1629,7 @@ class BCMatchGroups(commands.Cog):
             await ctx.send("Sorry {}, you didn't react quick enough. Please try again.".format(user.mention))
             return False
 
-    async def _get_replay_destination(self, ctx, match, match_type="Regular Season"):
+    async def _get_replay_destination(self, ctx, match, match_type=bcConfig.REGULAR_SEASON_MT):
         team_role = await self._get_team_role(ctx.guild, match['home'])
         top_level_group_info = await self._get_top_level_group(ctx.guild, team_role)
         bc_group_owner = ctx.guild.get_member(top_level_group_info[0])
@@ -1639,7 +1639,7 @@ class BCMatchGroups(commands.Cog):
 
         # <top level group>/MD <Match Day> vs <Opposing Team>
 
-        if match['type'] == "Scrims":
+        if match['type'] == bcConfig.SCRIM_MT:
             today = "{dt.month}/{dt.day}".format(dt=datetime.now())
             match_title = "{} vs {}".format(today, match['away'].title())
         else:
