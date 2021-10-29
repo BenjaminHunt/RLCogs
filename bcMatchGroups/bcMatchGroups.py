@@ -139,10 +139,7 @@ class BCMatchGroups(commands.Cog):
             await self._save_match_dates(ctx.guild, [])
             await ctx.send("Done")
 
-
 # Admin Settings - Team Mgmt
-
-
     @commands.command(aliases=['addTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
@@ -341,8 +338,7 @@ class BCMatchGroups(commands.Cog):
         except:
             return await ctx.send(":x: You are not rostered to a team in this server.")
         team_name = self._get_team_name(team_role)
-        match_type = "Post-Season"
-        await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type)
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day, bcConfig.POSTSEASON_MT)
 
     @commands.command(aliases=['rs', 'scrimmed', 'bcScrim', 'bcscrim', 'scrim'])
     @commands.guild_only()
