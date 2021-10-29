@@ -349,7 +349,7 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_type=bcConfig.SCRIM_MT)
 
-    @commands.command(aliases=['bcrg', 'removeGroup', 'delgroup'])
+    @commands.command(aliases=['bcrg', 'removeGroup', 'deleteGroup', 'delgroup'])
     @commands.guild_only()
     async def bcRemoveGroup(self, ctx, opposing_team, match_day=None, match_type=bcConfig.REGULAR_SEASON_MT):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
@@ -373,6 +373,9 @@ class BCMatchGroups(commands.Cog):
         }
 
         match_subgroup_id = await self._get_replay_destination(ctx, match, match_type)
+
+        await ctx.send(match_subgroup_id)
+        return 
 
         if not match_subgroup_id:
             return await ctx.send("Oops! Something went wrong...")
