@@ -345,6 +345,7 @@ class BCMatchGroups(commands.Cog):
     async def reportScrim(self, ctx, *, opposing_team):
         """Finds scrim games from recent public uploads, and adds them to the correct Ballchasing subgroup
         """
+        opposing_team = opposing_team.replace('"', '')
         team_role = await self._match_team_role(ctx.guild, member=ctx.author)
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_type=bcConfig.SCRIM_MT)
@@ -372,7 +373,7 @@ class BCMatchGroups(commands.Cog):
             "type": match_type
         }
 
-        match_subgroup_id = await self._get_replay_destination(ctx, match, match_type)
+        matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
 
         await ctx.send(match_subgroup_id)
         return 
