@@ -19,20 +19,22 @@ from pytz import timezone, all_timezones_set
 
 defaults = {'TimeZone': 'America/New_York'}
 
+
 class TestCog(commands.Cog):
     """Test misc commands for anything!"""
 
     def __init__(self, bot):
         self.bot = bot
-        self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
+        self.config = Config.get_conf(
+            self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
         self.time_zones = {}
 
         self.task = asyncio.create_task(self.pre_load_data())
         inter_client = InteractionClient(bot)
-    
-    
+
     # Reference: https://github.com/EQUENOS/dislash.py
+
     @commands.command()
     async def button(self, ctx):
         # Make a row of buttons
@@ -62,16 +64,16 @@ class TestCog(commands.Cog):
             # This function only works if the author presses the button
             # Becase otherwise the previous decorator cancels this one
             await inter.reply("You've clicked the red button!")
-        
+
         @on_click.matching_id("green")
         async def on_test_button(inter):
             # This function only works if the author presses the button
             # Becase otherwise the previous decorator cancels this one
             await inter.reply("You've clicked the green button!")
-        
+
         @on_click.timeout
         async def on_timeout():
-            await msg.edit(message=msg.message.replace("has", "had"), components=[])
+            await msg.edit(content=msg.content.replace("has", "had"), components=[])
 
     @commands.guild_only()
     @commands.command()
@@ -79,19 +81,18 @@ class TestCog(commands.Cog):
     async def setTimeZone(self, ctx, time_zone):
         """Sets timezone for the guild. Valid time zone codes are listed in the "TZ database name" column of
          the following wikipedia page: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"""
-        
+
         if time_zone not in all_timezones_set:
             wiki = 'https://en.wikipedia.org/wiki/List_of_tz_database_time_zones'
 
             msg = (':x: **{}** is not a valid time zone code. Please select a time zone from the "TZ database name" column '
-                  'from this wikipedia page: {}').format(time_zone, wiki)
-            
+                   'from this wikipedia page: {}').format(time_zone, wiki)
+
             return await ctx.send(msg)
-        
+
         await self._save_time_zone(ctx.guild, time_zone)
         await ctx.send("Done")
 
-        
     @commands.guild_only()
     @commands.command(aliases=['time'])
     @checks.admin_or_permissions(manage_guild=True)
@@ -108,13 +109,14 @@ class TestCog(commands.Cog):
         # await ctx.send("Boston: {}".format(now))
         # utc = now.astimezone(timezone('UTC'))
         # await ctx.send("UTC:    {}".format(utc))
-        
+
         date_str = '10/27/2021'
         zone = self.time_zones[ctx.guild]
         await ctx.send('Date str: {}'.format(date_str))
         await ctx.send('--')
 
-        start = datetime.strptime(date_str, '%m/%d/%Y').astimezone(timezone(zone))
+        start = datetime.strptime(
+            date_str, '%m/%d/%Y').astimezone(timezone(zone))
         start_utc = start.astimezone(timezone('UTC'))
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], start, start_utc))
@@ -123,7 +125,6 @@ class TestCog(commands.Cog):
         end_utc = start_utc + timedelta(days=1)
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
-
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""
