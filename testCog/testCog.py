@@ -109,17 +109,17 @@ class TestCog(commands.Cog):
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
 
 
-    @inter_client.user_command(name="red")
-    async def press_me(inter):
-        # User commands are visible in user context menus
-        # They can be global or per guild, just like slash commands
-        await inter.respond("Hello there!")
+    # @inter_client.user_command(name="red")
+    # async def press_me(inter):
+    #     # User commands are visible in user context menus
+    #     # They can be global or per guild, just like slash commands
+    #     await inter.respond("Hello there!")
 
-    @inter_client.message_command(name="green")
-    async def resend(inter):
-        # Message commands are visible in message context menus
-        # inter is instance of ContextMenuInteraction
-        await inter.respond("green")
+    # @inter_client.message_command(name="green")
+    # async def resend(inter):
+    #     # Message commands are visible in message context menus
+    #     # inter is instance of ContextMenuInteraction
+    #     await inter.respond("green")
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""
