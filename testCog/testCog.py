@@ -27,6 +27,12 @@ class TestCog(commands.Cog):
         self.time_zones = {}
 
         self.task = asyncio.create_task(self.pre_load_data())
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def button(self, ctx):
+        await ctx.send("button", components=[discord.Button(label="Button", custom_id="button1")])
+        await ctx.send("done")
 
     @commands.guild_only()
     @commands.command()
