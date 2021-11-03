@@ -71,7 +71,7 @@ class TestCog(commands.Cog):
         
         @on_click.timeout
         async def on_timeout():
-            await msg.edit(components=[])
+            await msg.edit(message=msg.message.replace("has", "had"), components=[])
 
     @commands.guild_only()
     @commands.command()
