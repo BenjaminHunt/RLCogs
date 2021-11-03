@@ -26,12 +26,10 @@ class TestCog(commands.Cog):
         self.bot = bot
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
-        self.players = []
-        self.six_mans_cog = bot.get_cog("SixMans")
         self.time_zones = {}
 
         self.task = asyncio.create_task(self.pre_load_data())
-        self.inter_client = InteractionClient(bot)
+        inter_client = InteractionClient(bot)
     
     
     # Reference: https://github.com/EQUENOS/dislash.py
@@ -109,17 +107,17 @@ class TestCog(commands.Cog):
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
 
 
-    # @inter_client.user_command(name="red")
-    # async def press_me(inter):
-    #     # User commands are visible in user context menus
-    #     # They can be global or per guild, just like slash commands
-    #     await inter.respond("Hello there!")
+    # @self.inter_client.user_command(name="red")
+    async def press_me(self, inter):
+        # User commands are visible in user context menus
+        # They can be global or per guild, just like slash commands
+        await inter.respond("Hello there!")
 
-    # @inter_client.message_command(name="green")
-    # async def resend(inter):
-    #     # Message commands are visible in message context menus
-    #     # inter is instance of ContextMenuInteraction
-    #     await inter.respond("green")
+    @InteractionClient.message_command(name="green")
+    async def resend(self, inter):
+        # Message commands are visible in message context menus
+        # inter is instance of ContextMenuInteraction
+        await inter.respond("green")
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""
