@@ -1,6 +1,9 @@
 import abc
 import discord
-from discord_components import Button, Select, SelectOption, ComponentsBot
+
+# from discord_components import Button, Select, SelectOption, ComponentsBot
+from dislash import InteractionClient, ActionRow, Button, ButtonStyle
+
 import asyncio
 import urllib.parse
 import operator
@@ -32,7 +35,24 @@ class TestCog(commands.Cog):
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
     async def button(self, ctx):
-        await ctx.send("button", components=[discord.Button(label="Button", custom_id="button1")])
+        # Make a row of buttons
+        row_of_buttons = ActionRow(
+            Button(
+                style=ButtonStyle.green,
+                label="Green button",
+                custom_id="green"
+            ),
+            Button(
+                style=ButtonStyle.red,
+                label="Red button",
+                custom_id="red"
+            )
+        )
+        # Send a message with buttons
+        msg = await ctx.send(
+            "This message has buttons!",
+            components=[row_of_buttons]
+        )
         await ctx.send("done")
 
     @commands.guild_only()
