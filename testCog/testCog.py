@@ -31,9 +31,9 @@ class TestCog(commands.Cog):
         self.time_zones = {}
 
         self.task = asyncio.create_task(self.pre_load_data())
-    @commands.guild_only()
+    
+    
     @commands.command()
-    @checks.admin_or_permissions(manage_guild=True)
     async def button(self, ctx):
         # Make a row of buttons
         row_of_buttons = ActionRow(
