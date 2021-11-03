@@ -55,6 +55,24 @@ class TestCog(commands.Cog):
         )
         await ctx.send("done")
 
+        on_click = msg.create_click_listener(timeout=60)
+
+        @on_click.matching_id("red")
+        async def on_test_button(inter):
+            # This function only works if the author presses the button
+            # Becase otherwise the previous decorator cancels this one
+            await inter.reply("You've clicked the red button!")
+        
+        @on_click.matching_id("green")
+        async def on_test_button(inter):
+            # This function only works if the author presses the button
+            # Becase otherwise the previous decorator cancels this one
+            await inter.reply("You've clicked the green button!")
+        
+        @on_click.timeout
+        async def on_timeout():
+            await msg.edit(components=[])
+
     @commands.guild_only()
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
@@ -106,18 +124,6 @@ class TestCog(commands.Cog):
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
 
-
-    # @self.inter_client.user_command(name="red")
-    async def press_me(self, inter):
-        # User commands are visible in user context menus
-        # They can be global or per guild, just like slash commands
-        await inter.respond("Hello there!")
-
-    @InteractionClient.message_command(name="green")
-    async def resend(self, inter):
-        # Message commands are visible in message context menus
-        # inter is instance of ContextMenuInteraction
-        await inter.respond("green")
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""
