@@ -31,6 +31,7 @@ class TestCog(commands.Cog):
         self.time_zones = {}
 
         self.task = asyncio.create_task(self.pre_load_data())
+        self.inter_client = InteractionClient(bot)
     
     
     @commands.command()
