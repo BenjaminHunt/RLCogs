@@ -52,12 +52,11 @@ class TestCog(commands.Cog):
         )
         # Send a message with buttons
         msg = await ctx.send(
-            "This message has buttons!" # ,
-            # components=[row_of_buttons]
+            "This message has no buttons!"
         )
         await ctx.send("done")
 
-        await msg.edit(components=[row_of_buttons])
+        await msg.edit(content="This message has buttons!", components=[row_of_buttons])
 
         await ctx.send("done 2")
 
