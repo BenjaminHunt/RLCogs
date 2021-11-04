@@ -1063,6 +1063,10 @@ class BCMatchGroups(commands.Cog):
 
         on_click = bc_status_msg.create_click_listener(timeout=20)
 
+    
+        async def remove_buttons():
+            await bc_status_msg.edit(components=[])
+            
         @on_click.matching_id("create")
         async def on_test_button(inter):
             remove_buttons()
@@ -1091,9 +1095,6 @@ class BCMatchGroups(commands.Cog):
         @on_click.timeout
         async def on_timeout():
             remove_buttons()
-            
-        async def remove_buttons():
-            await bc_status_msg.edit(components=[])
 
         ## HERE #############################################################################################
 
