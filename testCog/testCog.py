@@ -83,6 +83,7 @@ class TestCog(commands.Cog):
         async def on_test_button(inter):
             # This function only works if the author presses the button
             # Becase otherwise the previous decorator cancels this one
+            await inter.message.edit(components=[])
             await inter.reply("You've clicked the green button!")
 
         @on_click.timeout

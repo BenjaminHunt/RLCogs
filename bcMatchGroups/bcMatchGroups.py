@@ -1064,9 +1064,8 @@ class BCMatchGroups(commands.Cog):
         on_click = bc_status_msg.create_click_listener(timeout=20)
 
     
-        async def remove_buttons():
-            await bc_status_msg.edit(components=[])
-            return None
+        async def remove_buttons(msg):
+            await msg.edit(components=[])
 
         @on_click.matching_id("create")
         async def on_test_button(inter):
