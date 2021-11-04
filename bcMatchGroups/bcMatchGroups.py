@@ -1083,7 +1083,7 @@ class BCMatchGroups(commands.Cog):
 
         @on_click.timeout
         async def on_timeout():
-            await msg.edit(content=msg.content.replace("has", "had"), components=[])
+            await msg.edit(components=[])
 
         ## HERE #############################################################################################
 
