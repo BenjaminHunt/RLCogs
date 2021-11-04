@@ -36,6 +36,17 @@ class TestCog(commands.Cog):
     # Reference: https://github.com/EQUENOS/dislash.py
 
     @commands.command()
+    async def test(self, ctx, num:int):
+        if num == 1:
+            s = ":x:"
+        elif num == 2:
+            s = "x"
+        else:
+            s = "\U0000274C"
+        e = discord.PartialEmoji(id=s)
+        await ctx.send(e)
+
+    @commands.command()
     async def button(self, ctx):
         # Make a row of buttons
         row_of_buttons = ActionRow(
