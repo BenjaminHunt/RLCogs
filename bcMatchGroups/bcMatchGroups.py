@@ -1063,21 +1063,16 @@ class BCMatchGroups(commands.Cog):
 
         on_click = bc_status_msg.create_click_listener(timeout=20)
 
-    
-        async def remove_buttons(inter):
-            await inter.message.edit(components=[])
-
         @on_click.matching_id("create")
         async def on_test_button(inter):
-            await inter.message.edit(components=[])
+            await inter.message.edit(embed=success_embed, components=[])
             return None
             # await bc_status_msg.edit(embed=success_embed)
             # return True
 
         @on_click.matching_id("retry")
         async def on_test_button(inter):
-            remove_buttons(inter)
-            # await bc_status_msg.edit(embed=search_embed)
+            await bc_status_msg.edit(embed=search_embed, components=[])
             # replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
 
             # summary = replays_found[1]
@@ -1086,11 +1081,11 @@ class BCMatchGroups(commands.Cog):
             # await bc_status_msg.edit(embed=prompt_embed)
             # if await self.prompt_with_buttons(ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, None, None, None, False):
             #     return replays_found
+            return None
         
         @on_click.matching_id("cancel")
         async def on_test_button(inter):
-            remove_buttons(inter)
-            # await bc_status_msg.edit(embed=reject_embed)
+            await inter.message.edit(embed=reject_embed, components=[])
             return None
 
         @on_click.timeout
