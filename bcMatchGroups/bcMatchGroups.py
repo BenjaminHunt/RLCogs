@@ -308,12 +308,18 @@ class BCMatchGroups(commands.Cog):
 # Score Reporting
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
     @commands.guild_only()
-    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day: int = None):
+    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day: int=None, match_type:str=bcConfig.REGULAR_SEASON_MT):
         """Finds match games from recent public uploads for a specified franchise team, and adds them to the correct Ballchasing subgroup
         """
+        match_type = match_type.title()
+        if match_type not in bcConfig.VALID_MATCH_TYPES:
+            return await ctx.send(":x: **{}** is not a valid match type. Please choose from the following: \n\t {}".format(
+                match_type,
+                ', '.join(bcConfig.VALID_MATCH_TYPES)
+            ))
         team_role = await self._match_team_role(ctx.guild, team_name=franchise_team)
         team_name = self._get_team_name(team_role)
-        await self._process_bcreport(ctx, team_name, opposing_team, match_day)
+        await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type=match_type)
 
     @commands.command(aliases=['bcr', 'bcpull', 'played'])
     @commands.guild_only()
@@ -1300,7 +1306,7 @@ class BCMatchGroups(commands.Cog):
     async def _get_reported_match_data(self, ctx, response_data, team):
         pass
 
-    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None, search_count=None, sort_by=None):
+    async def _find_match_replays(self, ctx, auth_token, member, match, team_players=None, search_count=None, sort_by=None, deep_search=False):
 
         # TODO: allow opposing_team to be None => ask in helper function
 
@@ -1350,6 +1356,9 @@ class BCMatchGroups(commands.Cog):
             team_players.insert(0, member)
 
         # Search all players in game for replays until match is found
+        return_replay_ids = []
+        return_series_summary = None
+        return_winner = None
         for player in team_players:
             for steam_id in await self._get_steam_ids(player.id):
                 # TODO: compare results to format, maybe add "skipped replays" field?
@@ -1402,8 +1411,15 @@ class BCMatchGroups(commands.Cog):
                     elif home_wins < away_wins:
                         winner = match['away']
 
-                    if replay_ids:
-                        return replay_ids, series_summary, winner
+                    if len(replay_ids) > len(return_replay_ids):
+                        return_replay_ids = replay_ids.copy()
+                    
+                    if not deep_search:
+                        return return_replay_ids, series_summary, winner
+        
+        if return_replay_ids:
+            return return_replay_ids, return_series_summary, return_winner
+
         return None
 
     async def _discover_match_opponent(self, ctx, match_data):
