@@ -994,21 +994,21 @@ class BCMatchGroups(commands.Cog):
         reject_embed.description = "Match summary:\n{}".format(summary)
         reject_embed.description += "\n\n:x: Ballchasing upload has been cancelled."
 
-        # if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
-        #     return False
+        if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
+            return False
 
+        USE_BUTTONS = True
         ## HERE #############################################################################################
 
-        maybe_new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, embed, prompt_embed, success_embed, reject_embed, auth_token, member, match)
+        # maybe_new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, embed, prompt_embed, success_embed, reject_embed, auth_token, member, match)
 
-        if maybe_new_replays:
-            if type(maybe_new_replays) == bool:
-                pass
-            else:
-                replay_ids, summary, winner = maybe_new_replays
-        else:
-            return None
-
+        # if maybe_new_replays:
+        #     if type(maybe_new_replays) == bool:
+        #         pass
+        #     else:
+        #         replay_ids, summary, winner = maybe_new_replays
+        # else:
+        #     return None
 
         #####################################################################################################
 
