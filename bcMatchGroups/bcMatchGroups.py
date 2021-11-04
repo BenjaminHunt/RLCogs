@@ -1058,36 +1058,42 @@ class BCMatchGroups(commands.Cog):
         row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) if with_retry else ActionRow(ok_button, cancel_button)
 
         # Send a message with buttons
-        msg = await bc_status_msg.edit(components=[row_of_buttons])
+        bc_status_msg = await bc_status_msg.edit(components=[row_of_buttons])
         # msg = await bc_status_msg.channel.send(embed=prompt_embed, components=[row_of_buttons])
 
-        on_click = msg.create_click_listener(timeout=20)
+        on_click = bc_status_msg.create_click_listener(timeout=20)
 
         @on_click.matching_id("create")
         async def on_test_button(inter):
-            await msg.edit(embed=success_embed)
+            remove_buttons()
+            await bc_status_msg.edit(embed=success_embed)
             return True
 
         @on_click.matching_id("retry")
         async def on_test_button(inter):
-            await msg.edit(embed=search_embed)
+            remove_buttons()
+            await bc_status_msg.edit(embed=search_embed)
             replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
 
             summary = replays_found[1]
             prompt_embed.description = "Match summary:\n{}".format(summary)
 
-            await msg.edit(embed=prompt_embed)
+            await bc_status_msg.edit(embed=prompt_embed)
             if await self.prompt_with_buttons(ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, None, None, None, False):
                 return replays_found
         
         @on_click.matching_id("cancel")
         async def on_test_button(inter):
-            await msg.edit(embed=reject_embed)
+            remove_buttons()
+            await bc_status_msg.edit(embed=reject_embed)
             return None
 
         @on_click.timeout
         async def on_timeout():
-            await msg.edit(components=[])
+            remove_buttons()
+            
+        async def remove_buttons():
+            await bc_status_msg.edit(components=[])
 
         ## HERE #############################################################################################
 
