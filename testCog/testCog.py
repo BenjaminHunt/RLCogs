@@ -40,7 +40,7 @@ class TestCog(commands.Cog):
         if num == 1:
             s = ":x:"
         elif num == 2:
-            s = "x"
+            s = ":white_check_mark:"
         else:
             s = "\U0000274C"
         e = discord.PartialEmoji(name=s)
