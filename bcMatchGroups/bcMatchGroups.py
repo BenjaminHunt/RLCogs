@@ -1064,19 +1064,19 @@ class BCMatchGroups(commands.Cog):
         on_click = bc_status_msg.create_click_listener(timeout=20)
 
     
-        async def remove_buttons(inter):
-            await inter.message.edit(components=[])
+        async def remove_buttons(message):
+            await message.edit(components=[])
 
         @on_click.matching_id("create")
         async def on_test_button(inter):
-            remove_buttons(inter)
+            remove_buttons(inter.message)
             return None
             # await bc_status_msg.edit(embed=success_embed)
             # return True
 
         @on_click.matching_id("retry")
         async def on_test_button(inter):
-            remove_buttons(inter)
+            remove_buttons(inter.message)
             # await bc_status_msg.edit(embed=search_embed)
             # replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
 
@@ -1089,13 +1089,14 @@ class BCMatchGroups(commands.Cog):
         
         @on_click.matching_id("cancel")
         async def on_test_button(inter):
-            remove_buttons(inter)
+            remove_buttons(inter.message)
             # await bc_status_msg.edit(embed=reject_embed)
             return None
 
         @on_click.timeout
         async def on_timeout():
-            remove_buttons()
+            remove_buttons(bc_status_msg)
+            # await bc_status_msg.edit(components=[])
 
         ## HERE #############################################################################################
 
