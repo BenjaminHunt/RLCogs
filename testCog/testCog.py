@@ -43,7 +43,7 @@ class TestCog(commands.Cog):
             s = "x"
         else:
             s = "\U0000274C"
-        e = discord.PartialEmoji(id=s)
+        e = discord.PartialEmoji(name=s)
         await ctx.send(e)
 
     @commands.command()

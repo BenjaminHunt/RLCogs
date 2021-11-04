@@ -1049,7 +1049,7 @@ class BCMatchGroups(commands.Cog):
         ## HERE #############################################################################################
         ok_button = Button(style=ButtonStyle.green, label=":white_check_mark: Create Group", custom_id="create")
         retry_button = Button(style=ButtonStyle.blurple, label=":grey_exclamation: Search Again", custom_id="retry")
-        cancel_button = Button(style=ButtonStyle.red, emoji=":x:" label=":x: Cancel", custom_id="cancel")
+        cancel_button = Button(style=ButtonStyle.red, emoji=":x:", label=":x: Cancel", custom_id="cancel")
 
         row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) if with_retry else ActionRow(ok_button, cancel_button)
 
