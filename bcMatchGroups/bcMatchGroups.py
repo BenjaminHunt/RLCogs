@@ -1069,7 +1069,7 @@ class BCMatchGroups(commands.Cog):
 
         @on_click.matching_id("create")
         async def on_test_button(inter):
-            remove_buttons(inter)
+            await inter.message.edit(components=[])
             return None
             # await bc_status_msg.edit(embed=success_embed)
             # return True
