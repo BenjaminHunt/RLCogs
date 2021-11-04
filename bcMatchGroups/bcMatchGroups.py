@@ -1047,9 +1047,13 @@ class BCMatchGroups(commands.Cog):
     async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True):
 
         ## HERE #############################################################################################
-        ok_button = Button(style=ButtonStyle.green, emoji=discord.PartialEmoji(name=":white_check_mark:"), label="Create Group", custom_id="create")
-        retry_button = Button(style=ButtonStyle.blurple, emoji=discord.PartialEmoji(name=":grey_exclamation:"), label="Search Again", custom_id="retry")
-        cancel_button = Button(style=ButtonStyle.red, emoji=discord.PartialEmoji(name=":x:"), label="Cancel", custom_id="cancel")
+        # ok_button = Button(style=ButtonStyle.green, emoji=discord.PartialEmoji(name=":white_check_mark:"), label="Create Group", custom_id="create")
+        # retry_button = Button(style=ButtonStyle.blurple, emoji=discord.PartialEmoji(name=":grey_exclamation:"), label="Search Again", custom_id="retry")
+        # cancel_button = Button(style=ButtonStyle.red, emoji=discord.PartialEmoji(name=":x:"), label="Cancel", custom_id="cancel")
+
+        ok_button = Button(style=ButtonStyle.green, label="Create Group", custom_id="create")
+        retry_button = Button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
+        cancel_button = Button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
 
         row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) if with_retry else ActionRow(ok_button, cancel_button)
 
