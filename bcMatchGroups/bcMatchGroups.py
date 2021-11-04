@@ -1068,6 +1068,7 @@ class BCMatchGroups(commands.Cog):
             return inter.message.id == bc_status_msg.id
 
         inter = await ctx.wait_for_button_click(check)
+        await inter.message.edit(components=[])
         # Send what you received
         button_text = inter.clicked_button.label
         await inter.reply(f"Button: {button_text}")
