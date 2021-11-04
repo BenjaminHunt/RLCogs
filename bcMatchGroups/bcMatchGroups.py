@@ -2,6 +2,7 @@ import abc
 
 from .bc_config import bcConfig
 
+from dislash import InteractionClient, ActionRow, Button, ButtonStyle
 from datetime import date, datetime, timedelta, timezone
 import tempfile
 import discord
@@ -962,6 +963,7 @@ class BCMatchGroups(commands.Cog):
             search_count = 30
         else:
             search_count = 20
+
         replays_found = await self._find_match_replays(ctx, auth_token, member, match, search_count=search_count)
 
         # Not found:
@@ -992,8 +994,23 @@ class BCMatchGroups(commands.Cog):
         reject_embed.description = "Match summary:\n{}".format(summary)
         reject_embed.description += "\n\n:x: Ballchasing upload has been cancelled."
 
-        if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
-            return False
+        # if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
+        #     return False
+
+        ## HERE #############################################################################################
+
+        maybe_new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, embed, prompt_embed, success_embed, reject_embed, auth_token, member, match)
+
+        if maybe_new_replays:
+            if type(maybe_new_replays) == bool:
+                pass
+            else:
+                replay_ids, summary, winner = maybe_new_replays
+        else:
+            return None
+
+
+        #####################################################################################################
 
         # TODO: Add find_replay_date and convert_time_zone
         # if match_type == "Scrim":
@@ -1026,6 +1043,49 @@ class BCMatchGroups(commands.Cog):
                 await self._update_match_day(guild, force_set=True)
                 update_time = self._schedule_next_update()
             await asyncio.sleep(update_time)
+
+    async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True):
+
+        ## HERE #############################################################################################
+        ok_button = Button(style=ButtonStyle.green, label=":white_check_mark: Create Group", custom_id="create")
+        retry_button = Button(style=ButtonStyle.blue, label=":grey_exclamation: Search Again", custom_id="retry")
+        cancel_button = Button(style=ButtonStyle.red, label=":x: Cancel", custom_id="cancel")
+
+        row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) if with_retry else ActionRow(ok_button, cancel_button)
+
+        # Send a message with buttons
+        msg = await bc_status_msg.edit(compoonents=[row_of_buttons])
+
+        on_click = msg.create_click_listener(timeout=20)
+
+        @on_click.matching_id("create")
+        async def on_test_button(inter):
+            await msg.edit(embed=success_embed)
+            return True
+
+        @on_click.matching_id("retry")
+        async def on_test_button(inter):
+            await msg.edit(embed=search_embed)
+            replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
+
+            summary = replays_found[1]
+            prompt_embed.description = "Match summary:\n{}".format(summary)
+
+            await msg.edit(embed=prompt_embed)
+            if await self.prompt_with_buttons(ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, None, None, None, False):
+                return replays_found
+        
+        @on_click.matching_id("cancel")
+        async def on_test_button(inter):
+            await msg.edit(embed=reject_embed)
+            return None
+
+        @on_click.timeout
+        async def on_timeout():
+            await msg.edit(content=msg.content.replace("has", "had"), components=[])
+
+        ## HERE #############################################################################################
+
 
     def _schedule_next_update(self):
         # wait_time = 3600  # one hour
