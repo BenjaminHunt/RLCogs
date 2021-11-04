@@ -1063,23 +1063,32 @@ class BCMatchGroups(commands.Cog):
 
         on_click = bc_status_msg.create_click_listener(timeout=20)
 
-        @on_click.matching_id("create")
-        async def on_test_button(inter):
-            await inter.message.edit(embed=success_embed, components=[])
-            return True
+        # Wait for someone to click on them
+        def check(inter):
+            return inter.message.id == bc_status_msg.id
+            
+        inter = await ctx.wait_for_button_click(check)
+        # Send what you received
+        button_text = inter.clicked_button.label
+        await inter.reply(f"Button: {button_text}")
 
-        @on_click.matching_id("retry")
-        async def on_test_button(inter):
-            await bc_status_msg.edit(embed=search_embed, components=[])
-            # replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
+        # @on_click.matching_id("create")
+        # async def on_test_button(inter):
+        #     await inter.message.edit(embed=success_embed, components=[])
+        #     return True
 
-            # summary = replays_found[1]
-            # prompt_embed.description = "Match summary:\n{}".format(summary)
+        # @on_click.matching_id("retry")
+        # async def on_test_button(inter):
+        #     await bc_status_msg.edit(embed=search_embed, components=[])
+        #     # replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
 
-            # await bc_status_msg.edit(embed=prompt_embed)
-            # if await self.prompt_with_buttons(ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, None, None, None, False):
-            #     return replays_found
-            return None
+        #     # summary = replays_found[1]
+        #     # prompt_embed.description = "Match summary:\n{}".format(summary)
+
+        #     # await bc_status_msg.edit(embed=prompt_embed)
+        #     # if await self.prompt_with_buttons(ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, None, None, None, False):
+        #     #     return replays_found
+        #     return None
         
         @on_click.matching_id("cancel")
         async def on_test_button(inter):
