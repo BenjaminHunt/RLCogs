@@ -1054,7 +1054,7 @@ class BCMatchGroups(commands.Cog):
         row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) if with_retry else ActionRow(ok_button, cancel_button)
 
         # Send a message with buttons
-        msg = await bc_status_msg.edit(compoonents=[row_of_buttons])
+        msg = await bc_status_msg.edit(components=[row_of_buttons])
         # msg = await bc_status_msg.channel.send(embed=prompt_embed, components=[row_of_buttons])
 
         on_click = msg.create_click_listener(timeout=20)
