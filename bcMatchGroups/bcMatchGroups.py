@@ -1066,7 +1066,7 @@ class BCMatchGroups(commands.Cog):
         # Wait for someone to click on them
         def check(inter):
             return inter.message.id == bc_status_msg.id
-            
+
         inter = await ctx.wait_for_button_click(check)
         # Send what you received
         button_text = inter.clicked_button.label
@@ -1090,10 +1090,10 @@ class BCMatchGroups(commands.Cog):
         #     #     return replays_found
         #     return None
         
-        @on_click.matching_id("cancel")
-        async def on_test_button(inter):
-            await inter.message.edit(embed=reject_embed, components=[])
-            return None
+        # @on_click.matching_id("cancel")
+        # async def on_test_button(inter):
+        #     await inter.message.edit(embed=reject_embed, components=[])
+        #     return None
 
         @on_click.timeout
         async def on_timeout():
