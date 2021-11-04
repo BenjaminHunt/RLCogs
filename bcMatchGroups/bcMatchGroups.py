@@ -308,7 +308,7 @@ class BCMatchGroups(commands.Cog):
 # Score Reporting
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
     @commands.guild_only()
-    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day:int=None):
+    async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day: int = None):
         """Finds match games from recent public uploads for a specified franchise team, and adds them to the correct Ballchasing subgroup
         """
         team_role = await self._match_team_role(ctx.guild, team_name=franchise_team)
@@ -376,7 +376,7 @@ class BCMatchGroups(commands.Cog):
         matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
 
         await ctx.send(match_subgroup_id)
-        return 
+        return
 
         if not match_subgroup_id:
             return await ctx.send("Oops! Something went wrong...")
@@ -620,7 +620,8 @@ class BCMatchGroups(commands.Cog):
 
         # url = urllib.parse.quote_plus(url)
         loop = asyncio.get_event_loop()
-        future = loop.run_in_executor(None, lambda: requests.delete(url, headers={'Authorization': auth_token}))
+        future = loop.run_in_executor(None, lambda: requests.delete(
+            url, headers={'Authorization': auth_token}))
         response = await future
         return response
 
@@ -882,12 +883,18 @@ class BCMatchGroups(commands.Cog):
             match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
-        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
-        
+        opposing_team = opposing_team.title() if opposing_team.upper(
+        ) != opposing_team else opposing_team
+
         if match_type == bcConfig.REGULAR_SEASON_MT:
-            series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
+            series_title = "Match Day {}: {} vs {}".format(
+                match_day, team_name, opposing_team)
         elif match_type == bcConfig.SCRIM_MT:
-            series_title = "{} Scrim vs {}".format(datetime.now().strftime("%m/%d"), opposing_team)
+            series_title = "{} Scrim vs {}".format(
+                datetime.now().strftime("%m/%d"), opposing_team)
+        elif match_type == bcConfig.POSTSEASON_MT:
+            series_title = "Playoff Match Day {}: {} vs {}".format(
+                match_day, team_name, opposing_team)
 
         embed = discord.Embed(
             title=series_title,
@@ -914,7 +921,7 @@ class BCMatchGroups(commands.Cog):
             match_date = all_matches[match_day - diff]
         else:
             match_date = None
-        
+
         if match_type == bcConfig.SCRIM_MT:
             match_date = today
 
@@ -985,7 +992,7 @@ class BCMatchGroups(commands.Cog):
         # TODO: Add find_replay_date and convert_time_zone
         # if match_type == "Scrim":
         #     matchDate = self.find_replay_date(time_zone="America/New_York")
-        
+
         # Find or create ballchasing subgroup
         match_subgroup_id = await self._get_replay_destination(ctx, match, match_type)
         if not match_subgroup_id:
@@ -1313,7 +1320,7 @@ class BCMatchGroups(commands.Cog):
 
         if not sort_by:
             sort_by = bcConfig.sort_by
-            
+
         params = [
             # 'uploader={}'.format(uploader),
             'playlist=private',
@@ -1843,8 +1850,8 @@ class BCMatchGroups(commands.Cog):
         all_matches = await self._get_match_dates(guild)
 
         # if not all_matches:
-        #     return None 
-        
+        #     return None
+
         now = datetime.now()
         diff = 1
         today = "{dt.month}/{dt.day}/{dt.year}".format(dt=now)
@@ -1853,7 +1860,7 @@ class BCMatchGroups(commands.Cog):
 
         if today in all_matches and len(all_matches) >= match_day:
             match_date = all_matches[match_day - diff]
-        
+
         return match_date
 
 # json dict
