@@ -1073,6 +1073,15 @@ class BCMatchGroups(commands.Cog):
         button_text = inter.clicked_button.label
         await inter.reply(f"Button: {button_text}")
 
+        if inter.clicked_button.custom_id == "create":
+            await ctx.send(inter.clicked_button.custom_id)
+        elif inter.clicked_button.custom_id == "retry":
+            await ctx.send(inter.clicked_button.custom_id)
+        elif inter.clicked_button.custom_id == "cancel":
+            await ctx.send(inter.clicked_button.custom_id)
+        else:
+            pass
+
         # @on_click.matching_id("create")
         # async def on_test_button(inter):
         #     await inter.message.edit(embed=success_embed, components=[])
