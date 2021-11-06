@@ -1104,7 +1104,10 @@ class BCMatchGroups(commands.Cog):
             return None
 
         elif inter.clicked_button.custom_id == "cancel":
-            await inter.message.edit(embed=reject_embed, components=[])
+            if none_found:
+                await inter.message.edit(embed=reject_embed, components=[])
+            else:
+                await inter.message.edit(components=[])
             return None
         else:
             await inter.message.edit(components=[])
