@@ -995,7 +995,7 @@ class BCMatchGroups(commands.Cog):
         reject_embed.description = "Match summary:\n{}".format(summary)
         reject_embed.description += "\n\n:x: Ballchasing upload has been cancelled."
 
-        USE_BUTTONS = True
+        USE_BUTTONS = False
         ## HERE #############################################################################################
 
         if USE_BUTTONS:
@@ -1113,7 +1113,6 @@ class BCMatchGroups(commands.Cog):
             await inter.message.edit(components=[])
 
         ## HERE #############################################################################################
-
 
     def _schedule_next_update(self):
         # wait_time = 3600  # one hour
