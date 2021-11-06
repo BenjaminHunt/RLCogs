@@ -1066,15 +1066,13 @@ class BCMatchGroups(commands.Cog):
         retry_button = Button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
         cancel_button = Button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
 
-        # row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) if with_retry else ActionRow(ok_button, cancel_button)
+        row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) # if with_retry else ActionRow(ok_button, cancel_button)
 
-        row_of_buttons = ActionRow()
-
-        if prompt_embed:
-            row_of_buttons.add_button(style=ButtonStyle.green, label="Create Group", custom_id="create")
-        if with_retry:
-            row_of_buttons.add_button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
-        row_of_buttons.add_button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
+        if not prompt_embed:
+            row_of_buttons.disable_buttons(0)
+        if not with_retry:
+            row_of_buttons.disable_buttons(1)
+        # row_of_buttons.add_button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
 
         # Send a message with buttons
         await bc_status_msg.edit(embed=prompt_embed, components=[row_of_buttons])
