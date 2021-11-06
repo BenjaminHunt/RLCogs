@@ -1492,7 +1492,7 @@ class BCMatchGroups(commands.Cog):
                     if len(replay_ids) > len(return_replay_ids):
                         return_replay_ids = replay_ids.copy()
                     
-                    if not deep_search:
+                    if return_replay_ids and not deep_search:
                         return return_replay_ids, series_summary, winner
         
         if return_replay_ids:
