@@ -1075,8 +1075,11 @@ class BCMatchGroups(commands.Cog):
         # row_of_buttons.add_button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
 
         # Send a message with buttons
-        await bc_status_msg.edit(embed=prompt_embed, components=[row_of_buttons])
-
+        if prompt_embed:
+            await bc_status_msg.edit(embed=prompt_embed, components=[row_of_buttons])
+        else:
+            await bc_status_msg.edit(components=[row_of_buttons])
+            
         timeout = 20
         inter = await ctx.wait_for_button_click(check, timeout)
 
