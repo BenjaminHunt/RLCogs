@@ -1083,6 +1083,9 @@ class BCMatchGroups(commands.Cog):
 
             replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
 
+            if not replays_found:
+                return None
+
             summary = replays_found[1]
             prompt_embed.description = "Match summary:\n{}".format(summary)
 
