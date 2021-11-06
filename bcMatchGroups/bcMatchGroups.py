@@ -970,9 +970,10 @@ class BCMatchGroups(commands.Cog):
         if not replays_found:
             embed.description = ":x: No matching replays found on ballchasing."
             await bc_status_msg.edit(embed=embed)
-
-        # Found:
-        replay_ids, summary, winner = replays_found
+            replay_ids, summary, winner = None, None, None
+        else:
+            # Found:
+            replay_ids, summary, winner = replays_found
         await ctx.send("replays found: {}".format(replays_found))
 
         if winner:
