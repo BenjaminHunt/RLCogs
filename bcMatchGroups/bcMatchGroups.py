@@ -995,7 +995,7 @@ class BCMatchGroups(commands.Cog):
         reject_embed.description = "Match summary:\n{}".format(summary)
         reject_embed.description += "\n\n:x: Ballchasing upload has been cancelled."
 
-        USE_BUTTONS = False
+        USE_BUTTONS = True
         ## HERE #############################################################################################
 
         if USE_BUTTONS:
