@@ -974,6 +974,7 @@ class BCMatchGroups(commands.Cog):
 
         # Found:
         replay_ids, summary, winner = replays_found
+        await ctx.send("replays found: {}".format(replays_found))
 
         if winner:
             pass
