@@ -999,9 +999,8 @@ class BCMatchGroups(commands.Cog):
         ## HERE #############################################################################################
 
         if USE_BUTTONS:
-            if not replays_found:
-                prompt_embed = None
-            maybe_new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, embed, prompt_embed, success_embed, reject_embed, auth_token, member, match)
+            none_found = True if not replays_found else False
+            maybe_new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, none_found=none_found)
 
             if maybe_new_replays:
                 if type(maybe_new_replays) == bool:
@@ -1048,7 +1047,7 @@ class BCMatchGroups(commands.Cog):
                 update_time = self._schedule_next_update()
             await asyncio.sleep(update_time)
 
-    async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True):
+    async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True, none_found=False):
 
         ## HERE #############################################################################################
 
@@ -1061,25 +1060,25 @@ class BCMatchGroups(commands.Cog):
         # cancel_button = Button(style=ButtonStyle.red, emoji=discord.PartialEmoji(name=":x:"), label="Cancel", custom_id="cancel")
 
 
-
         ok_button = Button(style=ButtonStyle.green, label="Create Group", custom_id="create")
         retry_button = Button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
         cancel_button = Button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
 
-        row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) # if with_retry else ActionRow(ok_button, cancel_button)
+        # row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) # if with_retry else ActionRow(ok_button, cancel_button)
+        row_of_buttons = ActionRow()
 
-        if not prompt_embed:
-            row_of_buttons.disable_buttons(0)
+        if not none_found:
+            row_of_buttons.add_button(style=ButtonStyle.green, label="Create Group", custom_id="create")
         if not with_retry:
-            row_of_buttons.disable_buttons(1)
-        # row_of_buttons.add_button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
+            row_of_buttons.add_button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
+        row_of_buttons.add_button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
 
         # Send a message with buttons
         if prompt_embed:
             await bc_status_msg.edit(embed=prompt_embed, components=[row_of_buttons])
         else:
             await bc_status_msg.edit(components=[row_of_buttons])
-            
+
         timeout = 20
         inter = await ctx.wait_for_button_click(check, timeout)
 
