@@ -35,6 +35,15 @@ class TestCog(commands.Cog):
 
     # Reference: https://github.com/EQUENOS/dislash.py
 
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def resetAllNames(self, ctx):
+        for member in ctx.guild.members:
+            await member.edit(nick=None)
+        await ctx.send("Done")
+        
+        
     @commands.command()
     async def test(self, ctx, num:int):
         if num == 1:
