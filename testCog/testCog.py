@@ -39,8 +39,12 @@ class TestCog(commands.Cog):
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
     async def resetAllNames(self, ctx):
+        """Clears all member nicknames where bot has permissions"""
         for member in ctx.guild.members:
-            await member.edit(nick=None)
+            try:
+                await member.edit(nick=None)
+            except:
+                pass
         await ctx.send("Done")
         
         
