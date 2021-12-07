@@ -48,7 +48,7 @@ class TestCog(commands.Cog):
                     update_count += 1
             except:
                 pass
-        await ctx.send("Cleared nicknames for **{}** members".format(update_count)
+        await ctx.send("Cleared nicknames for **{}** members".format(update_count))
         
         
     @commands.command()
