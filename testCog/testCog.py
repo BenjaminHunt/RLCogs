@@ -184,12 +184,28 @@ class TestCog(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def kickall(self, ctx, *users):
         kicked = []
+        failed = []
 
         for user in users:
             try:
-                await user.kick(reason="kickall command")
+                member = await commands.MemberConverter().convert(ctx, user)
+                if member in ctx.guild.members:
+                    await member.kick(reason="kickall command")
+                    kicked.append(member)
             except:
-                pass
+                failed.append(user)
+
+        response = ""
+        if kicked:
+            response = f":white_check_mark: {len(kicked)} members have been kicked."
+        if failed:
+            response += f"\n:x: {len(failed)} members could not be kicked: {', '.join(failed)}"
+        if not response:
+            response = ":x: No users have been given to be kicked."
+        else:
+            response += "\n\nDone."
+
+        await ctx.send(response)
     
     async def pre_load_data(self):
         """Loop task to preload guild data"""
