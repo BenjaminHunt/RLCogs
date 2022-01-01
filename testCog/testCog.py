@@ -157,6 +157,40 @@ class TestCog(commands.Cog):
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
 
+    # Ban/Unban
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def ban(self, ctx, user: discord.User, *, reason=None):
+        await ctx.guild.ban(user, reason=reason, delete_message_days=0)
+        await ctx.send("Done.")
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def unban(self, ctx, user: discord.User, *, reason=None):
+        await ctx.guild.unban(user, reason=reason)
+        await ctx.send("Done.")
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def kick(self, ctx, user: discord.User, *, reason=None):
+        await user.kick(reason=reason)
+        await ctx.send("Done.")
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def kickall(self, ctx, *users):
+        kicked = []
+
+        for user in users:
+            try:
+                await user.kick(reason="kickall command")
+            except:
+                pass
+    
     async def pre_load_data(self):
         """Loop task to preload guild data"""
         await self.bot.wait_until_ready()
