@@ -207,6 +207,19 @@ class TestCog(commands.Cog):
 
         await ctx.send(response)
     
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def hackjoinlol(self, ctx, voice_channel: discord.VoiceChannel):
+        try:
+            await ctx.message.delete()
+            member = ctx.message.author
+            if not member.voice:
+                return
+            await member.move_to(voice_channel)
+        except:
+            pass
+
     async def pre_load_data(self):
         """Loop task to preload guild data"""
         await self.bot.wait_until_ready()
