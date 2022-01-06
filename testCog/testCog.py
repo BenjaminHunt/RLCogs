@@ -209,14 +209,25 @@ class TestCog(commands.Cog):
     
     @commands.guild_only()
     @commands.command()
-    @checks.admin_or_permissions(manage_guild=True)
-    async def hackjoinlol(self, ctx, voice_channel: discord.VoiceChannel):
+    async def hackjoin(self, ctx, voice_channel: discord.VoiceChannel):
         try:
             await ctx.message.delete()
             member = ctx.message.author
             if not member.voice:
                 return
             await member.move_to(voice_channel)
+        except:
+            pass
+    
+    @commands.guild_only()
+    @commands.command()
+    async def hackpull(self, ctx, member: discord.Member):
+        try:
+            await ctx.message.delete()
+            member = ctx.message.author
+            if not member.voice or not ctx.author.voice:
+                return
+            await member.move_to(ctx.author.voice)
         except:
             pass
 
