@@ -214,6 +214,7 @@ class TestCog(commands.Cog):
             await ctx.message.delete()
         except:
             pass 
+        member = ctx.message.author
 
         if not (type(member_or_voice) == discord.VoiceChannel or type(member_or_voice) == discord.Member):
             return
@@ -226,7 +227,6 @@ class TestCog(commands.Cog):
             voice_channel = member_or_voice
 
         try:
-            member = ctx.message.author
             if not member.voice:
                 return
             await member.move_to(voice_channel)
