@@ -209,9 +209,23 @@ class TestCog(commands.Cog):
     
     @commands.guild_only()
     @commands.command()
-    async def hackjoin(self, ctx, voice_channel: discord.VoiceChannel):
+    async def hackjoin(self, ctx, member_or_voice):
         try:
             await ctx.message.delete()
+        except:
+            pass 
+
+        if not (type(member_or_voice) == discord.VoiceChannel or type(member_or_voice) == discord.Member):
+            return
+
+        if type(member_or_voice) == discord.Member:
+            if not member_or_voice.voice:
+                return
+            voice_channel = member_or_voice.voice
+        else:
+            voice_channel = member_or_voice
+
+        try:
             member = ctx.message.author
             if not member.voice:
                 return
@@ -221,13 +235,12 @@ class TestCog(commands.Cog):
     
     @commands.guild_only()
     @commands.command()
-    async def hackpull(self, ctx, member: discord.Member):
+    async def hackpull(self, ctx, pull_member: discord.Member):
         try:
             await ctx.message.delete()
-            member = ctx.message.author
-            if not member.voice or not ctx.author.voice:
+            if not pull_member.voice or not ctx.author.voice:
                 return
-            await member.move_to(ctx.author.voice)
+            await pull_member.move_to(ctx.author.voice)
         except:
             pass
 
