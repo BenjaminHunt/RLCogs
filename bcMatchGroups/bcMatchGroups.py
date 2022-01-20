@@ -1661,6 +1661,7 @@ class BCMatchGroups(commands.Cog):
         if role.name[-1] == ')' and ' (' in role.name:
             opi = role.name.index('(')+1
             cpi = role.name.index(')')
+            return role.name[opi:cpi]
         return None
 
     def is_match_replay(self, match, replay_data):
