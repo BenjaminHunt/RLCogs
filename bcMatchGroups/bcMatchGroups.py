@@ -1657,7 +1657,7 @@ class BCMatchGroups(commands.Cog):
 
     def _get_team_tier(self, role):
         if role.name[-1] == ')' and ' (' in role.name:
-            opi = role.name.index('(')+1
+            opi = role.name.index('(')+2
             cpi = role.name.index(')')
             return role.name[opi:cpi]
         return None
