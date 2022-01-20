@@ -316,9 +316,10 @@ class BCMatchGroups(commands.Cog):
         team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
         og_team_name = self._get_team_name(team_role)
         tier = self._get_team_tier(team_role)
+        await ctx.send(f"The **{og_team_name}** ({tier}) will be renamed as the **{temporary_team_name}** for {temp_team_name_timeout} seconds.")
         await self._set_team_role_name(team_role, temporary_team_name)
         await self._schedule_team_name_reset(ctx.guild, team_role)
-        await ctx.send(f"The **{og_team_name}** ({tier}) will be renamed as the **{temporary_team_name}** for {temp_team_name_timeout} seconds.")
+        
 
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
     @commands.guild_only()
