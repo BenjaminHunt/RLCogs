@@ -1636,7 +1636,7 @@ class BCMatchGroups(commands.Cog):
         tier = self._get_team_tier(team_role)
         channel = team_role.guild.get_channel(741758967260250213)
         await channel.send(tier)
-        new_role_name = team_name if tier else f"{team_name} ({tier})"
+        new_role_name = f"{team_name} ({tier})" if tier else team_name
         await team_role.edit(name=new_role_name)
 
     async def _get_team_role(self, guild, team_name_or_player):
