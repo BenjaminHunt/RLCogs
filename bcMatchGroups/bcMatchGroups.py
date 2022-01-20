@@ -321,7 +321,6 @@ class BCMatchGroups(commands.Cog):
         await self._set_team_role_name(team_role, temporary_team_name)
         asyncio.create_task(self._process_team_name_reset(ctx.guild, team_role))
         
-
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
     @commands.guild_only()
     async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day: int=None, match_type:str=bcConfig.REGULAR_SEASON_MT):
@@ -372,6 +371,7 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_type=bcConfig.SCRIM_MT)
 
+    # Broke
     @commands.command(aliases=['bcrg', 'removeGroup', 'deleteGroup', 'delgroup'])
     @commands.guild_only()
     async def bcRemoveGroup(self, ctx, opposing_team, match_day=None, match_type=bcConfig.REGULAR_SEASON_MT):
@@ -1635,7 +1635,7 @@ class BCMatchGroups(commands.Cog):
     async def _set_team_role_name(self, team_role: discord.Role, team_name: str):
         tier = self._get_team_tier(team_role)
         channel = team_role.guild.get_channel(741758967260250213)
-        await channel.send(tier)
+        await channel.send(f"{team_name} - {tier}")
         new_role_name = f"{team_name} ({tier})" if tier else team_name
         await team_role.edit(name=new_role_name)
 
