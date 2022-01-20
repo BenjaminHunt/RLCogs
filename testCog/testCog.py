@@ -39,10 +39,18 @@ class TestCog(commands.Cog):
     @commands.command()
     @checks.admin_or_permissions(manage_guild=True)
     async def resetAllNames(self, ctx):
+        """Clears all member nicknames where bot has permissions"""
+        update_count = 0
         for member in ctx.guild.members:
-            await member.edit(nick=None)
-        await ctx.send("Done")
-
+            try:
+                if member.nick:
+                    await member.edit(nick=None)
+                    update_count += 1
+            except:
+                pass
+        await ctx.send("Cleared nicknames for **{}** members".format(update_count))
+        
+        
     @commands.command()
     async def test(self, ctx, num:int):
         if num == 1:
@@ -148,6 +156,93 @@ class TestCog(commands.Cog):
         end_utc = start_utc + timedelta(days=1)
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], end, end_utc))
+
+    # Ban/Unban
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def ban(self, ctx, user: discord.User, *, reason=None):
+        await ctx.guild.ban(user, reason=reason, delete_message_days=0)
+        await ctx.send("Done.")
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def unban(self, ctx, user: discord.User, *, reason=None):
+        await ctx.guild.unban(user, reason=reason)
+        await ctx.send("Done.")
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def kick(self, ctx, user: discord.User, *, reason=None):
+        await user.kick(reason=reason)
+        await ctx.send("Done.")
+    
+    @commands.guild_only()
+    @commands.command()
+    @checks.admin_or_permissions(manage_guild=True)
+    async def kickall(self, ctx, *users):
+        kicked = []
+        failed = []
+
+        for user in users:
+            try:
+                member = await commands.MemberConverter().convert(ctx, user)
+                if member in ctx.guild.members:
+                    await member.kick(reason="kickall command")
+                    kicked.append(member)
+            except:
+                failed.append(user)
+
+        response = ""
+        if kicked:
+            response = f":white_check_mark: {len(kicked)} members have been kicked."
+        if failed:
+            response += f"\n:x: {len(failed)} members could not be kicked: {', '.join(failed)}"
+        if not response:
+            response = ":x: No users have been given to be kicked."
+        else:
+            response += "\n\nDone."
+
+        await ctx.send(response)
+    
+    @commands.guild_only()
+    @commands.command()
+    async def hackjoin(self, ctx, member_or_voice):
+        try:
+            await ctx.message.delete()
+        except:
+            pass 
+        member = ctx.message.author
+
+        if not (type(member_or_voice) == discord.VoiceChannel or type(member_or_voice) == discord.Member):
+            return
+
+        if type(member_or_voice) == discord.Member:
+            if not member_or_voice.voice:
+                return
+            voice_channel = member_or_voice.voice
+        else:
+            voice_channel = member_or_voice
+
+        try:
+            if not member.voice:
+                return
+            await member.move_to(voice_channel)
+        except:
+            pass
+    
+    @commands.guild_only()
+    @commands.command()
+    async def hackpull(self, ctx, pull_member: discord.Member):
+        try:
+            await ctx.message.delete()
+            if not pull_member.voice or not ctx.author.voice:
+                return
+            await pull_member.move_to(ctx.author.voice)
+        except:
+            pass
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""

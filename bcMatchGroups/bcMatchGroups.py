@@ -970,10 +970,12 @@ class BCMatchGroups(commands.Cog):
         if not replays_found:
             embed.description = ":x: No matching replays found on ballchasing."
             await bc_status_msg.edit(embed=embed)
-            return False
-
-        # Found:
-        replay_ids, summary, winner = replays_found
+            return None
+            # replay_ids, summary, winner = None, None, None
+        else:
+            # Found:
+            replay_ids, summary, winner = replays_found
+        # await ctx.send("replays found: {}".format(replays_found))
 
         if winner:
             pass
@@ -994,23 +996,25 @@ class BCMatchGroups(commands.Cog):
         reject_embed.description = "Match summary:\n{}".format(summary)
         reject_embed.description += "\n\n:x: Ballchasing upload has been cancelled."
 
-        # if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
-        #     return False
-
+        USE_BUTTONS = False
         ## HERE #############################################################################################
 
-        maybe_new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, embed, prompt_embed, success_embed, reject_embed, auth_token, member, match)
+        if USE_BUTTONS:
+            none_found = True if not replays_found else False
+            maybe_new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, none_found=none_found)
 
-        if maybe_new_replays:
-            if type(maybe_new_replays) == bool:
-                pass
+            if maybe_new_replays:
+                if type(maybe_new_replays) == bool:
+                    pass
+                else:
+                    replay_ids, summary, winner = maybe_new_replays
             else:
-                replay_ids, summary, winner = maybe_new_replays
-        else:
-            return None
-
+                return False
 
         #####################################################################################################
+        else:
+            if not await self._embed_react_prompt(ctx, prompt_embed, existing_message=bc_status_msg, success_embed=success_embed, reject_embed=reject_embed):
+                return False
 
         # TODO: Add find_replay_date and convert_time_zone
         # if match_type == "Scrim":
@@ -1044,64 +1048,72 @@ class BCMatchGroups(commands.Cog):
                 update_time = self._schedule_next_update()
             await asyncio.sleep(update_time)
 
-    async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True):
+    async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True, none_found=False):
 
         ## HERE #############################################################################################
-        # ok_button = Button(style=ButtonStyle.green, emoji=discord.PartialEmoji(name=":white_check_mark:"), label="Create Group", custom_id="create")
-        # retry_button = Button(style=ButtonStyle.blurple, emoji=discord.PartialEmoji(name=":grey_exclamation:"), label="Search Again", custom_id="retry")
-        # cancel_button = Button(style=ButtonStyle.red, emoji=discord.PartialEmoji(name=":x:"), label="Cancel", custom_id="cancel")
-
-        ok_button = Button(style=ButtonStyle.green, label="Create Group", custom_id="create")
-        retry_button = Button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
-        cancel_button = Button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
-
-        row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) if with_retry else ActionRow(ok_button, cancel_button)
-
-        # Send a message with buttons
-        await bc_status_msg.edit(embed=prompt_embed, components=[row_of_buttons])
-        # msg = await bc_status_msg.channel.send(embed=prompt_embed, components=[row_of_buttons])
-
-        on_click = bc_status_msg.create_click_listener(timeout=20)
 
         # Wait for someone to click on them
         def check(inter):
             return inter.message.id == bc_status_msg.id
 
-        inter = await ctx.wait_for_button_click(check)
-        await inter.message.edit(components=[])
+        # ok_button = Button(style=ButtonStyle.green, emoji=discord.PartialEmoji(name=":white_check_mark:"), label="Create Group", custom_id="create")
+        # retry_button = Button(style=ButtonStyle.blurple, emoji=discord.PartialEmoji(name=":grey_exclamation:"), label="Search Again", custom_id="retry")
+        # cancel_button = Button(style=ButtonStyle.red, emoji=discord.PartialEmoji(name=":x:"), label="Cancel", custom_id="cancel")
+
+
+        ok_button = Button(style=ButtonStyle.green, label="Create Group", custom_id="create")
+        retry_button = Button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
+        cancel_button = Button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
+
+        # row_of_buttons = ActionRow(ok_button, retry_button, cancel_button) # if with_retry else ActionRow(ok_button, cancel_button)
+        row_of_buttons = ActionRow()
+
+        if not none_found:
+            row_of_buttons.add_button(style=ButtonStyle.green, label="Create Group", custom_id="create")
+        if not with_retry:
+            row_of_buttons.add_button(style=ButtonStyle.blurple, label="Search Again", custom_id="retry")
+        row_of_buttons.add_button(style=ButtonStyle.red, label="Cancel", custom_id="cancel")
+
+        # Send a message with buttons
+        await bc_status_msg.edit(embed=prompt_embed, components=[row_of_buttons])
+
+        timeout = 20
+        inter = await ctx.wait_for_button_click(check, timeout)
+
         # Send what you received
         button_text = inter.clicked_button.label
         await inter.reply(f"Button: {button_text}")
 
-        # @on_click.matching_id("create")
-        # async def on_test_button(inter):
-        #     await inter.message.edit(embed=success_embed, components=[])
-        #     return True
+        if inter.clicked_button.custom_id == "create":
+            await inter.message.edit(embed=success_embed, components=[])
+            return True
+        elif inter.clicked_button.custom_id == "retry":
+            await bc_status_msg.edit(embed=search_embed, components=[])
 
-        # @on_click.matching_id("retry")
-        # async def on_test_button(inter):
-        #     await bc_status_msg.edit(embed=search_embed, components=[])
-        #     # replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
+            replays_found = await self._find_match_replays(ctx, auth_token, member, match, deep_search=True)
 
-        #     # summary = replays_found[1]
-        #     # prompt_embed.description = "Match summary:\n{}".format(summary)
+            if not replays_found:
+                return None
 
-        #     # await bc_status_msg.edit(embed=prompt_embed)
-        #     # if await self.prompt_with_buttons(ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, None, None, None, False):
-        #     #     return replays_found
-        #     return None
-        
-        # @on_click.matching_id("cancel")
-        # async def on_test_button(inter):
-        #     await inter.message.edit(embed=reject_embed, components=[])
-        #     return None
+            summary = replays_found[1]
+            prompt_embed.description = "Match summary:\n{}".format(summary)
 
-        @on_click.timeout
-        async def on_timeout():
-            await bc_status_msg.edit(components=[])
+            await bc_status_msg.edit(embed=prompt_embed)
+            new_replays = await self.prompt_with_buttons(ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, None, None, None, False)
+            if new_replays:
+                return new_replays
+            return None
+
+        elif inter.clicked_button.custom_id == "cancel":
+            if none_found:
+                await inter.message.edit(embed=reject_embed, components=[])
+            else:
+                await inter.message.edit(components=[])
+            return None
+        else:
+            await inter.message.edit(components=[])
 
         ## HERE #############################################################################################
-
 
     def _schedule_next_update(self):
         # wait_time = 3600  # one hour
@@ -1490,7 +1502,7 @@ class BCMatchGroups(commands.Cog):
                     if len(replay_ids) > len(return_replay_ids):
                         return_replay_ids = replay_ids.copy()
                     
-                    if not deep_search:
+                    if return_replay_ids and not deep_search:
                         return return_replay_ids, series_summary, winner
         
         if return_replay_ids:
