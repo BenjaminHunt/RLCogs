@@ -316,9 +316,10 @@ class BCMatchGroups(commands.Cog):
         team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
         og_team_name = self._get_team_name(team_role)
         tier = self._get_team_tier(team_role)
+        await self._save_temp_team_name_change(ctx.guild, team_role, temporary_team_name)
         await ctx.send(f"The **{og_team_name}** ({tier}) will be renamed as the **{temporary_team_name}** for {temp_team_name_timeout} seconds.")
         await self._set_team_role_name(team_role, temporary_team_name)
-        await self._schedule_team_name_reset(ctx.guild, team_role)
+        asyncio.create_task(self._process_team_name_reset(ctx.guild, team_role))
         
 
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
@@ -1061,10 +1062,6 @@ class BCMatchGroups(commands.Cog):
                 await self._update_match_day(guild, force_set=True)
                 update_time = self._schedule_next_update()
             await asyncio.sleep(update_time)
-    
-    async def _schedule_team_name_reset(self, guild, team_role):
-        """Creates task for reset team name"""
-        asyncio.create_task(self._process_team_name_reset(guild, team_role))
         
     async def _process_team_name_reset(self, guild, team_role):
         """Schedules task to reset team name"""
@@ -1072,6 +1069,7 @@ class BCMatchGroups(commands.Cog):
         await asyncio.sleep(temp_team_name_timeout)
         og_team_name = await self._get_original_team_name(guild, team_role)
         await self._set_team_role_name(team_role, og_team_name)
+        await self._save_temp_team_name_change(guild, team_role, None)
 
     async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True, none_found=False):
 
@@ -1631,7 +1629,7 @@ class BCMatchGroups(commands.Cog):
 
     def _get_team_name(self, role: discord.Role):
         if role.name[-1] == ')' and ' (' in role.name:
-            return ' '.join((role.name).split()[: -1])
+            return ' '.join((role.name).split()[:-1])
         return role.name
     
     async def _set_team_role_name(self, team_role: discord.Role, team_name: str):
