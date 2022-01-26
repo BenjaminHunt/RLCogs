@@ -225,44 +225,6 @@ class BCMatchGroups(commands.Cog):
         await ctx.send("Removed team roles for {} players.".format(removed))
 
 # Ballchasing Group Setup Commands
-    @commands.command(aliases=['setMyBCAuthKey', 'setMyUploadToken'])
-    async def setMyBCAuthToken(self, ctx, auth_token):
-        """Sets the Auth Key for Ballchasing API requests for the given user.
-        """
-        member = ctx.message.author
-        try:
-            try:
-                await ctx.message.delete()
-            except:
-                pass
-            r = await self._bc_get_request(auth_token, '')
-
-            if r.status_code == 200:
-                await self._save_member_bc_token(member, auth_token)
-                await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been set.".format(member.name))
-
-                # steam_id = r.json()['steam_id']
-                # TODO: automatically register account
-            else:
-                await ctx.send(":x: The upload token you passed is invalid.")
-        except:
-            await ctx.send(":x: Error setting auth token.")
-
-    @commands.command(aliases=['clearMyBCAuthKey'])
-    async def clearMyBCAuthToken(self, ctx):
-        """Sets the Auth Key for Ballchasing API requests for the given user.
-        """
-        member = ctx.message.author
-        try:
-            try:
-                await ctx.message.delete()
-            except:
-                pass
-            await self._save_member_bc_token(member, None)
-            await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been removed.".format(member.name))
-        except:
-            await ctx.send(":x: Error clearing auth token.")
-
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role: discord.Role = None):
@@ -2045,23 +2007,7 @@ class BCMatchGroups(commands.Cog):
     async def _save_team_roles(self, guild, roles):
         await self.config.guild(guild).TeamRoles.set(roles)
 
+    # TODO: add transfer tokens command
+    
     async def _get_member_bc_token(self, member: discord.Member):
-        try:
-            return (await self.config.BCTokens())[str(member.id)]
-        except:
-            try:
-                return (await self.config.BCTokens())[member.id]
-            except:
-                return None
-
-    async def _save_member_bc_token(self, member: discord.Member, token):
-        tokens = await self.config.BCTokens()
-        if token:
-            tokens[str(member.id)] = token
-            await self.config.BCTokens.set(tokens)
-        else:
-            try:
-                del tokens[str(member.id)]
-                await self.config.BCTokens.set(tokens)
-            except:
-                pass
+        return await self.account_manager_cog._get_member_bc_token(member)
