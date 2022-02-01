@@ -71,9 +71,10 @@ class AccountManager(commands.Cog):
                             else:
                                 account_register[str(member.id)] = [account]
                             await self._save_account_register(account_register)
+                            msg += " and your steam account has been registered"
 
 
-                await ctx.send(msg)
+                await ctx.send(f"{msg}.")
             else:
                 await ctx.send(":x: The upload token you passed is invalid.")
         except:
