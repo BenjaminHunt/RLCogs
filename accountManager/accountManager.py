@@ -54,10 +54,26 @@ class AccountManager(commands.Cog):
 
             if r.status_code == 200:
                 await self._save_member_bc_token(member, auth_token)
-                await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been set.".format(member.name))
 
-                # steam_id = r.json()['steam_id']
-                # TODO: automatically register account
+                msg = f":white_check_mark: {member.name}, your Ballchasing Auth Token has been set"
+                
+                steam_id = r.json().get('steam_id', None)
+                
+                if steam_id:
+                    account_register = await self.get_account_register()
+        
+                    # Make sure not a repeat account
+                    account = ["steam", str(steam_id)]
+                    if account in account_register.get(str(member.id), []):
+                        if str(member.id) in account_register:
+                            if account not in account_register[str(member.id)]:
+                                    account_register[str(member.id)].append(account)
+                            else:
+                                account_register[str(member.id)] = [account]
+                            await self._save_account_register(account_register)
+
+
+                await ctx.send(msg)
             else:
                 await ctx.send(":x: The upload token you passed is invalid.")
         except:
@@ -164,7 +180,7 @@ class AccountManager(commands.Cog):
         account_register = await self.get_account_register()
         
         # Make sure not a repeat account
-        if str(member.id) in account_register and [platform, identifier] in account_register[str(member.id)]:
+        if ["steam", str(identifier)] in account_register.get(str(member.id), []):
             await ctx.send("{}, you have already registered this account.".format(member.mention))
             return False
 
