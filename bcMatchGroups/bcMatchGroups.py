@@ -380,9 +380,9 @@ class BCMatchGroups(commands.Cog):
             "type": match_type
         }
 
-        matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
+        # matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
 
-        await ctx.send(match_subgroup_id)
+        # await ctx.send(match_subgroup_id)
         return
 
         if not match_subgroup_id:
