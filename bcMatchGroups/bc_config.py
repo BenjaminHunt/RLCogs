@@ -7,8 +7,8 @@ from datetime import datetime
 class bcConfig:
 
     # General
-    DEBUG = True
-    
+    DEBUG = False
+
     # REQUEST CONFIG SETTINGS
     search_count = 50
     visibility = 'public'
