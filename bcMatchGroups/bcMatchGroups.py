@@ -1479,10 +1479,10 @@ class BCMatchGroups(commands.Cog):
 
                 r = await self._bc_get_request(auth_token, endpoint, params=params)
                 
-                if bcConfig.DEBUG:
+                if bcConfig.DEBUG and ctx.guild.id == 675121792741801994:
                     channel = ctx.guild.get_channel(741758967260250213)
                     await channel.send(params)
-                    
+
                 data = r.json()
                 params.remove(uploaded_by_param)
 
