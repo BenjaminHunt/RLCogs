@@ -19,10 +19,12 @@ from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
 defaults = {"Emoji": None, "MatchDates": [], "MatchDay": 1,
-            "TeamRoles": [], "ReplayGroups": {}, "Schedule": {}, "TimeZone": None}
-global_defaults = {"BCTokens": {}}
-verify_timeout = 30
+            "TeamRoles": [], "ReplayGroups": {}, "Schedule": {}, 
+            "TeamNameChanges": {}, "TimeZone": None}
 
+global_defaults = {"BCTokens": {}}
+verify_timeout = 30 # seconds
+temp_team_name_timeout = 60 # seconds
 
 class BCMatchGroups(commands.Cog):
     """Allows members of a franchise to create ballchasing groups"""
@@ -307,6 +309,18 @@ class BCMatchGroups(commands.Cog):
         await ctx.send(message)
 
 # Score Reporting
+    
+    @commands.command(aliases=['ttnc', 'tempTeamNameChange'])
+    @commands.guild_only()
+    async def temporaryTeamNameChange(self, ctx, *, temporary_team_name):
+        team_role = (await self._get_member_team_roles(ctx.guild, ctx.message.author))[0]
+        og_team_name = self._get_team_name(team_role)
+        tier = self._get_team_tier(team_role)
+        await self._save_temp_team_name_change(ctx.guild, team_role, og_team_name)
+        await ctx.send(f"The **{og_team_name}** ({tier}) will be renamed as the **{temporary_team_name}** for {temp_team_name_timeout} seconds.")
+        await self._set_team_role_name(team_role, temporary_team_name)
+        asyncio.create_task(self._process_team_name_reset(ctx.guild, team_role))
+        
     @commands.command(aliases=['fbcr', 'fbcreport', 'bcrfor'])
     @commands.guild_only()
     async def forcebcreport(self, ctx, franchise_team, opposing_team, match_day: int=None, match_type:str=bcConfig.REGULAR_SEASON_MT):
@@ -357,6 +371,7 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_type=bcConfig.SCRIM_MT)
 
+    # Broke
     @commands.command(aliases=['bcrg', 'removeGroup', 'deleteGroup', 'delgroup'])
     @commands.guild_only()
     async def bcRemoveGroup(self, ctx, opposing_team, match_day=None, match_type=bcConfig.REGULAR_SEASON_MT):
@@ -1047,6 +1062,14 @@ class BCMatchGroups(commands.Cog):
                 await self._update_match_day(guild, force_set=True)
                 update_time = self._schedule_next_update()
             await asyncio.sleep(update_time)
+        
+    async def _process_team_name_reset(self, guild, team_role):
+        """Schedules task to reset team name"""
+        await self.bot.wait_until_ready()
+        await asyncio.sleep(temp_team_name_timeout)
+        og_team_name = await self._get_original_team_name(guild, team_role)
+        await self._set_team_role_name(team_role, og_team_name)
+        await self._save_temp_team_name_change(guild, team_role, None)
 
     async def prompt_with_buttons(self, ctx, bc_status_msg, search_embed, prompt_embed, success_embed, reject_embed, auth_token, member, match, with_retry=True, none_found=False):
 
@@ -1606,8 +1629,13 @@ class BCMatchGroups(commands.Cog):
 
     def _get_team_name(self, role: discord.Role):
         if role.name[-1] == ')' and ' (' in role.name:
-            return ' '.join((role.name).split()[: -1])
+            return ' '.join((role.name).split()[:-1])
         return role.name
+    
+    async def _set_team_role_name(self, team_role: discord.Role, team_name: str):
+        tier = self._get_team_tier(team_role)
+        new_role_name = f"{team_name} ({tier})" if tier else team_name
+        await team_role.edit(name=new_role_name)
 
     async def _get_team_role(self, guild, team_name_or_player):
         team_roles = await self._get_team_roles(guild)
@@ -1629,8 +1657,9 @@ class BCMatchGroups(commands.Cog):
 
     def _get_team_tier(self, role):
         if role.name[-1] == ')' and ' (' in role.name:
-            opi = role.name.index('(')+1
+            opi = role.name.index(' (')+2
             cpi = role.name.index(')')
+            return role.name[opi:cpi]
         return None
 
     def is_match_replay(self, match, replay_data):
@@ -1986,6 +2015,19 @@ class BCMatchGroups(commands.Cog):
         team_roles.sort(key=lambda tr: tr.position, reverse=True)
         return team_roles
 
+    async def _save_temp_team_name_change(self, guild, team_role: discord.Role, temp_name: str):
+        temp_team_names = {}
+        if temp_name:
+            temp_team_names[str(team_role.id)] = temp_name
+        else:
+            if str(team_role.id) in temp_team_names:
+                del temp_team_names[str(team_role.id)]
+
+        await self.config.guild(guild).TeamNameChanges.set(temp_team_names)
+    
+    async def _get_original_team_name(self, guild, team_role: discord.Role):
+        return (await self.config.guild(guild).TeamNameChanges()).get(str(team_role.id), None)
+
     async def _save_season_group(self, guild, team_role, captain, group_code):
         groups = await self.config.guild(guild).ReplayGroups()
         groups[str(team_role.id)] = [captain.id, group_code]
@@ -1993,7 +2035,7 @@ class BCMatchGroups(commands.Cog):
 
     async def _get_top_level_group(self, guild, team_role):
         try:
-            return (await self.config.guild(guild).ReplayGroups())[str(team_role.id)]
+            return (await self.config.guild(guild).ReplayGroups()).get(str(team_role.id), None)
         except:
             return None
 
