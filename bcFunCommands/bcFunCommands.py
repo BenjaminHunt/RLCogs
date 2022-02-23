@@ -88,7 +88,7 @@ class BCFunCommands(commands.Cog):
 # endregion 
 
 # region helper functions
-    async def get_full_replay_json(self, token, replay_id):
+    def get_full_replay_json(self, token, replay_id):
         endpoint = f'/replays/{replay_id}'
         response = self._bc_get_request(token, endpoint)
         data = response.json()
