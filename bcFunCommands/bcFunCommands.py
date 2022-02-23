@@ -184,7 +184,7 @@ class BCFunCommands(commands.Cog):
 
         embed.add_field(name="Account", value=f"[{platform} | {name}]({player_page_link})", inline=False)
         embed.add_field(name="Camera Settings", value=cam_str, inline=False)
-        embed.add_field(name="Replay", value=f"[Click Here to view](https://ballchasing.com/replay/{replay_id})", inline=False)
+        embed.add_field(name="Source Replay", value=f"[Click Here to view](https://ballchasing.com/replay/{replay_id})", inline=False)
 
         # embed.description = cam_str
 
