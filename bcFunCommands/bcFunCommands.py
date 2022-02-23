@@ -24,7 +24,6 @@ class BCFunCommands(commands.Cog):
 
     @commands.command(aliases=['mycam', 'cs'])
     @commands.guild_only()
-    @checks.admin_or_permissions(manage_guild=True)
     async def settings(self, ctx, *, player:discord.Member=None):
         """Get the settings from your latest game"""
         if not player:
