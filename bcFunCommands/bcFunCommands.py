@@ -49,7 +49,7 @@ class BCFunCommands(commands.Cog):
 
 
 # region ballchasing
-    async def _bc_get_request(self, auth_token, endpoint, params=[]):
+    def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
@@ -61,7 +61,7 @@ class BCFunCommands(commands.Cog):
         
         return requests.get(url, headers={'Authorization': auth_token})
 
-    async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
+    def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
@@ -70,7 +70,7 @@ class BCFunCommands(commands.Cog):
         
         return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
 
-    async def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
+    def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
