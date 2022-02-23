@@ -35,7 +35,7 @@ class BCFunCommands(commands.Cog):
         
         if not accounts:
             return await ctx.send(f":x: {player.name} has not registered any accounts.")
-            
+
         json_replays = []
         for account in accounts:
             platform = account[0]
@@ -151,15 +151,18 @@ class BCFunCommands(commands.Cog):
         token = await self.account_manager_cog.get_bc_auth_token(member.guild)
         return token
 
+    def get_member_color(member: discord.Member):
+        for role in member.roles:
+            if role.color:
+                return role.color
+        return None
+
     def get_player_settings_embed(self, member, player_data):
-        if member.roles:
-            color = member.roles[0].color
-        else:
-            color = None
+        member_color = self.get_member_color(member)
 
         embed = discord.Embed(
             title=f"{member.name}'s latest settings: {player_data.get('name')}",
-            color=color
+            color=member_color
         )
         if member.avatar_url:
             embed.set_thumbnail(url=member.avatar_url)
