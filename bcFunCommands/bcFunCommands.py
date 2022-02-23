@@ -26,7 +26,7 @@ class BCFunCommands(commands.Cog):
     @commands.guild_only()
     async def settings(self, ctx, *, player:discord.Member=None):
         """Get the settings from your latest game"""
-        looking = await ctx.send(":eyes:")
+        looking = await ctx.send("Let's take a look...")
         if not player:
             player = ctx.author
         
@@ -46,7 +46,7 @@ class BCFunCommands(commands.Cog):
 
         json_replays.sort(key=lambda replay: replay["date"])
         full_replay_json = self.get_full_replay_json(token, json_replays[0]['id'])
-        target_account = await self.which_account_in_full_replay(full_replay_json, accounts, ctx)
+        target_account = self.which_account_in_full_replay(full_replay_json, accounts, ctx)
         player_data = self.get_player_data_from_replay(full_replay_json, target_account[0], target_account[1])
 
         embed = self.get_player_settings_embed(player, player_data)
@@ -104,12 +104,8 @@ class BCFunCommands(commands.Cog):
         if discord_id in account_register:
             return account_register.get(discord_id, [])
     
-    async def which_account_in_full_replay(self, replay_json, account_list=[], ctx=None):
+    def which_account_in_full_replay(self, replay_json, account_list=[]):
         for team in ['blue', 'orange']:
-            if ctx:
-                await ctx.send(f"replay json type: {type(replay_json)}")
-                await ctx.send(f"replay team type: {type(replay_json[team])}")
-                await ctx.send(f"replay player type: {type(replay_json[team].get('players', []))}")
             for player in replay_json[team].get('players', []):
                 account_info = [player['id']['platform'], player['id']['id']]
                 if account_info in account_list:
