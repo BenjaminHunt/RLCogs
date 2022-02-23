@@ -162,7 +162,7 @@ class BCFunCommands(commands.Cog):
         member_color = self.get_member_color(member)
 
         embed = discord.Embed(
-            title=f"{member.name}'s latest settings: {player_data.get('name')}",
+            title=f"{member.name}'s latest settings",
             color=member_color
         )
         if member.avatar_url:
