@@ -33,6 +33,9 @@ class BCFunCommands(commands.Cog):
         token = await self.get_auth_token(player)
         accounts = await self.get_member_accounts(player)
         
+        if not accounts:
+            return await ctx.send(f":x: {player.name} has not registered any accounts.")
+            
         json_replays = []
         for account in accounts:
             platform = account[0]
