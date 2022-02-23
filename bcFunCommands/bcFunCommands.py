@@ -151,7 +151,7 @@ class BCFunCommands(commands.Cog):
         token = await self.account_manager_cog.get_bc_auth_token(member.guild)
         return token
 
-    def get_member_color(member: discord.Member):
+    def get_member_color(self, member: discord.Member):
         for role in member.roles:
             if role.color:
                 return role.color
