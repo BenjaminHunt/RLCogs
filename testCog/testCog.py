@@ -208,6 +208,43 @@ class TestCog(commands.Cog):
 
         await ctx.send(response)
     
+    @commands.guild_only()
+    @commands.command()
+    async def hackjoin(self, ctx, member_or_voice):
+        try:
+            await ctx.message.delete()
+        except:
+            pass 
+        member = ctx.message.author
+
+        if not (type(member_or_voice) == discord.VoiceChannel or type(member_or_voice) == discord.Member):
+            return
+
+        if type(member_or_voice) == discord.Member:
+            if not member_or_voice.voice:
+                return
+            voice_channel = member_or_voice.voice
+        else:
+            voice_channel = member_or_voice
+
+        try:
+            if not member.voice:
+                return
+            await member.move_to(voice_channel)
+        except:
+            pass
+    
+    @commands.guild_only()
+    @commands.command()
+    async def hackpull(self, ctx, pull_member: discord.Member):
+        try:
+            await ctx.message.delete()
+            if not pull_member.voice or not ctx.author.voice:
+                return
+            await pull_member.move_to(ctx.author.voice)
+        except:
+            pass
+
     async def pre_load_data(self):
         """Loop task to preload guild data"""
         await self.bot.wait_until_ready()

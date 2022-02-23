@@ -6,6 +6,9 @@ from datetime import datetime
 
 class bcConfig:
 
+    # General
+    DEBUG = False
+
     # REQUEST CONFIG SETTINGS
     search_count = 50
     visibility = 'public'
