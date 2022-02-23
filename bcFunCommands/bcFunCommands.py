@@ -177,6 +177,7 @@ class BCFunCommands(commands.Cog):
         
         cam_str = "```\n{}\n```".format('\n'.join(cam_settings_list))
 
+        steer_sens = f"steering sensitivity: {player_data.get('steering_sensitivity')}"
         name = player_data.get('name')
         platform = player_data['id']['platform']
         plat_id = player_data['id']['id']
@@ -184,6 +185,7 @@ class BCFunCommands(commands.Cog):
 
         embed.add_field(name="Account", value=f"[{platform} | {name}]({player_page_link})", inline=False)
         embed.add_field(name="Camera Settings", value=cam_str, inline=False)
+        embed.add_field(name="Sensitivity Settings", value='```\n{}\n```'.format(steer_sens), inline=False)
         embed.add_field(name="Source Replay", value=f"[Click Here to view](https://ballchasing.com/replay/{replay_id})", inline=False)
 
         # embed.description = cam_str
