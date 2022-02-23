@@ -162,7 +162,7 @@ class BCFunCommands(commands.Cog):
         for k, v in cam_settings.items():
             cam_settings_list.append(f"{k}: {v}")
         
-        cam_str = f"```\n{'\n'.join(cam_settings_list)}\n```"
+        cam_str = "```\n{}\n```".format('\n'.join(cam_settings_list))
 
         embed.description = cam_str
 
