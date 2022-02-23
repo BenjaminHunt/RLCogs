@@ -36,8 +36,13 @@ class BCFunCommands(commands.Cog):
         for account in accounts:
             platform = account[0]
             plat_id = account[1]
-            json_replays.append(self.get_latest_replay(token, platform, plat_id))
+            replay = self.get_latest_replay(token, platform, plat_id)
+            if replay:
+                json_replays.append(replay)
         
+        if not json_replays:
+            return await ctx.send(":x: No recent replays found")
+            
         json_replays.sort(key=lambda replay: replay["date"])
         full_replay_json = self.get_full_replay_json(json_replays[0]['id'])
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
