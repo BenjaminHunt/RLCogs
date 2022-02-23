@@ -105,10 +105,14 @@ class BCFunCommands(commands.Cog):
     
     def which_account_in_full_replay(self, replay_json, account_list=[]):
         for team in ['blue', 'orange']:
+            print(f"replay json type: {type(replay_json)}")
+            print(f"replay team type: {type(replay_json[team])}")
+            print(f"replay player type: {type(replay_json[team].get('players', []))}")
             for player in replay_json[team].get('players', []):
                 account_info = [player['id']['platform'], player['id']['id']]
                 if account_info in account_list:
                     return account_info
+        return None
     
     def get_player_data_from_replay(self, replay_json, platform, platform_id):
         for team in ['blue', 'orange']:
