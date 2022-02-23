@@ -42,9 +42,9 @@ class BCFunCommands(commands.Cog):
         
         if not json_replays:
             return await ctx.send(":x: No recent replays found")
-            
+
         json_replays.sort(key=lambda replay: replay["date"])
-        full_replay_json = self.get_full_replay_json(json_replays[0]['id'])
+        full_replay_json = self.get_full_replay_json(token, json_replays[0]['id'])
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
         player_data = self.get_player_data_from_replay(full_replay_json, target_account[0], target_account[1])
 
