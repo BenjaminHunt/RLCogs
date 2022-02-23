@@ -31,7 +31,7 @@ class BCFunCommands(commands.Cog):
             player = ctx.author
         
         token = await self.get_auth_token(player)
-        accounts = self.get_member_accounts(player)
+        accounts = await self.get_member_accounts(player)
         
         json_replays = []
         for account in accounts:
