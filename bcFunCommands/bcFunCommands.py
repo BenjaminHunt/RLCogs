@@ -29,13 +29,15 @@ class BCFunCommands(commands.Cog):
         """Get the settings from your latest game"""
         if not player:
             player = ctx.author
+        
+        token = await self.get_auth_token(player)
         accounts = self.get_member_accounts(player)
         
         json_replays = []
         for account in accounts:
             platform = account[0]
             plat_id = account[1]
-            json_replays.append(self.get_latest_replay(platform, plat_id))
+            json_replays.append(self.get_latest_replay(token, platform, plat_id))
         
         json_replays.sort(key=lambda replay: replay["date"])
         full_replay_json = self.get_full_replay_json(json_replays[0]['id'])
@@ -48,10 +50,7 @@ class BCFunCommands(commands.Cog):
 
 
 # region ballchasing
-    async def _bc_get_request(self, guild, endpoint, params=[], auth_token=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
-        
+    async def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
@@ -63,10 +62,7 @@ class BCFunCommands(commands.Cog):
         
         return requests.get(url, headers={'Authorization': auth_token})
 
-    async def _bc_post_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None, files=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
-        
+    async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
@@ -75,10 +71,7 @@ class BCFunCommands(commands.Cog):
         
         return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
 
-    async def _bc_patch_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
-
+    async def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
@@ -90,8 +83,15 @@ class BCFunCommands(commands.Cog):
 # endregion 
 
 # region helper functions
-    async def get_full_replay_json(self, replay_id):
-        pass 
+    async def get_full_replay_json(self, token, replay_id):
+        endpoint = f'/replays/{replay_id}'
+        response = self._bc_get_request(token, endpoint)
+        data = response.json()
+
+        try:
+            return data
+        except:
+            return None
 
     async def get_member_accounts(self, member: discord.Member):
         discord_id = str(member.id)
@@ -118,12 +118,29 @@ class BCFunCommands(commands.Cog):
                     return player
         return {}
                 
-    def get_latest_replay(self, platform, plat_id):
-        pass 
+    def get_latest_replay(self, token, platform, plat_id):
+        endpoint = '/replays'
+        params = [
+            'sort-by=replay-date',
+            'sort-dir=desc',
+            'count=1',
+            f'player-id={platform}:{plat_id}'
+        ]
+        response = self._bc_get_request(token, endpoint, params)
+        data = response.json()
 
-    def get_auth_token(self, member):
+        try:
+            return data['list'][0]
+        except:
+            return None
+
+    async def get_auth_token(self, member: discord.Member):
         # return member token if exists else guild token
-        pass 
+        token = await self.account_manager_cog._get_member_bc_token(member)
+        if token:
+            return token 
+        token = await self.account_manager_cog.get_bc_auth_token(member.guild)
+        return token
 
     def get_player_settings_embed(self, member, player_data):
         if member.roles:
