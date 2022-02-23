@@ -167,7 +167,7 @@ class BCFunCommands(commands.Cog):
         
         
         cam_settings = player_data.get("camera")
-        cam_settings_list = ''
+        cam_settings_list = []
 
         for k, v in cam_settings.items():
             cam_settings_list.append(f"{k}: {v}")
