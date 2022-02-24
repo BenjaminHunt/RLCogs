@@ -167,7 +167,9 @@ class BCFunCommands(commands.Cog):
         return token
 
     def get_member_color(self, member: discord.Member):
-        for role in member.roles:
+        roles = member.roles
+        roles.sort(key=lambda r: r.position, reverse=True)
+        for role in roles:
             if role.color:
                 return role.color
         return None
