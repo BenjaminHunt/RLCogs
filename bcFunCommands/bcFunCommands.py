@@ -62,7 +62,7 @@ class BCFunCommands(commands.Cog):
     async def color(self, ctx):
         
         roles = ctx.author.roles
-        roles.sort(key=lambda r: r.position)
+        roles.sort(key=lambda r: r.position, reverse=True)
         role_pings = ', '.join([role.mention for role in roles])
         role_colors = ', '.join([str(role.color.value) for role in roles])
         embed = discord.Embed(
