@@ -60,10 +60,14 @@ class BCFunCommands(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def color(self, ctx):
+        
+        roles = ctx.author.roles
+        role_pings = ', '.join([role.mention for role in roles])
+        role_colors = ', '.join([role.color for role in roles])
         embed = discord.Embed(
             title = "color",
             color = self.get_member_color(ctx.author),
-            description="color"
+            description=role_pings + ' - ' + role_colors
         )
         await ctx.send(embed=embed)
 
