@@ -22,7 +22,7 @@ class BCFunCommands(commands.Cog):
         self.account_manager_cog = bot.get_cog("AccountManager")
         # TODO: self.token = await self._auth_token # load on_ready
 
-    @commands.command(aliases=['camera', 'mycam', 'cs'])
+    @commands.command(aliases=['cam', 'mycam', 'cs'])
     @commands.guild_only()
     async def settings(self, ctx, *, player:discord.Member=None):
         """Get the settings from your latest game"""
