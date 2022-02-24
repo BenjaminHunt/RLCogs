@@ -47,12 +47,8 @@ class BCFunCommands(commands.Cog):
         if not json_replays:
             return await ctx.send(":x: No recent replays found")
 
-        # json_replays.sort(key=lambda replay: replay["date"])
         json_replays = sorted(json_replays, key = lambda replay: replay['date'])
         json_replays.reverse()
-
-        for replay in json_replays:
-            await ctx.send(replay['date'])
 
         target_replay_id = json_replays[0]['id']
         full_replay_json = self.get_full_replay_json(token, target_replay_id)
