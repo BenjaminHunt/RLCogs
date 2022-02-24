@@ -62,7 +62,7 @@ class BCFunCommands(commands.Cog):
     async def color(self, ctx):
         embed = discord.Embed(
             title = "color",
-            color = self.get_member_color(ctx.member),
+            color = self.get_member_color(ctx.author),
             description="color"
         )
         await ctx.send(embed=embed)
