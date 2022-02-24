@@ -50,6 +50,9 @@ class BCFunCommands(commands.Cog):
         # json_replays.sort(key=lambda replay: replay["date"])
         sorted(json_replays, key = lambda replay: replay['date'])
 
+        for replay in json_replays:
+            await ctx.send(replay['date'])
+
         target_replay_id = json_replays[0]['id']
         full_replay_json = self.get_full_replay_json(token, target_replay_id)
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
