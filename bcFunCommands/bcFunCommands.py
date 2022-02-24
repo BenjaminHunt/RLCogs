@@ -48,7 +48,7 @@ class BCFunCommands(commands.Cog):
             return await ctx.send(":x: No recent replays found")
 
         # json_replays.sort(key=lambda replay: replay["date"])
-        jston_replays = sorted(json_replays, key = lambda replay: replay['date'], reverse=True)
+        jston_replays = sorted(json_replays, key = lambda replay: replay['date'], reverse=False)
 
         for replay in json_replays:
             await ctx.send(replay['date'])
