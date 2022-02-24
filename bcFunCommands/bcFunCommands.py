@@ -63,11 +63,11 @@ class BCFunCommands(commands.Cog):
         
         roles = ctx.author.roles
         role_pings = ', '.join([role.mention for role in roles])
-        role_colors = ', '.join([role.color.value for role in roles])
+        # role_colors = ', '.join([role.color.value for role in roles])
         embed = discord.Embed(
             title = "color",
             color = self.get_member_color(ctx.author),
-            description=role_pings + ' - ' + role_colors
+            description=role_pings + ' - ' # + role_colors
         )
         await ctx.send(embed=embed)
 
