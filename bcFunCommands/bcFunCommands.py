@@ -39,7 +39,7 @@ class BCFunCommands(commands.Cog):
 
         if not target_replay_id:
             return await ctx.send(":x: No recent replays found")
-            
+
         full_replay_json = self.get_full_replay_json(token, target_replay_id)
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
         player_data = self.get_player_data_from_replay(full_replay_json, target_account[0], target_account[1])
@@ -96,12 +96,12 @@ class BCFunCommands(commands.Cog):
 # endregion 
 
 # region helper functions
-    def get_latest_replay(self, token, accounts):
+    def get_latest_member_replay(self, token, accounts):
         json_replays = []
         for account in accounts:
             platform = account[0]
             plat_id = account[1]
-            replay = self.get_latest_replay(token, platform, plat_id)
+            replay = self.get_latest_account_replay(token, platform, plat_id)
             if replay:
                 json_replays.append(replay)
         
@@ -148,7 +148,7 @@ class BCFunCommands(commands.Cog):
                     return player
         return {}
                 
-    def get_latest_replay(self, token, platform, plat_id):
+    def get_latest_account_replay(self, token, platform, plat_id):
         endpoint = '/replays'
         params = [
             'sort-by=replay-date',
