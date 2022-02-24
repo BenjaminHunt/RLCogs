@@ -38,7 +38,7 @@ class BCFunCommands(commands.Cog):
         target_replay_id = self.get_latest_member_replay(token, accounts)
 
         if not target_replay_id:
-            return await ctx.send(":x: No recent replays found")
+            return await ctx.send(":x: No recent replays found.")
 
         full_replay_json = self.get_full_replay_json(token, target_replay_id)
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
@@ -96,6 +96,23 @@ class BCFunCommands(commands.Cog):
 # endregion 
 
 # region helper functions
+               
+    def get_latest_account_replay(self, token, platform, plat_id):
+        endpoint = '/replays'
+        params = [
+            'sort-by=replay-date',
+            'sort-dir=desc',
+            'count=1',
+            f'player-id={platform}:{plat_id}'
+        ]
+        response = self._bc_get_request(token, endpoint, params)
+        data = response.json()
+
+        try:
+            return data['list'][0]
+        except:
+            return None
+
     def get_latest_member_replay(self, token, accounts):
         json_replays = []
         for account in accounts:
@@ -112,6 +129,7 @@ class BCFunCommands(commands.Cog):
         json_replays.reverse()
 
         target_replay_id = json_replays[0]['id']
+
     def get_full_replay_json(self, token, replay_id):
         endpoint = f'/replays/{replay_id}'
         response = self._bc_get_request(token, endpoint)
@@ -147,23 +165,7 @@ class BCFunCommands(commands.Cog):
                 if account_match:
                     return player
         return {}
-                
-    def get_latest_account_replay(self, token, platform, plat_id):
-        endpoint = '/replays'
-        params = [
-            'sort-by=replay-date',
-            'sort-dir=desc',
-            'count=1',
-            f'player-id={platform}:{plat_id}'
-        ]
-        response = self._bc_get_request(token, endpoint, params)
-        data = response.json()
-
-        try:
-            return data['list'][0]
-        except:
-            return None
-
+     
     async def get_auth_token(self, member: discord.Member):
         # return member token if exists else guild token
         token = await self.account_manager_cog._get_member_bc_token(member)
