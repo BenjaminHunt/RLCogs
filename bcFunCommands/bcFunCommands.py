@@ -59,8 +59,7 @@ class BCFunCommands(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
-    async def color(self, ctx):
-        
+    async def roles(self, ctx):
         roles = ctx.author.roles
         roles.sort(key=lambda r: r.position, reverse=True)
         role_pings = ', '.join([role.mention for role in roles])
