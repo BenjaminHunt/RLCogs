@@ -57,6 +57,15 @@ class BCFunCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=['camera', 'mycam', 'cs'])
+    @commands.guild_only()
+    async def color(self, ctx):
+        embed = discord.Embed(
+            title = "color",
+            color = self.get_member_color(ctx.member),
+            description="color"
+        )
+        await ctx.send(embed=embed)
 
 # region ballchasing
     def _bc_get_request(self, auth_token, endpoint, params=[]):
