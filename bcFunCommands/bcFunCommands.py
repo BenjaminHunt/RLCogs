@@ -47,7 +47,9 @@ class BCFunCommands(commands.Cog):
         if not json_replays:
             return await ctx.send(":x: No recent replays found")
 
-        json_replays.sort(key=lambda replay: replay["date"])
+        # json_replays.sort(key=lambda replay: replay["date"])
+        sorted(json_replays, key = lambda replay: replay['date'])
+
         target_replay_id = json_replays[0]['id']
         full_replay_json = self.get_full_replay_json(token, target_replay_id)
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
@@ -65,7 +67,7 @@ class BCFunCommands(commands.Cog):
         role_pings = ', '.join([role.mention for role in roles])
         role_colors = ', '.join([str(role.color.value) for role in roles])
         embed = discord.Embed(
-            title = "color",
+            title = f"{ctx.author.name}'s Roles",
             color = self.get_member_color(ctx.author),
             description=role_pings + ' - ' # + role_colors
         )
