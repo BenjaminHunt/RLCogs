@@ -35,7 +35,7 @@ class BCFunCommands(commands.Cog):
         if not accounts:
             return await ctx.send(f":x: {player.name} has not registered any accounts.")
 
-        target_replay_id = self.get_latest_member_replay(token, accounts)
+        target_replay_id = await self.get_latest_member_replay(token, accounts)
 
         if not target_replay_id:
             return await ctx.send(":x: No recent replays found.")
@@ -113,11 +113,12 @@ class BCFunCommands(commands.Cog):
         except:
             return None
 
-    def get_latest_member_replay(self, token, accounts):
+    async def get_latest_member_replay(self, token, accounts, ctx=None):
         json_replays = []
         for account in accounts:
             platform = account[0]
             plat_id = account[1]
+            await ctx.send(f'{platform} - {plat_id}')
             replay = self.get_latest_account_replay(token, platform, plat_id)
             if replay:
                 json_replays.append(replay)
