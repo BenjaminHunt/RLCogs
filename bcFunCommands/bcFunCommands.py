@@ -35,21 +35,10 @@ class BCFunCommands(commands.Cog):
         if not accounts:
             return await ctx.send(f":x: {player.name} has not registered any accounts.")
 
-        json_replays = []
-        for account in accounts:
-            platform = account[0]
-            plat_id = account[1]
-            replay = self.get_latest_replay(token, platform, plat_id)
-            if replay:
-                json_replays.append(replay)
-        
-        if not json_replays:
+        target_replay_id = self.get_latest_replay_id_from_accounts(token, accounts)
+        if not target_replay_id:
             return await ctx.send(":x: No recent replays found")
-
-        json_replays = sorted(json_replays, key = lambda replay: replay['date'])
-        json_replays.reverse()
-
-        target_replay_id = json_replays[0]['id']
+            
         full_replay_json = self.get_full_replay_json(token, target_replay_id)
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
         player_data = self.get_player_data_from_replay(full_replay_json, target_account[0], target_account[1])
@@ -106,6 +95,23 @@ class BCFunCommands(commands.Cog):
 # endregion 
 
 # region helper functions
+    def get_latest_replay_id_from_accounts(self, token, accounts):
+        # get latest account replays
+        json_replays = []
+        for account in accounts:
+            platform = account[0]
+            plat_id = account[1]
+            replay = self.get_latest_account_replay(token, platform, plat_id)
+            if replay:
+                json_replays.append(replay)
+        
+        if json_replays:
+            json_replays = sorted(json_replays, key = lambda replay: replay['date'])
+            json_replays.reverse()
+            return json_replays[0]['id']
+        
+        return None
+
     def get_full_replay_json(self, token, replay_id):
         endpoint = f'/replays/{replay_id}'
         response = self._bc_get_request(token, endpoint)
