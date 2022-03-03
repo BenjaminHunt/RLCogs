@@ -910,8 +910,7 @@ class BCMatchGroups(commands.Cog):
         ) != opposing_team else opposing_team
 
         if match_type == bcConfig.REGULAR_SEASON_MT:
-            series_title = "Match Day {}: {} vs {}".format(
-                match_day, team_name, opposing_team)
+            series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
         elif match_type == bcConfig.SCRIM_MT:
             series_title = "{} Scrim vs {}".format(
                 datetime.now().strftime("%m/%d"), opposing_team)
@@ -1466,6 +1465,8 @@ class BCMatchGroups(commands.Cog):
         if member in team_players:
             team_players.remove(member)
             team_players.insert(0, member)
+        else:
+            team_players.append(member)
 
         # Search all players in game for replays until match is found
         return_replay_ids = []
