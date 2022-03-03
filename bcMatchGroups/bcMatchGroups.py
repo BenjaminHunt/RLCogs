@@ -507,8 +507,7 @@ class BCMatchGroups(commands.Cog):
         for team_role in team_roles:
             try:
                 group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
-                embed.add_field(
-                    name=team_role.name, value="https://ballchasing.com/group/{}".format(group_code), inline=False)
+                embed.add_field(name=team_role.name, value="https://ballchasing.com/group/{}".format(group_code), inline=False)
             except:
                 pass
 

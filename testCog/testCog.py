@@ -186,6 +186,9 @@ class TestCog(commands.Cog):
         kicked = []
         failed = []
 
+        if not users:
+            return await ctx.send(":x: No users have been given to be kicked.")
+
         for user in users:
             try:
                 member = await commands.MemberConverter().convert(ctx, user)
@@ -200,8 +203,6 @@ class TestCog(commands.Cog):
             response = f":white_check_mark: {len(kicked)} members have been kicked."
         if failed:
             response += f"\n:x: {len(failed)} members could not be kicked: {', '.join(failed)}"
-        if not response:
-            response = ":x: No users have been given to be kicked."
         else:
             response += "\n\nDone."
 
