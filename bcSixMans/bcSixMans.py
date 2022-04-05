@@ -151,6 +151,7 @@ class BCSixMans(commands.Cog):
             self.six_mans_cog.remove_observer(self)
 
     async def update(self, game):
+        print(game)
         try:
             guild = game.queue.guild
             # await self.six_mans_cog._pre_load_games(guild)
