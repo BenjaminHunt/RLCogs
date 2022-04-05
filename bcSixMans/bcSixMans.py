@@ -152,16 +152,11 @@ class BCSixMans(commands.Cog):
 
     async def update(self, game):
         guild = game.queue.guild
-        print('a')
         if not await self._get_top_level_group(guild):
             return
-        print('b')
         if game.state == config.GS_GAME_OVER:  # TODO: update to be just "over"
-            print('c')
             await game.queue.send_message(message=f"Processing **{game.queue.name}** replays (id: {str(game.id)[-3:]}).")
-            print('d')
             await self._process_six_mans_replays(game)
-            print('e')
             await game.queue.send_message(message="processed!")
             
 
@@ -199,7 +194,7 @@ class BCSixMans(commands.Cog):
 # other commands
     async def _process_six_mans_replays(self, game):
         guild = game.queue.guild
-        six_mans_queue = None
+        queue = game.queue
         embed = discord.Embed(
             title="Six Mans Replay Group",
             description="_Finding ballchasing replays..._",
@@ -221,9 +216,8 @@ class BCSixMans(commands.Cog):
         embed.add_field(name="Blue", value="{}\n".format("\n".join([player.mention for player in game.blue])), inline=True)
         embed.add_field(name="Orange", value="{}\n".format("\n".join([player.mention for player in game.orange])), inline=True)
         
-        # TODO: messages = await game.queue.send_message(embed=embed)
-        channel = game.queue.channels[0]
-        embed_message = await channel.send(embed=embed)
+        messages = await queue.send_message(embed=embed)
+        embed_message = messages[0]
 
         if not await self._get_top_level_group(guild):
             embed.description = ':x: ballchasing group group not found. An Admin must use the `?setBCGroup` command to enable automatic uploads'
@@ -243,6 +237,7 @@ class BCSixMans(commands.Cog):
         else:
             await game.queue.send_message(message="@nullidea: {} replays found".format(len(replay_ids)))
 
+        channel = queue.channels[0]
         await channel.send(replays_found)
         await channel.send('A')
         series_subgroup_id = await self._get_series_destination(game)
