@@ -152,12 +152,11 @@ class BCSixMans(commands.Cog):
 
     async def update(self, game):
         print(game)
-        try:
-            guild = game.queue.guild
-            # await self.six_mans_cog._pre_load_games(guild)
-            if not await self._get_top_level_group(guild):
-                return
-        except:
+        print(game.state)
+        guild = game.queue.guild
+        print(await self._get_top_level_group(guild))
+        # await self.six_mans_cog._pre_load_games(guild)
+        if not await self._get_top_level_group(guild):
             return
         await game.textChannel.send("Game State: {}".format(game.game_state))
         if game.game_state == "game over":  # TODO: update to be just "over"
