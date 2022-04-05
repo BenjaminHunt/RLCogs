@@ -431,8 +431,10 @@ class BCSixMans(commands.Cog):
         # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
         queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
+        print(queue_pop_time)
         auth_token = await self._get_auth_token(guild)
-        
+        print(auth_token)
+
         params = [
             'playlist=private',
             # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
@@ -442,7 +444,9 @@ class BCSixMans(commands.Cog):
             'sort-dir={}'.format(sort_dir)
         ]
         await asyncio.sleep(5) # wait 5 seconds for insta-reports
+        i = 0
         for player in game.players:
+            i += 1
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
@@ -475,7 +479,7 @@ class BCSixMans(commands.Cog):
                     if replay_ids:
                         await game.textChannel.send(":)")
                         return replay_ids, series_summary
-            
+        print(i)
         return None
 
     async def _get_series_destination(self, game):
