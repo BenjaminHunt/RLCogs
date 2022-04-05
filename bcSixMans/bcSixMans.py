@@ -193,6 +193,8 @@ class BCSixMans(commands.Cog):
 
 # other commands
     async def _process_six_mans_replays(self, game):
+        if not self.account_manager_cog:
+            await game.queue.send_message(":x: `accountManager` cog must be loaded to enable this behavior.")
         guild = game.queue.guild
         queue = game.queue
         embed = discord.Embed(
@@ -656,7 +658,7 @@ class BCSixMans(commands.Cog):
             if status_code == 204:
                 renamed.append(replay_id)            
             else:
-                await ctx.send(":x: {} error.".format(status_code))
+                await print(":x: {} error.".format(status_code))
 
             game_number += 1
         return renamed
