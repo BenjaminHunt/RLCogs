@@ -66,10 +66,10 @@ class BCSixMans(commands.Cog):
 
         await self._process_six_mans_replays(game)
 
-    @commands.command(aliases=["sbcg", "setSixMansGroup", "setSMG"])
+    @commands.command(aliases=["ssmg", "setSixMansGroup", "setSMG"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def setBCGroup(self, ctx, top_level_group_id):
+    async def setSMGroup(self, ctx, top_level_group_id):
         """Sets the Top Level Ballchasing Replay group for saving match replays.
         Note: Auth Token must be generated from the Ballchasing group owner
         """
@@ -78,9 +78,9 @@ class BCSixMans(commands.Cog):
         await self._save_top_level_group(ctx, top_level_group_id)
         await ctx.send("Done.")
     
-    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'tlg', 'getBCGroup'])
+    @commands.command(aliases=['smGroup', 'smg', 'tlg', 'getSMGroup'])
     @commands.guild_only()
-    async def bcgroup(self, ctx):
+    async def sixMansGroup(self, ctx):
         """Get the top-level ballchasing group to see all season match replays."""
         group_code = await self._get_top_level_group(ctx.guild)
         url = "https://ballchasing.com/group/{}".format(group_code)
