@@ -229,10 +229,14 @@ class BCSixMans(commands.Cog):
         
         print('aaa')
         # Find Series replays
-        replays_found = await self._find_series_replays(guild, game) 
+        replays_found = await self._find_series_replays(guild, game)
+        print(1)
         if replays_found:
             replay_ids, summary = replays_found
+            print('1.2')
+        print(2)
         if not replays_found:
+            print('2.2')
             embed.description = ":x: No matching replays found."
             await embed_message.edit(embed=embed)
             return
