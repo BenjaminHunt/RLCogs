@@ -158,6 +158,8 @@ class BCSixMans(commands.Cog):
         # await self.six_mans_cog._pre_load_games(guild)
         if not await self._get_top_level_group(guild):
             return
+        
+        print(game.textChannel)
         await game.textChannel.send("Game State: {}".format(game.game_state))
         if game.game_state == "game over":  # TODO: update to be just "over"
             channel = guild.get_channel(816122799679864902)
