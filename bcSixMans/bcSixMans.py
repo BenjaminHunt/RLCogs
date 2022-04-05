@@ -194,7 +194,7 @@ class BCSixMans(commands.Cog):
 # other commands
     async def _process_six_mans_replays(self, game):
         if not self.account_manager_cog:
-            await game.queue.send_message(":x: `accountManager` cog must be loaded to enable this behavior.")
+            return await game.queue.send_message(":x: **Error:** The `accountManager` cog must be loaded to enable this behavior.")
         guild = game.queue.guild
         queue = game.queue
         embed = discord.Embed(
