@@ -113,9 +113,9 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def testa(self, ctx):
-        await self.six_mans_cog._pre_load_data()
-        s = "in" if ctx.guild in self.six_mans_cog.queues else "not in"
-        await ctx.send("Guild {} queues object.")
+        if not self.account_manager_cog:
+            return await ctx.send(":x: **Error:** The `accountManager` cog must be loaded to enable this behavior.")
+        await ctx.send("good")
 
     # @commands.command()
     # @commands.guild_only()
@@ -225,7 +225,6 @@ class BCSixMans(commands.Cog):
         messages = await queue.send_message(embed=embed)
         embed_message = messages[0]
 
-        print('a')
         if not await self._get_top_level_group(guild):
             embed.description = ':x: ballchasing group group not found. An Admin must use the `?setBCGroup` command to enable automatic uploads'
             await embed_message.edit(embed=embed)
@@ -233,23 +232,17 @@ class BCSixMans(commands.Cog):
             #     await message.edit(embed=embed)
             return
         
-        print('aaa')
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game)
-        print(1)
         if replays_found:
             replay_ids, summary = replays_found
-            print('1.2')
-        print(2)
         if not replays_found:
-            print('2.2')
             embed.description = ":x: No matching replays found."
             await embed_message.edit(embed=embed)
             return
         else:
             await game.queue.send_message(message="@nullidea: {} replays found".format(len(replay_ids)))
 
-        print('bbb')
         channel = queue.channels[0]
         await channel.send(replays_found)
         await channel.send('A')
@@ -262,7 +255,7 @@ class BCSixMans(commands.Cog):
             embed.description = ":x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
-        print('ccc')
+
         await channel.send('C')
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
@@ -437,11 +430,9 @@ class BCSixMans(commands.Cog):
         # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
         queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
-        print(queue_pop_time)
         auth_token = await self._get_auth_token(guild)
         if not auth_token:
-            game.queue.send_message(":x: Guild has no auth token registered.")
-        print(auth_token)
+            return await game.queue.send_message(":x: Guild has no auth token registered.")
 
         params = [
             'playlist=private',
