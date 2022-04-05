@@ -433,6 +433,8 @@ class BCSixMans(commands.Cog):
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
         print(queue_pop_time)
         auth_token = await self._get_auth_token(guild)
+        if not auth_token:
+            game.queue.send_message(":x: Guild has no auth token registered.")
         print(auth_token)
 
         params = [
@@ -667,6 +669,7 @@ class BCSixMans(commands.Cog):
         await self.config.guild(ctx.guild).TopLevelGroup.set(group_id)
 
     async def _get_auth_token(self, guild):
+        print('atkn')
         return await self.account_manager_cog.get_bc_auth_token(guild)
 
     async def _save_six_mans_role(self, guild, role):
