@@ -219,6 +219,7 @@ class BCSixMans(commands.Cog):
         messages = await queue.send_message(embed=embed)
         embed_message = messages[0]
 
+        print('a')
         if not await self._get_top_level_group(guild):
             embed.description = ':x: ballchasing group group not found. An Admin must use the `?setBCGroup` command to enable automatic uploads'
             await embed_message.edit(embed=embed)
@@ -226,6 +227,7 @@ class BCSixMans(commands.Cog):
             #     await message.edit(embed=embed)
             return
         
+        print('aaa')
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game) 
         if replays_found:
@@ -237,6 +239,7 @@ class BCSixMans(commands.Cog):
         else:
             await game.queue.send_message(message="@nullidea: {} replays found".format(len(replay_ids)))
 
+        print('bbb')
         channel = queue.channels[0]
         await channel.send(replays_found)
         await channel.send('A')
@@ -249,7 +252,7 @@ class BCSixMans(commands.Cog):
             embed.description = ":x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
-
+        print('ccc')
         await channel.send('C')
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
