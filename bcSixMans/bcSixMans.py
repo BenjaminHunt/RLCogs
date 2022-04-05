@@ -160,7 +160,8 @@ class BCSixMans(commands.Cog):
             return
         
         print(game.textChannel)
-        await game.textChannel.send("Game State: {}".format(game.game_state))
+        await game.textChannel.send(f"State: {game.state}")
+        print("?????")
         if game.game_state == "game over":  # TODO: update to be just "over"
             channel = guild.get_channel(816122799679864902)
             await channel.send("processing replays hopefully :)")
