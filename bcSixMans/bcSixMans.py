@@ -196,9 +196,10 @@ class BCSixMans(commands.Cog):
         if not self.account_manager_cog:
             return await game.queue.send_message(":x: **Error:** The `accountManager` cog must be loaded to enable this behavior.")
         guild = game.queue.guild
+        series_title = f"{str(game.id)[-3:]} | {game.queue.name} Series Replays"
         queue = game.queue
         embed = discord.Embed(
-            title="Six Mans Replay Group",
+            title=series_title,
             description="_Finding ballchasing replays..._",
             color=discord.Color.default()
         )
@@ -215,8 +216,11 @@ class BCSixMans(commands.Cog):
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         
-        embed.add_field(name="Blue", value="{}\n".format("\n".join([player.mention for player in game.blue])), inline=True)
-        embed.add_field(name="Orange", value="{}\n".format("\n".join([player.mention for player in game.orange])), inline=True)
+        blue_team = "Blue (W)" if game.winner.lower() == 'blue' else "Blue"
+        orange_team = "Orange (W)" if game.winner.lower() == 'orange' else "Orange"
+        
+        embed.add_field(name=blue_team, value="{}\n".format("\n".join([player.mention for player in game.blue])), inline=True)
+        embed.add_field(name=orange_team, value="{}\n".format("\n".join([player.mention for player in game.orange])), inline=True)
         
         messages = await queue.send_message(embed=embed)
         embed_message = messages[0]
