@@ -9,3 +9,8 @@ class config:
     team_identification = 'by-distinct-players'                  # setting -- Alternative: 'by-player-clusters'
     player_identification = 'by-id'                             # setting -- Alternative 'by-name'
     top_level_group = "hut-mans-test-dr0mge20kx"
+
+    GS_GAME_OVER = "game over"
+    GS_ONGOING = "ongoing"
+
+    

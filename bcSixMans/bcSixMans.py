@@ -151,20 +151,13 @@ class BCSixMans(commands.Cog):
             self.six_mans_cog.remove_observer(self)
 
     async def update(self, game):
-        print(game)
-        print(game.state)
         guild = game.queue.guild
-        print(await self._get_top_level_group(guild))
-        # await self.six_mans_cog._pre_load_games(guild)
         if not await self._get_top_level_group(guild):
             return
-        
-        print(game.textChannel)
-        await game.textChannel.send(f"State: {game.state}")
-        print("?????")
-        if game.game_state == "game over":  # TODO: update to be just "over"
-            channel = guild.get_channel(816122799679864902)
-            await channel.send("processing replays hopefully :)")
+
+        if game.game_state == config.GS_GAME_OVER:  # TODO: update to be just "over"
+            channel = game.queue.textChannel
+            await channel.send(f"Processing **{game.queue.name}** replays (id: {str(game.id)[-3:]}).")
             await self._process_six_mans_replays(game)
             await channel.send("processed!")
             
