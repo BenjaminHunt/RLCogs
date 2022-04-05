@@ -156,10 +156,9 @@ class BCSixMans(commands.Cog):
             return
 
         if game.game_state == config.GS_GAME_OVER:  # TODO: update to be just "over"
-            channel = game.queue.textChannel
-            await channel.send_message(message=f"Processing **{game.queue.name}** replays (id: {str(game.id)[-3:]}).")
+            await game.queue.send_message(message=f"Processing **{game.queue.name}** replays (id: {str(game.id)[-3:]}).")
             await self._process_six_mans_replays(game)
-            await channel.send("processed!")
+            await game.queue.send("processed!")
             
 
 ###########################################################
