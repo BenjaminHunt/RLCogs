@@ -516,7 +516,6 @@ class BCSixMans(commands.Cog):
         current_subgroup_id = top_level_group
         next_subgroup_id = None
         for next_group_name in ordered_subgroups:
-            next_group_name = str(next_group_name)
             if next_subgroup_id:
                 current_subgroup_id = next_subgroup_id
             next_subgroup_id = None 
@@ -526,8 +525,8 @@ class BCSixMans(commands.Cog):
                 for data_subgroup in data['list']:
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
-                        continue
-            
+                        break
+            await queue.send_message("A.c")
             # Prepare & Execute  Next request:
             # ## Next subgroup found: request its contents
             if next_subgroup_id:
@@ -538,7 +537,6 @@ class BCSixMans(commands.Cog):
 
                 r = self._bc_get_request(auth_token, endpoint, params)
                 data = r.json()
-
             # ## Creating next sub-group
             else:
                 # here
@@ -548,16 +546,14 @@ class BCSixMans(commands.Cog):
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
-                await debug_channel.send("POST: {}".format(endpoint))
-                await debug_channel.send("parms: {}".format(payload))
                 r = self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 
-                if 'error' not in data:
-                    try:
-                        next_subgroup_id = data['id']
-                    except:
-                        return False
+                try:
+                    next_subgroup_id = data['id']
+                except:
+                    await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
+                    return False
         
         
         await queue.send_message("A.e")
