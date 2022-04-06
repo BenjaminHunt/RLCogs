@@ -556,6 +556,7 @@ class BCSixMans(commands.Cog):
                 except:
                     # await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
                     await queue.send_message(data)
+                    await queue.send_message(f'json payload: {payload}')
                     return False
         
         
