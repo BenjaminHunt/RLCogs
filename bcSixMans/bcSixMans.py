@@ -245,14 +245,17 @@ class BCSixMans(commands.Cog):
 
         channel = queue.channels[0]
         await channel.send(replays_found)
-        await channel.send('A')
+
+        embed.description = f"Series Results: {summary}"
+        await embed_message.edit(embed=embed)
+
         series_subgroup_id = await self._get_series_destination(game)
         await channel.send('B')
-        await channel.send(series_subgroup_id)
+        await channel.send(series_subgroup_id) # None
         # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
             await channel.send('XXX')
-            embed.description = ":x: series_subgroup_id not found."
+            embed.description += "\n:x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
 
@@ -511,7 +514,6 @@ class BCSixMans(commands.Cog):
 
         data = r.json()
 
-        await queue.send_message("A.b")
         # Dynamically create sub-group
         current_subgroup_id = top_level_group
         next_subgroup_id = None
@@ -552,7 +554,8 @@ class BCSixMans(commands.Cog):
                 try:
                     next_subgroup_id = data['id']
                 except:
-                    await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
+                    # await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
+                    await queue.send_message(data)
                     return False
         
         
