@@ -11,7 +11,7 @@ from redbot.core import commands
 from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
-from .funCmdsReference import funCmdsReference as fcr
+from .funCmdsReference import FunCmdsReference as fcr
 
 # TODO: Build in player and team stats , just neeed player, team, tier
 class BCFunCommands(commands.Cog):
