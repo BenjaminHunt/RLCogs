@@ -11,6 +11,7 @@ from redbot.core import commands
 from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
+from .funCmdsReference import funCmdsReference as fcr
 
 # TODO: Build in player and team stats , just neeed player, team, tier
 class BCFunCommands(commands.Cog):
@@ -96,6 +97,8 @@ class BCFunCommands(commands.Cog):
 # endregion 
 
 # region helper functions
+
+    # replay processing
     def get_latest_replay_id_from_accounts(self, token, accounts):
         # get latest account replays
         json_replays = []
@@ -165,6 +168,7 @@ class BCFunCommands(commands.Cog):
         except:
             return None
 
+    # access json data
     async def get_auth_token(self, member: discord.Member):
         # return member token if exists else guild token
         token = await self.account_manager_cog._get_member_bc_token(member)
@@ -172,6 +176,10 @@ class BCFunCommands(commands.Cog):
             return token 
         token = await self.account_manager_cog.get_bc_auth_token(member.guild)
         return token
+
+    # misc
+    def get_code_title(self, code):
+        return fcr.DATA_CODE_NAME_MAP.get(code.lower(), code)
 
     def get_member_color(self, member: discord.Member):
         roles = member.roles
@@ -181,6 +189,7 @@ class BCFunCommands(commands.Cog):
                 return role.color
         return None
 
+    # embed
     def get_player_settings_embed(self, replay_id, member, player_data):
         member_color = self.get_member_color(member)
 
@@ -191,7 +200,6 @@ class BCFunCommands(commands.Cog):
         if member.avatar_url:
             embed.set_thumbnail(url=member.avatar_url)
         
-        
         cam_settings = player_data.get("camera")
 
         # for k, v in cam_settings.items():
@@ -200,7 +208,8 @@ class BCFunCommands(commands.Cog):
         cam_settings_order = ["fov", "distance", "height", "pitch", "stiffness", "swivel_speed" , "transition_speed"]
         cam_settings_list = []
         for setting in cam_settings_order:
-            cam_settings_list.append(f"{setting}: {cam_settings.get(setting, 'N/A')}")
+            setting_name = self.get_code_title(setting)
+            cam_settings_list.append(f"{setting_name}: {cam_settings.get(setting, 'N/A')}")
         
         cam_str = "```\n{}\n```".format('\n'.join(cam_settings_list))
 
