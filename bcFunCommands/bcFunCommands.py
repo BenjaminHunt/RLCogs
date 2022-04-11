@@ -12,6 +12,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
+# TODO: Build in player and team stats , just neeed player, team, tier
 class BCFunCommands(commands.Cog):
     """Neat misc ballchasing related commands"""
 
@@ -192,10 +193,14 @@ class BCFunCommands(commands.Cog):
         
         
         cam_settings = player_data.get("camera")
-        cam_settings_list = []
 
-        for k, v in cam_settings.items():
-            cam_settings_list.append(f"{k}: {v}")
+        # for k, v in cam_settings.items():
+        #     cam_settings_list.append(f"{k}: {v}")
+
+        cam_settings_order = ["fov", "distance", "height", "pitch", "stiffness", "swivel_speed" , "transition_speed"]
+        cam_settings_list = []
+        for setting in cam_settings_order:
+            cam_settings_list.append(f"{setting}: {cam_settings.get(setting, 'N/A')}")
         
         cam_str = "```\n{}\n```".format('\n'.join(cam_settings_list))
 
