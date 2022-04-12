@@ -255,12 +255,17 @@ class BCSixMans(commands.Cog):
         messages = await queue.send_message(embed=embed)
         embed_message = messages[0]
 
-        if not await self._get_top_level_group(guild):
-            embed.description = ':x: ballchasing group group not found. An Admin must use the `?setBCGroup` command to enable automatic uploads'
+        await embed_message.channel.send("checkpoint a")
+
+        tlg = await self._get_top_level_group(guild)
+        if not tlg:
+            embed.description = f':x: ballchasing group group not found. An Admin must use the `{game.prefix}setBCGroup` command to enable automatic uploads'
             await embed_message.edit(embed=embed)
             # for message in messages:
             #     await message.edit(embed=embed)
             return
+        
+        await embed_message.channel.send("checkpoint b")
         
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game)
@@ -273,7 +278,7 @@ class BCSixMans(commands.Cog):
         else:
             await game.queue.send_message(message="@nullidea: {} replays found".format(len(replay_ids)))
 
-        channel = queue.channels[0]
+        channel = embed_message.channel # queue.channels[0]
         await channel.send(replays_found)
 
         embed.description = f"Series Results: {summary}"
@@ -687,12 +692,3 @@ class BCSixMans(commands.Cog):
     
     async def _six_mans_role(self, guild):
         return guild.get_role(await self.config.guild(guild).SixMansRole())
-
-class Observer(metaclass=abc.ABCMeta):
-    def __init__(self):
-        pass
-    
-    @abc.abstractmethod
-    def update(self, arg):
-        pass
-    
