@@ -483,6 +483,7 @@ class BCSixMans(commands.Cog):
         ]
         await asyncio.sleep(5) # wait 5 seconds for insta-reports
         i = 0
+        game.queue.send_message(message=f"players: {', '.join([player.name for player in game.players])}")
         for player in game.players:
             i += 1
             for steam_id in await self._get_steam_ids(guild, player.id):
@@ -503,8 +504,10 @@ class BCSixMans(commands.Cog):
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner.lower() == 'blue':
                             blue_wins += 1
+                            await game.textChannel.send("blue w")
                         elif winner.lower() == 'orange':
                             oran_wins += 1
+                            await game.textChannel.send("orange w")
                         else:
                             await game.textChannel.send("Winner not defined :/")
                             break
