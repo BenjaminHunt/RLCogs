@@ -469,6 +469,7 @@ class BCSixMans(commands.Cog):
         # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
         queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
+        await game.queue.send_message("bot sucks")
         auth_token = await self._get_auth_token(guild)
         if not auth_token:
             return await game.queue.send_message(":x: Guild has no auth token registered.")
@@ -688,7 +689,6 @@ class BCSixMans(commands.Cog):
         await self.config.guild(ctx.guild).TopLevelGroup.set(group_id)
 
     async def _get_auth_token(self, guild):
-        print('atkn')
         return await self.account_manager_cog.get_bc_auth_token(guild)
 
     async def _save_six_mans_role(self, guild, role):
