@@ -481,7 +481,7 @@ class BCSixMans(commands.Cog):
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
         ]
-        await asyncio.sleep(5) # wait 5 seconds for insta-reports
+        await asyncio.sleep(7) # wait 5 seconds for insta-reports
         i = 0
         game.queue.send_message(message=f"players: {', '.join([player.name for player in game.players])}")
         for player in game.players:
@@ -504,12 +504,12 @@ class BCSixMans(commands.Cog):
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner.lower() == 'blue':
                             blue_wins += 1
-                            await game.textChannel.send("blue w")
+                            await game.queue.send_message("blue w")
                         elif winner.lower() == 'orange':
                             oran_wins += 1
-                            await game.textChannel.send("orange w")
+                            await game.queue.send_message("orange w")
                         else:
-                            await game.textChannel.send("Winner not defined :/")
+                            await game.queue.send_message("Winner not defined :/")
                             break
                         replay_ids.append(replay['id'])
 
