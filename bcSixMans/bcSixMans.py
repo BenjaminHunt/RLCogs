@@ -269,6 +269,7 @@ class BCSixMans(commands.Cog):
         
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game)
+        await embed_message.channel.send("checkpoint c")
         if replays_found:
             replay_ids, summary = replays_found
         if not replays_found:
