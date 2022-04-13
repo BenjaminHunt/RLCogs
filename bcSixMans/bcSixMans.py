@@ -258,7 +258,6 @@ class BCSixMans(commands.Cog):
         messages = await queue.send_message(embed=embed)
         embed_message = messages[0]
 
-        await embed_message.channel.send("checkpoint a")
 
         tlg = await self._get_top_level_group(guild)
         if not tlg:
@@ -268,11 +267,9 @@ class BCSixMans(commands.Cog):
             #     await message.edit(embed=embed)
             return
         
-        await embed_message.channel.send("checkpoint b")
         
         # Find Series replays
         replays_found = await self._find_series_replays(guild, game)
-        await embed_message.channel.send("checkpoint c")
         if replays_found:
             replay_ids, summary = replays_found
         if not replays_found:
@@ -288,6 +285,7 @@ class BCSixMans(commands.Cog):
         embed.description = f"Series Results: {summary}"
         await embed_message.edit(embed=embed)
 
+        await channel.send('here')
         series_subgroup_id = await self._get_series_destination(game)
         await channel.send('B')
         await channel.send(series_subgroup_id) # None
@@ -485,10 +483,8 @@ class BCSixMans(commands.Cog):
             'sort-dir={}'.format(sort_dir)
         ]
         await asyncio.sleep(7) # wait 5 seconds for insta-reports
-        await game.queue.send_message(message=f"players: {', '.join([player.name for player in game.players])}")
-        i = 0
+        
         for player in game.players:
-            i += 1
             await game.queue.send_message(i)
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
@@ -503,15 +499,12 @@ class BCSixMans(commands.Cog):
                 blue_wins = 0
                 replay_ids = []
                 if 'list' in data:
-                    await game.textChannel.send("{} has {} replays uploaded...".format(player.name, len(data['list'])))
                     for replay in data['list']:
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner.lower() == 'blue':
                             blue_wins += 1
-                            await game.queue.send_message("blue w")
                         elif winner.lower() == 'orange':
                             oran_wins += 1
-                            await game.queue.send_message("orange w")
                         else:
                             await game.queue.send_message("Winner not defined :/")
                             break
@@ -522,7 +515,6 @@ class BCSixMans(commands.Cog):
                     )
 
                     if replay_ids:
-                        await game.textChannel.send(":)")
                         return replay_ids, series_summary
         return None
 
