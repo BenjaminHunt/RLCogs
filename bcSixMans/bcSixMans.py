@@ -113,9 +113,10 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def testa(self, ctx):
-        if not self.account_manager_cog:
-            return await ctx.send(":x: **Error:** The `accountManager` cog must be loaded to enable this behavior.")
-        await ctx.send("good")
+        await ctx.send("bot sucks")
+        auth_token = await self._get_auth_token(ctx.guild)
+        await ctx.send(f"token: {auth_token}")
+        await ctx.send("bot still sucks")
 
     # @commands.command()
     # @commands.guild_only()
