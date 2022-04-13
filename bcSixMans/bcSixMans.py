@@ -116,6 +116,8 @@ class BCSixMans(commands.Cog):
         await ctx.send("bot sucks")
         auth_token = await self._get_auth_token(ctx.guild)
         await ctx.send(f"token: {auth_token}")
+        await ctx.send("gonna sleep 5 sec")
+        await asyncio.sleep(5)
         await ctx.send("bot still sucks")
 
     # @commands.command()
