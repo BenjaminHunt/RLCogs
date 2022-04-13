@@ -472,7 +472,6 @@ class BCSixMans(commands.Cog):
         # queue_pop_time = ctx.channel.created_at.isoformat() + "-00:00"
         queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
-        await game.queue.send_message("bot sucks")
         auth_token = await self._get_auth_token(guild)
         await game.queue.send_message("bot still sucks")
         if not auth_token:
@@ -487,8 +486,8 @@ class BCSixMans(commands.Cog):
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
         ]
-        asyncio.sleep(7) # wait 5 seconds for insta-reports
-        game.queue.send_message(message=f"players: {', '.join([player.name for player in game.players])}")
+        await asyncio.sleep(7) # wait 5 seconds for insta-reports
+        await game.queue.send_message(message=f"players: {', '.join([player.name for player in game.players])}")
         i = 0
         for player in game.players:
             i += 1
