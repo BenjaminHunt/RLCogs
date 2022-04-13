@@ -473,11 +473,9 @@ class BCSixMans(commands.Cog):
         queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
         auth_token = await self._get_auth_token(guild)
-        await game.queue.send_message("bot still sucks")
         if not auth_token:
             return await game.queue.send_message(":x: Guild has no auth token registered.")
 
-        await game.queue.send_message("bot sucks a lot")
         params = [
             'playlist=private',
             # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
@@ -494,7 +492,7 @@ class BCSixMans(commands.Cog):
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
-                r = self._bc_get_request(auth_token, endpoint, params=params)
+                r = await self._bc_get_request(auth_token, endpoint, params=params)
 
                 params.remove(uploaded_by_param)
                 data = r.json()
