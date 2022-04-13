@@ -489,6 +489,7 @@ class BCSixMans(commands.Cog):
         i = 0
         for player in game.players:
             i += 1
+            await game.queue.send_message(i)
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
@@ -523,7 +524,6 @@ class BCSixMans(commands.Cog):
                     if replay_ids:
                         await game.textChannel.send(":)")
                         return replay_ids, series_summary
-        print(i)
         return None
 
     async def _get_series_destination(self, game):
