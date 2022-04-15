@@ -517,10 +517,11 @@ class BCSixMans(commands.Cog):
         queue = game.queue
         guild = queue.guild
         # here
+        await game.queue.send_message("...")
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
         top_level_group = await self._get_top_level_group(guild)
-
+        await game.queue.send_message("owner: {}\ntop group code: {}".format(bc_group_owner, top_level_group))
         
         # /<top level group>/<queue name>/<game id>
         game_id = game.id
