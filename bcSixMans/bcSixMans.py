@@ -306,7 +306,7 @@ class BCSixMans(commands.Cog):
         uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
         renamed = await self._rename_replays(guild, uploaded_ids)
         
-        await channel.send('E')
+        await channel.send('progress 4')
 
         embed.description = ':white_check_mark: {}\n\nReplays added to a new [ballchasing subgroup!](https://ballchasing.com/group/{})'.format(summary, len(uploaded_ids), series_subgroup_id)
         await embed_message.edit(embed=embed)
@@ -599,7 +599,7 @@ class BCSixMans(commands.Cog):
         this_game = 1
         for replay_id in replay_ids[::-1]:
             endpoint = "/replays/{}/file".format(replay_id)
-            r = self._bc_get_request(auth_token, endpoint)
+            r = await self._bc_get_request(auth_token, endpoint)
             
             # replay_filename = "Game {}.replay".format(this_game)
             replay_filename = "{}.replay".format(replay_id)
@@ -625,7 +625,7 @@ class BCSixMans(commands.Cog):
             replay_file.seek(0)
             files = {'file': replay_file}
 
-            r = self._bc_post_request(auth_token, endpoint, params, files=files)
+            r = await self._bc_post_request(auth_token, endpoint, params, files=files)
         
             status_code = r.status_code
             data = r.json()
@@ -635,7 +635,7 @@ class BCSixMans(commands.Cog):
                     replay_ids_in_group.append(data['id'])
                 elif status_code == 409: # Handle duplicate replays
                     patch_endpoint = '/replays/{}/'.format(data['id'])
-                    r = self._bc_patch_request(auth_token, patch_endpoint, json={'group': subgroup_id, 'visibility': config.visibility})
+                    r = await self._bc_patch_request(auth_token, patch_endpoint, json={'group': subgroup_id, 'visibility': config.visibility})
                     if r.status_code == 204:
                         replay_ids_in_group.append(data['id'])
             except:
@@ -659,7 +659,7 @@ class BCSixMans(commands.Cog):
             payload = {
                 'title': 'Game {}'.format(game_number)
             }
-            r = self._bc_patch_request(auth_token, endpoint, json=payload)
+            r = await self._bc_patch_request(auth_token, endpoint, json=payload)
             status_code = r.status_code
 
             if status_code == 204:
