@@ -361,7 +361,7 @@ class BCSixMans(commands.Cog):
     async def _get_steam_id_from_token(self, guild, auth_token=None):
         if not auth_token:
             auth_token = await self._get_auth_token(guild)
-        r = self._bc_get_request(auth_token, "")
+        r = await self._bc_get_request(auth_token, "")
         if r.status_code == 200:
             return r.json()['steam_id']
         return None
