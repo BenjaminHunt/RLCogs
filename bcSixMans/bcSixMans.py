@@ -526,7 +526,7 @@ class BCSixMans(commands.Cog):
 
         ordered_subgroups = [
             queue_name,
-            game_id
+            str(game_id)
         ]
 
         endpoint = '/groups'
@@ -555,7 +555,6 @@ class BCSixMans(commands.Cog):
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
                         break
-            await queue.send_message("A.c")
             # Prepare & Execute  Next request:
             # ## Next subgroup found: request its contents
             if next_subgroup_id:
