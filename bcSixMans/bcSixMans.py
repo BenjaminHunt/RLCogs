@@ -513,7 +513,7 @@ class BCSixMans(commands.Cog):
                             break
                         replay_ids.append(replay['id'])
 
-                    series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
+                    series_summary = ":blue_circle: **Blue** {blue_wins} - {oran_wins} **Orange** :orange_circle:".format(
                         blue_wins=blue_wins, oran_wins=oran_wins
                     )
 
@@ -547,7 +547,7 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        r = self._bc_get_request(auth_token, endpoint, params=params)
+        r = await self._bc_get_request(auth_token, endpoint, params=params)
 
         data = r.json()
 
@@ -574,7 +574,7 @@ class BCSixMans(commands.Cog):
                     'group={}'.format(next_subgroup_id)
                 ]
 
-                r = self._bc_get_request(auth_token, endpoint, params)
+                r = await self._bc_get_request(auth_token, endpoint, params)
                 data = r.json()
             # ## Creating next sub-group
             else:
@@ -585,7 +585,7 @@ class BCSixMans(commands.Cog):
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
-                r = self._bc_post_request(auth_token, endpoint, json=payload)
+                r = await self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 
                 try:
@@ -597,7 +597,7 @@ class BCSixMans(commands.Cog):
                     return False
         
         
-        await queue.send_message("A.e")
+        await queue.send_message(f"find group location complete: {next_subgroup_id}")
 
         return next_subgroup_id
 
