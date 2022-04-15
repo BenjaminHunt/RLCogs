@@ -521,12 +521,11 @@ class BCSixMans(commands.Cog):
         await game.queue.send_message("owner: {}\ntop group code: {}".format(bc_group_owner, top_level_group))
         
         # /<top level group>/<queue name>/<game id>
-        game_id = game.id
         queue_name = queue.name # next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
 
         ordered_subgroups = [
             queue_name,
-            str(game_id)
+            str(game.id)
         ]
 
         endpoint = '/groups'
@@ -579,6 +578,7 @@ class BCSixMans(commands.Cog):
                 
                 try:
                     next_subgroup_id = data['id']
+                    await queue.send_message(f"success data: {data}")
                 except:
                     # await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
                     await queue.send_message(data)
