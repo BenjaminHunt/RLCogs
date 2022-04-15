@@ -486,6 +486,7 @@ class BCSixMans(commands.Cog):
         ]
         await asyncio.sleep(7) # wait 5 seconds for insta-reports
         
+        await game.queue.send_message(f"Players: {', '.join(player.name for player in game.players)}")
         for player in game.players:
             # await game.queue.send_message(i)
             for steam_id in await self._get_steam_ids(guild, player.id):
