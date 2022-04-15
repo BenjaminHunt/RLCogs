@@ -487,7 +487,7 @@ class BCSixMans(commands.Cog):
         await asyncio.sleep(7) # wait 5 seconds for insta-reports
         
         for player in game.players:
-            await game.queue.send_message(i)
+            # await game.queue.send_message(i)
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
