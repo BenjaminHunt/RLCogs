@@ -269,9 +269,7 @@ class BCSixMans(commands.Cog):
         
         
         # Find Series replays
-        await game.queue.send_message("checkpoint a")
         replays_found = await self._find_series_replays(guild, game)
-        await game.queue.send_message("checkpoint b")
         if replays_found:
             replay_ids, summary = replays_found
         if not replays_found:
@@ -287,28 +285,22 @@ class BCSixMans(commands.Cog):
         embed.description = f"Series Results: {summary}"
         await embed_message.edit(embed=embed)
 
-        await channel.send('here')
+        await channel.send('This is where we left off')
         series_subgroup_id = await self._get_series_destination(game)
-        await channel.send('B')
-        await channel.send(series_subgroup_id) # None
-        # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
+        await channel.send('progress 1')
         if not series_subgroup_id:
             await channel.send('XXX')
             embed.description += "\n:x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
 
-        await channel.send('C')
+        await channel.send('progress 2')
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
-        try:
-            embed.description = ":signal_strength: _Processing {} replays..._".format(len(replay_ids))
-            await embed_message.edit(embed=embed)
-            return
-        except:
-            pass
+        embed.description = ":signal_strength: _Processing {} replays..._".format(len(replay_ids))
+        await embed_message.edit(embed=embed)
 
-        await channel.send('D')
+        await channel.send('progress 3')
 
         tmp_replay_files = await self._download_replays(guild, replay_ids)
         uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
@@ -474,7 +466,8 @@ class BCSixMans(commands.Cog):
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
         auth_token = await self._get_auth_token(guild)
         if not auth_token:
-            return await game.queue.send_message(":x: Guild has no auth token registered.")
+            await game.queue.send_message(":x: Guild has no auth token registered.")
+            return None
 
         params = [
             'playlist=private',
@@ -486,7 +479,6 @@ class BCSixMans(commands.Cog):
         ]
         await asyncio.sleep(7) # wait 5 seconds for insta-reports
         
-        await game.queue.send_message(f"Players: {', '.join(player.name for player in game.players)}")
         for player in game.players:
             # await game.queue.send_message(i)
             for steam_id in await self._get_steam_ids(guild, player.id):
