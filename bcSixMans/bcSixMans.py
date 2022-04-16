@@ -284,28 +284,21 @@ class BCSixMans(commands.Cog):
 
         await channel.send('This is where we left off')
         series_subgroup_id = await self._get_series_destination(game)
-        await channel.send('progress 1')
         if not series_subgroup_id:
-            await channel.send('XXX')
             embed.description += "\n:x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
 
-        await channel.send('progress 2')
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
         embed.description = ":signal_strength: _Processing {} replays..._".format(len(replay_ids))
         await embed_message.edit(embed=embed)
 
-        await channel.send('progress 3')
-
         tmp_replay_files = await self._download_replays(guild, replay_ids)
         uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
         renamed = await self._rename_replays(guild, uploaded_ids)
-        
-        await channel.send('progress 4')
 
-        embed.description = ':white_check_mark: {}\n\nReplays added to a new [ballchasing subgroup!](https://ballchasing.com/group/{})'.format(summary, len(uploaded_ids), series_subgroup_id)
+        embed.add_field(name="New Ballchasing Group Created!", value=f":white_check_mark: [Click Here to View](https://ballchasing.com/group/{series_subgroup_id}")
         await embed_message.edit(embed=embed)
         return
 
@@ -578,11 +571,10 @@ class BCSixMans(commands.Cog):
                 
                 try:
                     next_subgroup_id = data['id']
-                    await queue.send_message(f"success data: {data}")
                 except:
-                    # await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
-                    await queue.send_message(data)
-                    await queue.send_message(f'json payload: {payload}')
+                    await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
+                    # await queue.send_message(data)
+                    # await queue.send_message(f'json payload: {payload}')
                     return False
         
         
