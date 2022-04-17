@@ -282,7 +282,6 @@ class BCSixMans(commands.Cog):
         embed.description = f"Series Results: {summary}"
         await embed_message.edit(embed=embed)
 
-        await channel.send('This is where we left off')
         series_subgroup_id = await self._get_series_destination(game)
         if not series_subgroup_id:
             embed.description += "\n:x: series_subgroup_id not found."
@@ -291,14 +290,15 @@ class BCSixMans(commands.Cog):
 
         # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
-        embed.description = ":signal_strength: _Processing {} replays..._".format(len(replay_ids))
+        embed.description += "\n:signal_strength: _Processing {} replays..._".format(len(replay_ids))
         await embed_message.edit(embed=embed)
 
         tmp_replay_files = await self._download_replays(guild, replay_ids)
         uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
         renamed = await self._rename_replays(guild, uploaded_ids)
 
-        embed.add_field(name="New Ballchasing Group Created!", value=f":white_check_mark: [Click Here to View](https://ballchasing.com/group/{series_subgroup_id}")
+        embed.description = f"Series Results: {summary}"
+        embed.add_field(name="New Ballchasing Group Created!", value=f":white_check_mark: [Click Here to View!](https://ballchasing.com/group/{series_subgroup_id})")
         await embed_message.edit(embed=embed)
         return
 
