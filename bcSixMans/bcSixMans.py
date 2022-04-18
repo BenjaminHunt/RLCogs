@@ -572,9 +572,6 @@ class BCSixMans(commands.Cog):
                     # await queue.send_message(data)
                     # await queue.send_message(f'json payload: {payload}')
                     return False
-        
-        
-        await queue.send_message(f"find group location complete: {next_subgroup_id}")
 
         return next_subgroup_id
 
