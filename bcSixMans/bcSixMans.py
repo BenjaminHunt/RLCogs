@@ -157,8 +157,7 @@ class BCSixMans(commands.Cog):
         guild = game.queue.guild
         if not await self._get_top_level_group(guild):
             return
-        if game.state == config.GS_GAME_OVER:  # TODO: update to be just "over"
-            await game.queue.send_message(message=f"Processing **{game.queue.name}** replays (id: {str(game.id)[-3:]}).")
+        if game.state == config.GS_GAME_OVER:
             await self._process_six_mans_replays(game)
             
 
