@@ -160,7 +160,6 @@ class BCSixMans(commands.Cog):
         if game.state == config.GS_GAME_OVER:  # TODO: update to be just "over"
             await game.queue.send_message(message=f"Processing **{game.queue.name}** replays (id: {str(game.id)[-3:]}).")
             await self._process_six_mans_replays(game)
-            await game.queue.send_message(message="processed!")
             
 
 ###########################################################
@@ -506,12 +505,9 @@ class BCSixMans(commands.Cog):
     async def _get_series_destination(self, game):
         queue = game.queue
         guild = queue.guild
-        # here
-        await game.queue.send_message("...")
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
         top_level_group = await self._get_top_level_group(guild)
-        await game.queue.send_message("owner: {}\ntop group code: {}".format(bc_group_owner, top_level_group))
         
         # /<top level group>/<queue name>/<game id>
         queue_name = queue.name # next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
