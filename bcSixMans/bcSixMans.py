@@ -310,7 +310,7 @@ class BCSixMans(commands.Cog):
 
         try:
             series_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
-            series_name = f"{series_time_str} | Series {str(game.id)[:3]}"
+            series_name = f"{series_time_str} | {str(game.id)[-3:]}"
         except Exception as e:
             await game.queue.send_message(f"Exception: {e}")
             series_name = "Click Here to View!"
@@ -532,7 +532,7 @@ class BCSixMans(commands.Cog):
 
         try:
             game_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
-            game_name = f"{game_time_str} | Series {str(game.id)[:3]}"
+            game_name = f"{game_time_str} | Series {str(game.id)[-3:]}"
         except Exception as e:
             await game.queue.send_message(f"Exception: {e}")
             game_name = str(game.id)
