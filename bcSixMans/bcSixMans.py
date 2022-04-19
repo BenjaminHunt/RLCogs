@@ -315,7 +315,7 @@ class BCSixMans(commands.Cog):
             await game.queue.send_message(f"Exception: {e}")
             series_name = "Click Here to View!"
 
-        embed.add_field(name="New Ballchasing Group Created!", value=f":white_check_mark: [{series_name}](https://ballchasing.com/group/{series_subgroup_id})", inline=False)
+        embed.add_field(name="New Ballchasing Group Created!", value=f"[{series_name}](https://ballchasing.com/group/{series_subgroup_id})", inline=False)
         await embed_message.edit(embed=embed)
         return
 
