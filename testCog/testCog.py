@@ -49,8 +49,7 @@ class TestCog(commands.Cog):
             except:
                 pass
         await ctx.send("Cleared nicknames for **{}** members".format(update_count))
-        
-        
+    
     @commands.command()
     async def test(self, ctx, num:int):
         if num == 1:
@@ -146,8 +145,7 @@ class TestCog(commands.Cog):
         await ctx.send('Date str: {}'.format(date_str))
         await ctx.send('--')
 
-        start = datetime.strptime(
-            date_str, '%m/%d/%Y').astimezone(timezone(zone))
+        start = datetime.strptime(date_str, '%m/%d/%Y').astimezone(timezone(zone))
         start_utc = start.astimezone(timezone('UTC'))
 
         await ctx.send('Match Date: {}\n{}: {}\nUTC: {}'.format(date_str, self.time_zones[ctx.guild], start, start_utc))

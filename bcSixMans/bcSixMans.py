@@ -1,4 +1,4 @@
-import abc
+
 from .config import config
 from datetime import datetime, timezone
 import tempfile
@@ -7,13 +7,16 @@ import asyncio
 import requests
 import urllib.parse
 
+from datetime import datetime
+from pytz import timezone
+
 from redbot.core import Config
 from redbot.core import commands
 from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults = {"TopLevelGroup": None, "SixMansRole": 848403373782204436}
+defaults = {"TopLevelGroup": None, "SixMansRole": 848403373782204436, 'TimeZone': 'America/New_York'}
 verify_timeout = 30
 
 class BCSixMans(commands.Cog):
@@ -25,8 +28,11 @@ class BCSixMans(commands.Cog):
         self.config.register_guild(**defaults)
         self.six_mans_cog = bot.get_cog("SixMans")
         self.account_manager_cog = bot.get_cog("AccountManager")
-        # TODO: self.token = await self._auth_token # load on_ready
-        # self.bot.loop.create_task(self.observe_six_mans())
+
+        self.time_zones = {}
+        self.auth_tokens = {}
+        self.task = asyncio.create_task(self.pre_load_data())
+
         try:
             self.observe_six_mans()
         except:
@@ -223,6 +229,13 @@ class BCSixMans(commands.Cog):
         return response
 
 # other commands
+    async def pre_load_data(self):
+        """Loop task to preload guild data"""
+        await self.bot.wait_until_ready()
+        for guild in self.bot.guilds:
+            self.time_zones[guild] = await self._get_time_zone(guild)
+            self.auth_tokens[guild] = await self._get_auth_token(guild)
+
     async def _process_six_mans_replays(self, game):
         if not self.account_manager_cog:
             return await game.queue.send_message(":x: **Error:** The `accountManager` cog must be loaded to enable this behavior.")
@@ -277,7 +290,7 @@ class BCSixMans(commands.Cog):
 
         channel = embed_message.channel # queue.channels[0]
 
-        embed.description = f"Series Results: {summary}"
+        embed.description = f"{summary}"
         await embed_message.edit(embed=embed)
 
         series_subgroup_id = await self._get_series_destination(game)
@@ -285,8 +298,6 @@ class BCSixMans(commands.Cog):
             embed.description += "\n:x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
-
-        # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
         embed.description += "\n:signal_strength: _Processing {} replays..._".format(len(replay_ids))
         await embed_message.edit(embed=embed)
@@ -511,9 +522,15 @@ class BCSixMans(commands.Cog):
         # /<top level group>/<queue name>/<game id>
         queue_name = queue.name # next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
 
+        try:
+            game_time_str = game.text_channel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
+            game_name = f"{game_time_str} | Series {str(game.id)[:3]}"
+        except:
+            game_name = str(game.id)
+
         ordered_subgroups = [
             queue_name,
-            str(game.id)
+            game_name
         ]
 
         endpoint = '/groups'
@@ -666,3 +683,10 @@ class BCSixMans(commands.Cog):
     
     async def _six_mans_role(self, guild):
         return guild.get_role(await self.config.guild(guild).SixMansRole())
+    
+    async def _save_time_zone(self, guild, time_zone):
+        await self.config.guild(guild).TimeZone.set(time_zone)
+        self.time_zones[guild] = time_zone
+
+    async def _get_time_zone(self, guild):
+        return await self.config.guild(guild).TimeZone()
