@@ -306,7 +306,7 @@ class BCSixMans(commands.Cog):
         uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
         renamed = await self._rename_replays(guild, uploaded_ids)
 
-        embed.description = f"Series Results: {summary}"
+        embed.description = summary
         embed.add_field(name="New Ballchasing Group Created!", value=f":white_check_mark: [Click Here to View!](https://ballchasing.com/group/{series_subgroup_id})", inline=False)
         await embed_message.edit(embed=embed)
         return
