@@ -299,7 +299,7 @@ class BCSixMans(commands.Cog):
             await embed_message.edit(embed=embed)
             return
         
-        embed.description += "\n:signal_strength: _Processing {} replays..._".format(len(replay_ids))
+        embed.description += "\n\n:signal_strength: _Processing {} replays..._".format(len(replay_ids))
         await embed_message.edit(embed=embed)
 
         tmp_replay_files = await self._download_replays(guild, replay_ids)
@@ -307,7 +307,15 @@ class BCSixMans(commands.Cog):
         renamed = await self._rename_replays(guild, uploaded_ids)
 
         embed.description = summary
-        embed.add_field(name="New Ballchasing Group Created!", value=f":white_check_mark: [Click Here to View!](https://ballchasing.com/group/{series_subgroup_id})", inline=False)
+
+        try:
+            series_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
+            series_name = f"{series_time_str} | Series {str(game.id)[:3]}"
+        except Exception as e:
+            await game.queue.send_message(f"Exception: {e}")
+            series_name = "Click Here to View!"
+
+        embed.add_field(name="New Ballchasing Group Created!", value=f":white_check_mark: [{series_name}](https://ballchasing.com/group/{series_subgroup_id})", inline=False)
         await embed_message.edit(embed=embed)
         return
 
