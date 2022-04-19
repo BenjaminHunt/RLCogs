@@ -525,7 +525,8 @@ class BCSixMans(commands.Cog):
         try:
             game_time_str = game.text_channel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
             game_name = f"{game_time_str} | Series {str(game.id)[:3]}"
-        except:
+        except Exception as e:
+            await game.queue.send_message(f"Exception: {e}")
             game_name = str(game.id)
 
         ordered_subgroups = [
