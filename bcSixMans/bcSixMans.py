@@ -539,6 +539,12 @@ class BCSixMans(commands.Cog):
             # utctime = game.textChannel.created_at.replace(tzinfo=UTC)
             # series_time_str = utctime.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
             # series_name = f"{series_time_str} | Series {str(game.id)[-3:]}"
+            await game.queue.send_message(f"QPT: {game.textChannel.created_at}")
+            try:
+                await game.queue.send_message(f"QPT Formatted: {game.textChannel.created_at.strftime('%Y-%m-%d %I:%M %p %Z')}")
+            except:
+                pass
+                    
             game_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
             game_name = f"{game_time_str} | Series {str(game.id)[-3:]}"
         except Exception as e:
