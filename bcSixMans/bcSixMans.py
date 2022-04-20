@@ -1,6 +1,5 @@
 
 from .config import config
-from datetime import datetime, timezone
 import tempfile
 import discord
 import asyncio
@@ -8,7 +7,7 @@ import requests
 import urllib.parse
 
 from datetime import datetime
-from pytz import timezone
+from pytz import timezone, UTC
 
 from redbot.core import Config
 from redbot.core import commands
@@ -309,6 +308,7 @@ class BCSixMans(commands.Cog):
         embed.description = summary
 
         try:
+            utctime = game.textChannel.created_at.replace(tzinfo=UTC)
             series_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
             series_name = f"{series_time_str} | {str(game.id)[-3:]}"
         except Exception as e:
