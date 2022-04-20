@@ -164,7 +164,8 @@ class BCSixMans(commands.Cog):
         if not await self._get_top_level_group(guild):
             return
         if game.state == config.GS_GAME_OVER:
-            await self._process_six_mans_replays(game)
+            # await self._process_six_mans_replays(game)
+            asyncio.create_task(self._process_six_mans_replays(game))
             
 
 ###########################################################
