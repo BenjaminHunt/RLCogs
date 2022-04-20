@@ -5,9 +5,9 @@ This set of instructions informs developers how to configure their dev environme
 1. Install virtual Environment: `pip install virtualenv`
 - virtual environment version can be viewed with `virtualenv --version`
 1. Create virtual Environment: `python -m venv .venv`
-1. At the bottom right of the IDE, a prompt should appear: https://i.stack.imgur.com/HzSHk.png.
+1. At the bottom right of the IDE, a prompt may appear: https://i.stack.imgur.com/HzSHk.png.
 
-    - _We noticed a new virtual environment has been created. Do you want to select it for the workspace folder?_
+    - _"We noticed a new virtual environment has been created. Do you want to select it for the workspace folder?"_
     - Select **Yes**.
 
 1. Install the project using: `pip install -e .[style]`
@@ -19,10 +19,12 @@ This set of instructions informs developers how to configure their dev environme
 
 1. Install Red in accordance with their [official documentation](https://docs.discord.red/en/stable/install_guides/windows.html#installing-red).
 
-1. Enter Virtual Environment with `$ c:/Users/<path_to_project>/.venv/Scripts/Activate.ps1`
+1. Enter Virtual Environment with `$ & c:/Users/<path_to_project>/.venv/Scripts/Activate.ps1`
+1. Use the hotkey (`Ctrl+Shift+P`) and click "Python: Select Interpreter" 
+    - Select the virtual environment you just created: `('.venv': venv)`
 
 # Debugging
-1. Open the debug window in VSC (Ctrl+Shift+D) and click the cog.
+1. Open the debug window in VSC (`Ctrl+Shift+D`) and click the cog.
 1. Update `.venv/launch.json` to include the following as a configuration:
 ```json
 {
