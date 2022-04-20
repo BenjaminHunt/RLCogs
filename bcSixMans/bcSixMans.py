@@ -78,7 +78,7 @@ class BCSixMans(commands.Cog):
         """Sets the Top Level Ballchasing Replay group for saving match replays.
         Note: Auth Token must be generated from the Ballchasing group owner
         """
-        # TODO: validate group
+        # TODO: validate group, validate guild auth token is group owner
         top_level_group_id = top_level_group_id.replace('https://', '').replace('ballchasing.com/group/', '')
         await self._save_top_level_group(ctx, top_level_group_id)
         await ctx.send("Done.")
