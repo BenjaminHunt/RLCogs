@@ -163,7 +163,8 @@ class BCSixMans(commands.Cog):
         if not await self._get_top_level_group(guild):
             return
         if game.state == config.GS_GAME_OVER:
-            await self._process_six_mans_replays(game)
+            # await self._process_six_mans_replays(game)
+            asyncio.create_task(self._process_six_mans_replays(game))
             
 
 ###########################################################
@@ -512,9 +513,13 @@ class BCSixMans(commands.Cog):
                             break
                         replay_ids.append(replay['id'])
 
-                    series_summary = ":blue_circle: **Blue** {blue_wins} - {oran_wins} **Orange** :orange_circle:".format(
-                        blue_wins=blue_wins, oran_wins=oran_wins
-                    )
+                    if blue_wins > oran_wins:
+                        series_summary = f":blue_circle: **Blue {blue_wins}** - {oran_wins} Orange :orange_circle:"
+                    elif oran_wins > blue_wins:
+                        series_summary = f":blue_circle: Blue {blue_wins} - **{oran_wins} Orange** :orange_circle:"
+                    else:
+                        series_summary = f":blue_circle: **Blue** {blue_wins} - {oran_wins} **Orange** :orange_circle:"
+
 
                     if replay_ids:
                         return replay_ids, series_summary
