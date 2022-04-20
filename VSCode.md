@@ -39,6 +39,7 @@ This set of instructions informs developers how to configure their dev environme
 }
 ```
 1. replace `DEFAULT` with your instance name
+1. Click the Run and Debug dropdown to select your newly created configuration, and the Green Play button to run it.
 
 # More Shell Commands
 - `redbot --list` lists all redbot instances
