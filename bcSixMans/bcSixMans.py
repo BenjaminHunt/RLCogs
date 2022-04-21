@@ -103,8 +103,12 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def whenCreated(self, ctx):
-        created = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
-        await ctx.send("Channel created: {}".format(created))
+
+        dt = self.utc_to_guild_timezone(ctx.guild, ctx.textChannel.created_at)
+        # game_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
+        dt_str = dt.strftime("%Y-%m-%d %I:%M %p %Z")
+        
+        await ctx.send(f"This Channel Created: {dt_str}")
 
     @commands.command()
     @commands.guild_only()
