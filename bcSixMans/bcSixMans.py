@@ -309,9 +309,11 @@ class BCSixMans(commands.Cog):
         embed.description = summary
 
         try:
-            utctime = game.textChannel.created_at.replace(tzinfo=UTC)
-            series_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
-            series_name = f"{series_time_str} | {str(game.id)[-3:]}"
+            # series_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
+            # series_name = f"{series_time_str} | {str(game.id)[-3:]}"
+            dt = self.utc_to_guild_timezone(guild, game.textChannel.created_at)
+            series_time_str = dt.strftime("%Y-%m-%d %I:%M %p %Z")
+            series_name = f"{series_time_str} | Series {str(game.id)[-3:]}"
         except Exception as e:
             await game.queue.send_message(f"Exception: {e}")
             series_name = "Click Here to View!"
@@ -539,21 +541,24 @@ class BCSixMans(commands.Cog):
             # utctime = game.textChannel.created_at.replace(tzinfo=UTC)
             # series_time_str = utctime.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
             # series_name = f"{series_time_str} | Series {str(game.id)[-3:]}"
-            await game.queue.send_message(f"QPT: {game.textChannel.created_at}")
-            try:
-                await game.queue.send_message(f"QPT Formatted: {game.textChannel.created_at.strftime('%Y-%m-%d %I:%M %p %Z')}")
-            except:
-                pass
-                    
-            game_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
-            game_name = f"{game_time_str} | Series {str(game.id)[-3:]}"
+            
+            # await game.queue.send_message(f"QPT: {game.textChannel.created_at}")
+            # try:
+            #     await game.queue.send_message(f"QPT Formatted: {game.textChannel.created_at.strftime('%Y-%m-%d %I:%M %p %Z')}")
+            # except:
+            #     pass
+
+            dt = self.utc_to_guild_timezone(guild, game.textChannel.created_at)
+            # game_time_str = game.textChannel.created_at.astimezone(timezone(self.time_zones[guild])).strftime("%Y-%m-%d %I:%M %p %Z")
+            series_time_str = dt.strftime("%Y-%m-%d %I:%M %p %Z")
+            series_name = f"{series_time_str} | Series {str(game.id)[-3:]}"
         except Exception as e:
             await game.queue.send_message(f"Exception: {e}")
-            game_name = str(game.id)
+            series_name = str(game.id)
 
         ordered_subgroups = [
             queue_name,
-            game_name
+            series_name
         ]
 
         endpoint = '/groups'
@@ -690,6 +695,10 @@ class BCSixMans(commands.Cog):
 
             game_number += 1
         return renamed
+
+    def utc_to_guild_timezone(self, guild, utc_dt: datetime):
+        utc_dt = utc_dt.replace(tzinfo=UTC)
+        return utc_dt.astimezone(timezone(self.time_zones[guild]))
 
 # json
     async def _get_top_level_group(self, guild):
