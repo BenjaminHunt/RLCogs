@@ -2,6 +2,7 @@ import abc
 from distutils.command.config import config
 
 from .bc_config import bcConfig
+from accountManager import AccountManager
 
 from dislash import InteractionClient, ActionRow, Button, ButtonStyle
 from datetime import date, datetime, timedelta, timezone
@@ -36,7 +37,7 @@ class BCMatchGroups(commands.Cog):
             self, identifier=1234567893, force_registration=True)
         self.config.register_global(**global_defaults)
         self.config.register_guild(**defaults)
-        self.account_manager_cog = bot.get_cog("AccountManager")
+        self.account_manager_cog: AccountManager = bot.get_cog("AccountManager")
         self.task = asyncio.create_task(self.auto_update_match_day())
         self.auto_update_md = True
 
@@ -2012,8 +2013,6 @@ class BCMatchGroups(commands.Cog):
 
     async def _save_team_roles(self, guild, roles):
         await self.config.guild(guild).TeamRoles.set(roles)
-
-    # TODO: add transfer tokens command
     
     async def _get_member_bc_token(self, member: discord.Member):
         return await self.account_manager_cog._get_member_bc_token(member)
