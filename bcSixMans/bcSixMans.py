@@ -1,11 +1,13 @@
-import abc
+
 from .config import config
-from datetime import datetime, timezone
 import tempfile
 import discord
 import asyncio
 import requests
 import urllib.parse
+
+from datetime import datetime
+from pytz import timezone, UTC
 
 from redbot.core import Config
 from redbot.core import commands
@@ -13,7 +15,7 @@ from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
 
-defaults = {"TopLevelGroup": None, "SixMansRole": 848403373782204436}
+defaults = {"TopLevelGroup": None, "SixMansRole": 848403373782204436, 'TimeZone': 'America/New_York'}
 verify_timeout = 30
 
 class BCSixMans(commands.Cog):
@@ -25,8 +27,11 @@ class BCSixMans(commands.Cog):
         self.config.register_guild(**defaults)
         self.six_mans_cog = bot.get_cog("SixMans")
         self.account_manager_cog = bot.get_cog("AccountManager")
-        # TODO: self.token = await self._auth_token # load on_ready
-        # self.bot.loop.create_task(self.observe_six_mans())
+
+        self.time_zones = {}
+        self.auth_tokens = {}
+        self.task = asyncio.create_task(self.pre_load_data())
+
         try:
             self.observe_six_mans()
         except:
@@ -66,21 +71,21 @@ class BCSixMans(commands.Cog):
 
         await self._process_six_mans_replays(game)
 
-    @commands.command(aliases=["sbcg", "setSixMansGroup", "setSMG"])
+    @commands.command(aliases=["ssmg", "setSixMansGroup", "setSMG"])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
-    async def setBCGroup(self, ctx, top_level_group_id):
+    async def setSMGroup(self, ctx, top_level_group_id):
         """Sets the Top Level Ballchasing Replay group for saving match replays.
         Note: Auth Token must be generated from the Ballchasing group owner
         """
-        # TODO: validate group
+        # TODO: validate group, validate guild auth token is group owner
         top_level_group_id = top_level_group_id.replace('https://', '').replace('ballchasing.com/group/', '')
         await self._save_top_level_group(ctx, top_level_group_id)
         await ctx.send("Done.")
     
-    @commands.command(aliases=['bcGroup', 'ballchasingGroup', 'bcg', 'tlg', 'getBCGroup'])
+    @commands.command(aliases=['smGroup', 'smg', 'tlg', 'getSMGroup'])
     @commands.guild_only()
-    async def bcgroup(self, ctx):
+    async def sixMansGroup(self, ctx):
         """Get the top-level ballchasing group to see all season match replays."""
         group_code = await self._get_top_level_group(ctx.guild)
         url = "https://ballchasing.com/group/{}".format(group_code)
@@ -98,8 +103,10 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def whenCreated(self, ctx):
-        created = ctx.channel.created_at.astimezone(tz=timezone.utc).isoformat()
-        await ctx.send("Channel created: {}".format(created))
+        dt = self.utc_to_guild_timezone(ctx.guild, ctx.channel.created_at)
+        dt_str = dt.strftime("%Y-%m-%d %I:%M %p %Z")
+        
+        await ctx.send(f"This Channel Created: {dt_str}")
 
     @commands.command()
     @commands.guild_only()
@@ -113,9 +120,12 @@ class BCSixMans(commands.Cog):
     @commands.guild_only()
     @checks.admin_or_permissions(manage_guild=True)
     async def testa(self, ctx):
-        await self.six_mans_cog._pre_load_data()
-        s = "in" if ctx.guild in self.six_mans_cog.queues else "not in"
-        await ctx.send("Guild {} queues object.")
+        await ctx.send("bot sucks")
+        auth_token = await self._get_auth_token(ctx.guild)
+        await ctx.send(f"token: {auth_token}")
+        await ctx.send("gonna sleep 5 sec")
+        await asyncio.sleep(5)
+        await ctx.send("bot still sucks")
 
     # @commands.command()
     # @commands.guild_only()
@@ -151,58 +161,91 @@ class BCSixMans(commands.Cog):
             self.six_mans_cog.remove_observer(self)
 
     async def update(self, game):
-        try:
-            guild = game.queue.guild
-            # await self.six_mans_cog._pre_load_games(guild)
-            if not await self._get_top_level_group(guild):
-                return
-        except:
+        guild = game.queue.guild
+        if not await self._get_top_level_group(guild):
             return
-        await game.textChannel.send("Game State: {}".format(game.game_state))
-        if game.game_state == "game over":  # TODO: update to be just "over"
-            channel = guild.get_channel(816122799679864902)
-            await channel.send("processing replays hopefully :)")
-            await self._process_six_mans_replays(game)
-            await channel.send("processed!")
+        if game.state == config.GS_GAME_OVER:
+            # await self._process_six_mans_replays(game)
+            asyncio.create_task(self._process_six_mans_replays(game))
             
 
 ###########################################################
 
 # ballchasing
-    def _bc_get_request(self, auth_token, endpoint, params=[]):
+    async def _bc_delete_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
-        return requests.get(url, headers={'Authorization': auth_token})
 
-    def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
+        # url = urllib.parse.quote_plus(url)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.delete(
+            url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
+
+    async def _bc_get_request(self, auth_token, endpoint, params=[]):
+        url = 'https://ballchasing.com/api'
+        url += endpoint
+        # params = [urllib.parse.quote(p) for p in params]
+        params = '&'.join(params)
+        if params:
+            url += "?{}".format(params)
+
+        # url = urllib.parse.quote_plus(url)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(
+            url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
+
+    async def _bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
-        return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
 
-    def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
+        # return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.post(
+            url, headers={'Authorization': auth_token}, json=json, data=data, files=files))
+        response = await future
+        return response
+
+    async def _bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
-        return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+
+        # return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.patch(
+            url, headers={'Authorization': auth_token}, json=json, data=data))
+        response = await future
+        return response
 
 # other commands
+    async def pre_load_data(self):
+        """Loop task to preload guild data"""
+        await self.bot.wait_until_ready()
+        for guild in self.bot.guilds:
+            self.time_zones[guild] = await self._get_time_zone(guild)
+            self.auth_tokens[guild] = await self._get_auth_token(guild)
+
     async def _process_six_mans_replays(self, game):
+        if not self.account_manager_cog:
+            return await game.queue.send_message(":x: **Error:** The `accountManager` cog must be loaded to enable this behavior.")
         guild = game.queue.guild
-        six_mans_queue = None
+        series_title = f"{str(game.id)[-3:]} | {game.queue.name} Series Replays"
+        queue = game.queue
         embed = discord.Embed(
-            title="Six Mans Replay Group",
+            title=series_title,
             description="_Finding ballchasing replays..._",
             color=discord.Color.default()
         )
@@ -219,62 +262,63 @@ class BCSixMans(commands.Cog):
         if emoji_url:
             embed.set_thumbnail(url=emoji_url)
         
-        embed.add_field(name="Blue", value="{}\n".format("\n".join([player.mention for player in game.blue])), inline=True)
-        embed.add_field(name="Orange", value="{}\n".format("\n".join([player.mention for player in game.orange])), inline=True)
+        blue_team = "Blue (W)" if game.winner.lower() == 'blue' else "Blue"
+        orange_team = "Orange (W)" if game.winner.lower() == 'orange' else "Orange"
         
-        # TODO: messages = await game.queue.send_message(embed=embed)
-        channel = game.queue.channels[0]
-        embed_message = await channel.send(embed=embed)
+        embed.add_field(name=blue_team, value="{}\n".format("\n".join([player.mention for player in game.blue])), inline=True)
+        embed.add_field(name=orange_team, value="{}\n".format("\n".join([player.mention for player in game.orange])), inline=True)
+        
+        messages = await queue.send_message(embed=embed)
+        embed_message = messages[0]
 
-        if not await self._get_top_level_group(guild):
-            embed.description = ':x: ballchasing group group not found. An Admin must use the `?setBCGroup` command to enable automatic uploads'
+
+        tlg = await self._get_top_level_group(guild)
+        if not tlg:
+            embed.description = f':x: ballchasing group group not found. An Admin must use the `{game.prefix}setBCGroup` command to enable automatic uploads'
             await embed_message.edit(embed=embed)
             # for message in messages:
             #     await message.edit(embed=embed)
             return
         
+        
         # Find Series replays
-        replays_found = await self._find_series_replays(guild, game) 
+        replays_found = await self._find_series_replays(guild, game)
         if replays_found:
             replay_ids, summary = replays_found
         if not replays_found:
             embed.description = ":x: No matching replays found."
             await embed_message.edit(embed=embed)
             return
-        else:
-            await game.queue.send_message(message="@nullidea: {} replays found".format(len(replay_ids)))
 
-        await channel.send(replays_found)
-        await channel.send('A')
+        channel = embed_message.channel # queue.channels[0]
+
+        embed.description = f"{summary}"
+        await embed_message.edit(embed=embed)
+
         series_subgroup_id = await self._get_series_destination(game)
-        await channel.send('B')
-        await channel.send(series_subgroup_id)
-        # await text_channel.send("Match Subgroup ID: {}".format(series_subgroup_id))
         if not series_subgroup_id:
-            await channel.send('XXX')
-            embed.description = ":x: series_subgroup_id not found."
+            embed.description += "\n:x: series_subgroup_id not found."
             await embed_message.edit(embed=embed)
             return
-
-        await channel.send('C')
-        # await text_channel.send("Matching Ballchasing Replay IDs ({}): {}".format(len(replay_ids), ", ".join(replay_ids)))
         
-        try:
-            embed.description = ":signal_strength: _Processing {} replays..._".format(len(replay_ids))
-            await embed_message.edit(embed=embed)
-            return
-        except:
-            pass
-
-        await channel.send('D')
+        embed.description += "\n\n:signal_strength: _Processing {} replays..._".format(len(replay_ids))
+        await embed_message.edit(embed=embed)
 
         tmp_replay_files = await self._download_replays(guild, replay_ids)
         uploaded_ids = await self._upload_replays(guild, series_subgroup_id, tmp_replay_files)
         renamed = await self._rename_replays(guild, uploaded_ids)
-        
-        await channel.send('E')
 
-        embed.description = ':white_check_mark: {}\n\nReplays added to a new [ballchasing subgroup!](https://ballchasing.com/group/{})'.format(summary, len(uploaded_ids), series_subgroup_id)
+        embed.description = summary
+
+        try:
+            dt = self.utc_to_guild_timezone(guild, game.textChannel.created_at)
+            series_time_str = dt.strftime("%Y-%m-%d %I:%M %p %Z")
+            series_name = f"{series_time_str} | Series {str(game.id)[-3:]}"
+        except Exception as e:
+            await game.queue.send_message(f"Exception: {e}")
+            series_name = "Click Here to View!"
+
+        embed.add_field(name="New Ballchasing Group Created!", value=f"[{series_name}](https://ballchasing.com/group/{series_subgroup_id})", inline=False)
         await embed_message.edit(embed=embed)
         return
 
@@ -330,7 +374,7 @@ class BCSixMans(commands.Cog):
     async def _get_steam_id_from_token(self, guild, auth_token=None):
         if not auth_token:
             auth_token = await self._get_auth_token(guild)
-        r = self._bc_get_request(auth_token, "")
+        r = await self._bc_get_request(auth_token, "")
         if r.status_code == 200:
             return r.json()['steam_id']
         return None
@@ -431,7 +475,10 @@ class BCSixMans(commands.Cog):
         queue_pop_time = game.textChannel.created_at # .astimezone(tz=timezone.utc).isoformat()
         queue_pop_time = '{}-00:00'.format(queue_pop_time.isoformat())
         auth_token = await self._get_auth_token(guild)
-        
+        if not auth_token:
+            await game.queue.send_message(":x: Guild has no auth token registered.")
+            return None
+
         params = [
             'playlist=private',
             # 'replay-date-after={}'.format(urllib.parse.quote(queue_pop_time)),
@@ -440,12 +487,14 @@ class BCSixMans(commands.Cog):
             'sort-by={}'.format(sort),
             'sort-dir={}'.format(sort_dir)
         ]
-        await asyncio.sleep(5) # wait 5 seconds for insta-reports
+        await asyncio.sleep(7) # wait 5 seconds for insta-reports
+        
         for player in game.players:
+            # await game.queue.send_message(i)
             for steam_id in await self._get_steam_ids(guild, player.id):
                 uploaded_by_param='uploader={}'.format(steam_id)
                 params.append(uploaded_by_param)
-                r = self._bc_get_request(auth_token, endpoint, params=params)
+                r = await self._bc_get_request(auth_token, endpoint, params=params)
 
                 params.remove(uploaded_by_param)
                 data = r.json()
@@ -455,7 +504,6 @@ class BCSixMans(commands.Cog):
                 blue_wins = 0
                 replay_ids = []
                 if 'list' in data:
-                    await game.textChannel.send("{} has {} replays uploaded...".format(player.name, len(data['list'])))
                     for replay in data['list']:
                         winner = await self._is_six_mans_replay(guild, player, game, replay)
                         if winner.lower() == 'blue':
@@ -463,36 +511,43 @@ class BCSixMans(commands.Cog):
                         elif winner.lower() == 'orange':
                             oran_wins += 1
                         else:
-                            await game.textChannel.send("Winner not defined :/")
+                            await game.queue.send_message("Winner not defined :/")
                             break
                         replay_ids.append(replay['id'])
 
-                    series_summary = "**Blue** {blue_wins} - {oran_wins} **Orange**".format(
-                        blue_wins=blue_wins, oran_wins=oran_wins
-                    )
+                    if blue_wins > oran_wins:
+                        series_summary = f":blue_circle: **Blue {blue_wins}** - {oran_wins} Orange :orange_circle:"
+                    elif oran_wins > blue_wins:
+                        series_summary = f":blue_circle: Blue {blue_wins} - **{oran_wins} Orange** :orange_circle:"
+                    else:
+                        series_summary = f":blue_circle: **Blue** {blue_wins} - {oran_wins} **Orange** :orange_circle:"
+
 
                     if replay_ids:
-                        await game.textChannel.send(":)")
                         return replay_ids, series_summary
-            
         return None
 
     async def _get_series_destination(self, game):
         queue = game.queue
         guild = queue.guild
-        # here
         auth_token = await self._get_auth_token(guild)
         bc_group_owner = await self._get_steam_id_from_token(guild, auth_token)
         top_level_group = await self._get_top_level_group(guild)
-
         
         # /<top level group>/<queue name>/<game id>
-        game_id = game.id
         queue_name = queue.name # next(queue.name for queue in self.queues if queue.id == six_mans_queue.id)
+
+        try:
+            dt = self.utc_to_guild_timezone(guild, game.textChannel.created_at)
+            series_time_str = dt.strftime("%Y-%m-%d %I:%M %p %Z")
+            series_name = f"{series_time_str} | Series {str(game.id)[-3:]}"
+        except Exception as e:
+            await game.queue.send_message(f"Exception: {e}")
+            series_name = str(game.id)
 
         ordered_subgroups = [
             queue_name,
-            game_id
+            series_name
         ]
 
         endpoint = '/groups'
@@ -503,33 +558,14 @@ class BCSixMans(commands.Cog):
             'group={}'.format(top_level_group)
         ]
 
-        await queue.send_message("A.a")
-        r = self._bc_get_request(auth_token, endpoint, params=params)
+        r = await self._bc_get_request(auth_token, endpoint, params=params)
 
-        await queue.send_message("A.b")
         data = r.json()
-        
-        ## TEST OUTPUT - admin-input
-        debug_channel = None
-        for channel in queue.text_channels:
-            if channel.id == 816122799679864902:
-                debug_channel = channel
-                break
-        
-        
-        await queue.send_message("A.c")
-        if channel and not data['list']:
-            await debug_channel.send(auth_token)
-            await debug_channel.send("{}?{}".format(endpoint, "&".join(params)))
-            await debug_channel.send("No data")
-            await debug_channel.send(data)
 
-        await queue.send_message("A.d")
         # Dynamically create sub-group
         current_subgroup_id = top_level_group
         next_subgroup_id = None
         for next_group_name in ordered_subgroups:
-            next_group_name = str(next_group_name)
             if next_subgroup_id:
                 current_subgroup_id = next_subgroup_id
             next_subgroup_id = None 
@@ -539,8 +575,7 @@ class BCSixMans(commands.Cog):
                 for data_subgroup in data['list']:
                     if data_subgroup['name'] == next_group_name:
                         next_subgroup_id = data_subgroup['id']
-                        continue
-            
+                        break
             # Prepare & Execute  Next request:
             # ## Next subgroup found: request its contents
             if next_subgroup_id:
@@ -549,9 +584,8 @@ class BCSixMans(commands.Cog):
                     'group={}'.format(next_subgroup_id)
                 ]
 
-                r = self._bc_get_request(auth_token, endpoint, params)
+                r = await self._bc_get_request(auth_token, endpoint, params)
                 data = r.json()
-
             # ## Creating next sub-group
             else:
                 # here
@@ -561,19 +595,16 @@ class BCSixMans(commands.Cog):
                     'player_identification': config.player_identification,
                     'team_identification': config.team_identification
                 }
-                await debug_channel.send("POST: {}".format(endpoint))
-                await debug_channel.send("parms: {}".format(payload))
-                r = self._bc_post_request(auth_token, endpoint, json=payload)
+                r = await self._bc_post_request(auth_token, endpoint, json=payload)
                 data = r.json()
                 
-                if 'error' not in data:
-                    try:
-                        next_subgroup_id = data['id']
-                    except:
-                        return False
-        
-        
-        await queue.send_message("A.e")
+                try:
+                    next_subgroup_id = data['id']
+                except:
+                    await queue.send_message(":x: Error creating Ballchasing group: {}".format(next_group_name))
+                    # await queue.send_message(data)
+                    # await queue.send_message(f'json payload: {payload}')
+                    return False
 
         return next_subgroup_id
 
@@ -583,7 +614,7 @@ class BCSixMans(commands.Cog):
         this_game = 1
         for replay_id in replay_ids[::-1]:
             endpoint = "/replays/{}/file".format(replay_id)
-            r = self._bc_get_request(auth_token, endpoint)
+            r = await self._bc_get_request(auth_token, endpoint)
             
             # replay_filename = "Game {}.replay".format(this_game)
             replay_filename = "{}.replay".format(replay_id)
@@ -609,7 +640,7 @@ class BCSixMans(commands.Cog):
             replay_file.seek(0)
             files = {'file': replay_file}
 
-            r = self._bc_post_request(auth_token, endpoint, params, files=files)
+            r = await self._bc_post_request(auth_token, endpoint, params, files=files)
         
             status_code = r.status_code
             data = r.json()
@@ -619,7 +650,7 @@ class BCSixMans(commands.Cog):
                     replay_ids_in_group.append(data['id'])
                 elif status_code == 409: # Handle duplicate replays
                     patch_endpoint = '/replays/{}/'.format(data['id'])
-                    r = self._bc_patch_request(auth_token, patch_endpoint, json={'group': subgroup_id, 'visibility': config.visibility})
+                    r = await self._bc_patch_request(auth_token, patch_endpoint, json={'group': subgroup_id, 'visibility': config.visibility})
                     if r.status_code == 204:
                         replay_ids_in_group.append(data['id'])
             except:
@@ -643,16 +674,20 @@ class BCSixMans(commands.Cog):
             payload = {
                 'title': 'Game {}'.format(game_number)
             }
-            r = self._bc_patch_request(auth_token, endpoint, json=payload)
+            r = await self._bc_patch_request(auth_token, endpoint, json=payload)
             status_code = r.status_code
 
             if status_code == 204:
                 renamed.append(replay_id)            
             else:
-                await ctx.send(":x: {} error.".format(status_code))
+                await print(":x: {} error.".format(status_code))
 
             game_number += 1
         return renamed
+
+    def utc_to_guild_timezone(self, guild, utc_dt: datetime):
+        utc_dt = utc_dt.replace(tzinfo=UTC)
+        return utc_dt.astimezone(timezone(self.time_zones[guild]))
 
 # json
     async def _get_top_level_group(self, guild):
@@ -669,12 +704,10 @@ class BCSixMans(commands.Cog):
     
     async def _six_mans_role(self, guild):
         return guild.get_role(await self.config.guild(guild).SixMansRole())
+    
+    async def _save_time_zone(self, guild, time_zone):
+        await self.config.guild(guild).TimeZone.set(time_zone)
+        self.time_zones[guild] = time_zone
 
-class Observer(metaclass=abc.ABCMeta):
-    def __init__(self):
-        pass
-    
-    @abc.abstractmethod
-    def update(self, arg):
-        pass
-    
+    async def _get_time_zone(self, guild):
+        return await self.config.guild(guild).TimeZone()

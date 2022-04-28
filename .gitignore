@@ -130,3 +130,5 @@ dmypy.json
 
 # specific items
 /misc 
+*.do_not_commit
+.vscode/

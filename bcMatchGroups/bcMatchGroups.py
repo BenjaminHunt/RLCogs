@@ -1,4 +1,5 @@
 import abc
+from distutils.command.config import config
 
 from .bc_config import bcConfig
 
@@ -357,9 +358,9 @@ class BCMatchGroups(commands.Cog):
             "type": match_type
         }
 
-        matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
+        # matches_reported = await self._check_if_reported(ctx, auth_token, team_name, match_day, match_type=bcConfig.REGULAR_SEASON_MT)
 
-        await ctx.send(match_subgroup_id)
+        # await ctx.send(match_subgroup_id)
         return
 
         if not match_subgroup_id:
@@ -468,8 +469,7 @@ class BCMatchGroups(commands.Cog):
         for team_role in team_roles:
             try:
                 group_code = (await self._get_top_level_group(ctx.guild, team_role))[1]
-                embed.add_field(
-                    name=team_role.name, value="https://ballchasing.com/group/{}".format(group_code), inline=False)
+                embed.add_field(name=team_role.name, value="https://ballchasing.com/group/{}".format(group_code), inline=False)
             except:
                 pass
 
@@ -871,8 +871,7 @@ class BCMatchGroups(commands.Cog):
         ) != opposing_team else opposing_team
 
         if match_type == bcConfig.REGULAR_SEASON_MT:
-            series_title = "Match Day {}: {} vs {}".format(
-                match_day, team_name, opposing_team)
+            series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
         elif match_type == bcConfig.SCRIM_MT:
             series_title = "{} Scrim vs {}".format(
                 datetime.now().strftime("%m/%d"), opposing_team)
@@ -1427,6 +1426,8 @@ class BCMatchGroups(commands.Cog):
         if member in team_players:
             team_players.remove(member)
             team_players.insert(0, member)
+        else:
+            team_players.append(member)
 
         # Search all players in game for replays until match is found
         return_replay_ids = []
@@ -1439,6 +1440,11 @@ class BCMatchGroups(commands.Cog):
                 params.append(uploaded_by_param)
 
                 r = await self._bc_get_request(auth_token, endpoint, params=params)
+                
+                if bcConfig.DEBUG and ctx.guild.id == 675121792741801994:
+                    channel = ctx.guild.get_channel(741758967260250213)
+                    await channel.send(params)
+
                 data = r.json()
                 params.remove(uploaded_by_param)
 
