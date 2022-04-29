@@ -124,7 +124,7 @@ class AccountManager(commands.Cog):
             plat_id = acc[1]
             linked_accounts.append(f"[{platform} | {plat_id}](https://ballchasing.com/player/{platform}/{plat_id})")
         
-        all_accounts_linked = "\n - ".join(linked_accounts)
+        all_accounts_linked = " - " + "\n - ".join(linked_accounts)
 
         accounts_embed = discord.Embed(
             title = f"{member.nick if member.nick else member.name}'s Accounts",
