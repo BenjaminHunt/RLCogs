@@ -128,7 +128,8 @@ class AccountManager(commands.Cog):
 
         accounts_embed = discord.Embed(
             title = f"{member.nick if member.nick else member.name}'s Accounts",
-            color = discord.Color.blue()
+            color = discord.Color.blue(),
+            description = all_accounts_linked if linked_accounts else "No accounts have been registered."
         )
         await ctx.send(embed=accounts_embed)
 
