@@ -64,6 +64,8 @@ class BCFunCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 # region ballchasing
+    
+    # TODO: Make requests async
     def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint

@@ -122,7 +122,12 @@ class AccountManager(commands.Cog):
         for acc in await self._get_member_accounts(member):
             platform = acc[0]
             plat_id = acc[1]
-            linked_accounts.append(f"[{platform} | {plat_id}](https://ballchasing.com/player/{platform}/{plat_id})")
+
+            latest_replay = await self.get_latest_account_replay(ctx.guild, platform, plat_id)
+            player_data = self.get_player_data_from_replay(latest_replay, platform, plat_id)
+            acc_player_name = player_data.get('name')
+
+            linked_accounts.append(f"[{platform} | {acc_player_name}](https://ballchasing.com/player/{platform}/{plat_id})")
         
         all_accounts_linked = " - " + "\n - ".join(linked_accounts)
 
@@ -399,6 +404,7 @@ class AccountManager(commands.Cog):
             return None
 
 # ballchasing
+    # TODO: Update requests to not require guild - auth_token defaults to preloaded data
     async def _bc_get_request(self, guild, endpoint, params=[], auth_token=None):
         if not auth_token:
             auth_token = await self.get_bc_auth_token(guild)
@@ -439,6 +445,34 @@ class AccountManager(commands.Cog):
         return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
 
 # other commands
+    async def get_latest_account_replay(self, guild, platform, plat_id):
+        endpoint = '/replays'
+        params = [
+            'sort-by=replay-date',
+            'sort-dir=desc',
+            'count=1',
+            f'player-id={platform}:{plat_id}'
+        ]
+        response = await self._bc_get_request(guild, endpoint, params)
+        data = response.json()
+
+        try:
+            return data['list'][0]
+        except:
+            return None
+    
+    def get_player_data_from_replay(self, replay_json, platform, platform_id):
+        for team in ['blue', 'orange']:
+            for player in replay_json[team].get('players', []):
+                account_match = (
+                    player['id']['platform'] == platform
+                    and
+                    player['id']['id'] == platform_id
+                )
+                if account_match:
+                    return player
+        return {}
+
     async def _react_prompt(self, ctx, prompt, if_not_msg=None):
         user = ctx.message.author
         react_msg = await ctx.send(prompt)
