@@ -114,14 +114,23 @@ class AccountManager(commands.Cog):
 
     @commands.command(aliases=['bcpage', 'mybc', 'bcp', 'getBCPage', 'bcprofile', 'bcpages', 'bcaccs'])
     @commands.guild_only()
-    async def bcProfile(self, ctx):
+    async def bcProfile(self, ctx, member:discord.Member=None):
         """Get the ballchasing pages for registered accounts"""
-        member = ctx.message.author
-        lines = []
+        if not member:
+            member = ctx.author
+        linked_accounts = []
         for acc in await self._get_member_accounts(member):
-            lines.append("<https://ballchasing.com/player/{}/{}>".format(acc[0], acc[1]))
-        show_accounts = "**{}**, has registered the following accounts:\n - ".format(member.name) + "\n - ".join(lines)
-        await ctx.send(show_accounts)
+            platform = acc[0]
+            plat_id = acc[1]
+            linked_accounts.append(f"[{platform} | {plat_id}](https://ballchasing.com/player/{platform}/{plat_id})")
+        
+        all_accounts_linked = "\n - ".join(linked_accounts)
+
+        accounts_embed = discord.Embed(
+            title = f"{member.nick if member.nick else member.name}'s Accounts",
+            color = discord.Color.blue()
+        )
+        await ctx.send(embed=accounts_embed)
 
     @commands.command(aliases=['registeraccount', 'accountregister', 'accountRegister', 'addAccount', 'addaccount', 'addacc'])
     @commands.guild_only()
