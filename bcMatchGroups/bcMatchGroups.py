@@ -195,7 +195,7 @@ class BCMatchGroups(commands.Cog):
         else:
             await ctx.send(":x: {} is not a valid team identifier.".format(team_name))
 
-    @commands.command(aliases=['clearTeams'])
+    @commands.command(aliases=['clearFranchiseTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def clearTeamRoles(self, ctx):
