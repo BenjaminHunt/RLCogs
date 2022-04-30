@@ -409,9 +409,9 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['teams'])
+    @commands.command(aliases=['franchiseTeams'])
     @commands.guild_only()
-    async def listTeams(self, ctx):
+    async def listFranchiseTeams(self, ctx):
         """List all registered teams"""
         member = ctx.message.author
         team_roles = await self._get_team_roles(ctx.guild)
