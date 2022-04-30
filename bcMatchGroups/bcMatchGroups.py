@@ -180,7 +180,7 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(":x: No roles provided.")
 
-    @commands.command(aliases=['removeTeam', 'rmteam'])
+    @commands.command(aliases=['removeFranchiseTeam', 'rmteam'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def removeTeamRole(self, ctx, *, team_name):
