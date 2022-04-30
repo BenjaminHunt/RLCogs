@@ -178,9 +178,9 @@ class TestCog(commands.Cog):
         await ctx.send("Done.")
     
     @commands.guild_only()
-    @commands.command()
+    @commands.command(aliases=['kickall'])
     @checks.admin_or_permissions(manage_guild=True)
-    async def kickall(self, ctx, *users):
+    async def kickAll(self, ctx, *users):
         kicked = []
         failed = []
 

@@ -145,7 +145,7 @@ class BCMatchGroups(commands.Cog):
             await ctx.send("Done")
 
 # Admin Settings - Team Mgmt
-    @commands.command(aliases=['addTeams'])
+    @commands.command(aliases=['addFranchiseTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def addTeamRoles(self, ctx, *roleList):
