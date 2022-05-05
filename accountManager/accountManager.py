@@ -87,7 +87,7 @@ class AccountManager(commands.Cog):
         token = await self._get_member_bc_token(member)
         
         if token:
-            response = self.bc_get_request(token, "")
+            response = await self.bc_get_request(token, "")
             if response.status_code() == 200:
                 return await ctx.send(f"{member.mention}, you have a valid token registered.")
         
