@@ -80,6 +80,15 @@ class AccountManager(commands.Cog):
         except:
             await ctx.send(":x: Error setting auth token.")
 
+    @commands.command(aliases=['setMyBCAuthKey', 'setMyUploadToken'])
+    async def tokenCheck(self, ctx):
+        member = ctx.author
+        token = await self._get_member_bc_token(member)
+        if token:
+            await ctx.send(f"Your token: {token}")
+        else:
+            await ctx.send(":(")
+
     @commands.command(aliases=['clearMyBCAuthKey'])
     async def clearMyBCAuthToken(self, ctx):
         """Sets the Auth Key for Ballchasing API requests for the given user.
