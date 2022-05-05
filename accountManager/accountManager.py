@@ -50,7 +50,7 @@ class AccountManager(commands.Cog):
                 await ctx.message.delete()
             except:
                 pass
-            r = await self._bc_get_request(auth_token, '')
+            r = await self.bc_get_request(auth_token, '')
             await ctx.send("+++")
 
             if r.status_code == 200:
@@ -167,7 +167,8 @@ class AccountManager(commands.Cog):
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
             return False
         
-        if not await self.get_bc_auth_token(ctx.guild):
+        auth_token = await self.get_bc_auth_token(ctx.guild)
+        if not auth_token:
             return await ctx.send(":x: An admin must register a ballchasing auth token to enable memebers to register accounts.")
 
         member = ctx.message.author
@@ -301,7 +302,8 @@ class AccountManager(commands.Cog):
         if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
 
-        if not await self.get_bc_auth_token(ctx.guild):
+        auth_token = await self.get_bc_auth_token(ctx.guild)
+        if not auth_token:
             return await ctx.send(":x: An admin must register a ballchasing auth token to enable memebers to register accounts.")
 
         try:
@@ -415,44 +417,63 @@ class AccountManager(commands.Cog):
 
 # ballchasing
     # TODO: Update requests to not require guild - auth_token defaults to preloaded data
-    async def _bc_get_request(self, guild, endpoint, params=[], auth_token=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
-        
+    async def bc_delete_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
+
         # url = urllib.parse.quote_plus(url)
-        
-        return requests.get(url, headers={'Authorization': auth_token})
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.delete(
+            url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
 
-    async def _bc_post_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None, files=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
-        
+    async def bc_get_request(self, auth_token, endpoint, params=[]):
+        url = 'https://ballchasing.com/api'
+        url += endpoint
+        # params = [urllib.parse.quote(p) for p in params]
+        params = '&'.join(params)
+        if params:
+            url += "?{}".format(params)
+
+        # url = urllib.parse.quote_plus(url)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(
+            url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
+
+    async def bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
-        return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
 
-    async def _bc_patch_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
+        # return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.post(
+            url, headers={'Authorization': auth_token}, json=json, data=data, files=files))
+        response = await future
+        return response
 
+    async def bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
-        return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+
+        # return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.patch(
+            url, headers={'Authorization': auth_token}, json=json, data=data))
+        response = await future
+        return response
 
 # other commands
     async def get_latest_account_replay(self, guild, platform, plat_id):
@@ -463,7 +484,8 @@ class AccountManager(commands.Cog):
             'count=1',
             f'player-id={platform}:{plat_id}'
         ]
-        response = await self._bc_get_request(guild, endpoint, params)
+        auth_token = await self.get_bc_auth_token(guild)
+        response = await self.bc_get_request(auth_token, endpoint, params)
         data = response.json()
 
         try:
@@ -507,7 +529,8 @@ class AccountManager(commands.Cog):
             'player-id={platform}:{identifier}'.format(platform=platform, identifier=identifier),
             'count=1'
         ]
-        r = await self._bc_get_request(ctx.guild, endpoint, params)
+        auth_token = await self.get_bc_auth_token(ctx.guild)
+        r = await self._bc_get_request(auth_token, endpoint, params)
         data = r.json()
         
         appearances = 0
@@ -530,7 +553,7 @@ class AccountManager(commands.Cog):
     async def _get_steam_id_from_token(self, guild, auth_token=None):
         if not auth_token:
             auth_token = await self.get_bc_auth_token(guild)
-        r = await self._bc_get_request(guild, "")
+        r = await self.bc_get_request(auth_token, "")
         if r.status_code == 200:
             return r.json()['steam_id']
         return None
