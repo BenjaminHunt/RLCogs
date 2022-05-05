@@ -51,7 +51,6 @@ class AccountManager(commands.Cog):
             except:
                 pass
             r = await self.bc_get_request(auth_token, '')
-            await ctx.send("+++")
 
             if r.status_code == 200:
                 await self._save_member_bc_token(member, auth_token)
@@ -84,11 +83,15 @@ class AccountManager(commands.Cog):
     @commands.command(aliases=['tokencheck'])
     async def tokenCheck(self, ctx):
         member = ctx.author
+        
         token = await self._get_member_bc_token(member)
+        
         if token:
-            await ctx.send(f"Your token: {token}")
-        else:
-            await ctx.send(":(")
+            response = self.bc_get_request(token, "")
+            if response.status_code() == 200:
+                return await ctx.send(f"{member.mention}, you have a valid token registered.")
+        
+        await ctx.send(f"{member.mention}, you do not have a valid token registered.")
 
     @commands.command(aliases=['clearMyBCAuthKey'])
     async def clearMyBCAuthToken(self, ctx):
