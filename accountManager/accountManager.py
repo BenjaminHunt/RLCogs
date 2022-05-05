@@ -44,13 +44,14 @@ class AccountManager(commands.Cog):
     async def setMyBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests for the given user.
         """
-        member = ctx.message.author
+        member = ctx.author
         try:
             try:
                 await ctx.message.delete()
             except:
                 pass
             r = await self._bc_get_request(auth_token, '')
+            await ctx.send("+++")
 
             if r.status_code == 200:
                 await self._save_member_bc_token(member, auth_token)
