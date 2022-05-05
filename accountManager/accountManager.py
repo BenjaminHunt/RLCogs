@@ -80,7 +80,7 @@ class AccountManager(commands.Cog):
         except:
             await ctx.send(":x: Error setting auth token.")
 
-    @commands.command(aliases=['setMyBCAuthKey', 'setMyUploadToken'])
+    @commands.command(aliases=['tokencheck'])
     async def tokenCheck(self, ctx):
         member = ctx.author
         token = await self._get_member_bc_token(member)
