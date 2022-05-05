@@ -77,8 +77,8 @@ class AccountManager(commands.Cog):
                 await ctx.send(f"{msg}.")
             else:
                 await ctx.send(":x: The upload token you passed is invalid.")
-        except:
-            await ctx.send(":x: Error setting auth token.")
+        except Exception as e:
+            await ctx.send(f":x: Error setting auth token: {e}")
 
     @commands.command(aliases=['tokencheck'])
     async def tokenCheck(self, ctx):
