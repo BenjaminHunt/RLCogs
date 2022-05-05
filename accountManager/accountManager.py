@@ -530,7 +530,7 @@ class AccountManager(commands.Cog):
             'count=1'
         ]
         auth_token = await self.get_bc_auth_token(ctx.guild)
-        r = await self._bc_get_request(auth_token, endpoint, params)
+        r = await self.bc_get_request(auth_token, endpoint, params)
         data = r.json()
         
         appearances = 0
