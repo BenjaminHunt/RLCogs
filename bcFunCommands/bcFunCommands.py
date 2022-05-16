@@ -225,8 +225,9 @@ class BCFunCommands(commands.Cog):
         plat_id = player_data['id']['id']
         player_page_link = f'https://ballchasing.com/player/{platform}/{plat_id}'
 
-        car_id = player_data.get("car_id", "")
+        car_id = player_data.get("car_id", "X")
         car_str = await self.lookup_car_id(car_id)
+        car_str = car_str if car_str else f"Not Found: {car_id}"
         steer_sens = f"steering sensitivity: {player_data.get('steering_sensitivity')}"
 
         # Build Embed
