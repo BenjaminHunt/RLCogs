@@ -264,7 +264,7 @@ class AccountManager(commands.Cog):
     @commands.guild_only()
     async def unregisterAccounts(self, ctx):
         """Unlinks registered account for ballchasing requests."""
-        account_register = await self.get_account_register(ctx.guild)
+        account_register = await self.get_account_register()
         discord_id = str(ctx.message.author.id)
         if discord_id in account_register:
             count = len(account_register[discord_id])
@@ -562,10 +562,10 @@ class AccountManager(commands.Cog):
             return r.json()['steam_id']
         return None
 
-    async def _get_steam_ids(self, guild, discord_id):
+    async def _get_steam_ids(self, discord_id):
         discord_id = str(discord_id)
         steam_accounts = []
-        account_register = await self.get_account_register(guild)
+        account_register = await self.get_account_register()
         if discord_id in account_register:
             for account in account_register[discord_id]:
                 if account[0] == 'steam':
