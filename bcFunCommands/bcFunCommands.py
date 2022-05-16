@@ -14,12 +14,16 @@ from redbot.core.utils.menus import start_adding_reactions
 from .funCmdsReference import FunCmdsReference as fcr
 
 # TODO: Build in player and team stats , just neeed player, team, tier
+
+global_defaults = {"CarBodyLookup": {}}
 class BCFunCommands(commands.Cog):
     """Neat misc ballchasing related commands"""
+
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
+        self.config.register_global(**global_defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
         # TODO: self.token = await self._auth_token # load on_ready
 
