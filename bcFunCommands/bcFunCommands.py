@@ -49,7 +49,7 @@ class BCFunCommands(commands.Cog):
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
         player_data = self.get_player_data_from_replay(full_replay_json, target_account[0], target_account[1])
 
-        embed = self.get_player_settings_embed(target_replay_id, player, player_data)
+        embed = await self.get_player_settings_embed(target_replay_id, player, player_data)
 
         await ctx.send(embed=embed)
 
@@ -199,7 +199,7 @@ class BCFunCommands(commands.Cog):
         return None
 
     # embed
-    def get_player_settings_embed(self, replay_id, member, player_data):
+    async def get_player_settings_embed(self, replay_id, member, player_data):
         member_color = self.get_member_color(member)
 
         embed = discord.Embed(
@@ -209,10 +209,8 @@ class BCFunCommands(commands.Cog):
         if member.avatar_url:
             embed.set_thumbnail(url=member.avatar_url)
         
+        # Preformat Camera Settings
         cam_settings = player_data.get("camera")
-
-        # for k, v in cam_settings.items():
-        #     cam_settings_list.append(f"{k}: {v}")
 
         cam_settings_order = ["fov", "distance", "height", "pitch", "stiffness", "swivel_speed" , "transition_speed"]
         cam_settings_list = []
@@ -222,19 +220,34 @@ class BCFunCommands(commands.Cog):
         
         cam_str = "```\n{}\n```".format('\n'.join(cam_settings_list))
 
-        steer_sens = f"steering sensitivity: {player_data.get('steering_sensitivity')}"
         name = player_data.get('name')
         platform = player_data['id']['platform']
         plat_id = player_data['id']['id']
         player_page_link = f'https://ballchasing.com/player/{platform}/{plat_id}'
 
+        car_id = player_data.get("car_id", "")
+        car_str = await self.lookup_car_id(car_id)
+        steer_sens = f"steering sensitivity: {player_data.get('steering_sensitivity')}"
+
+        # Build Embed
         embed.add_field(name="Account", value=f"[{platform} | {name}]({player_page_link})", inline=False)
         embed.add_field(name="Camera Settings", value=cam_str, inline=False)
         embed.add_field(name="Sensitivity Settings", value='```\n{}\n```'.format(steer_sens), inline=False)
-        embed.add_field(name="Source Replay", value=f"[Click Here to view](https://ballchasing.com/replay/{replay_id})", inline=False)
 
-        # embed.description = cam_str
+        if car_str:
+            embed.add_field(name="Car Choice", value=f"```{car_str}```", inline=False)
+
+        embed.add_field(name="Source Replay", value=f"[Click Here to view](https://ballchasing.com/replay/{replay_id})", inline=False)
 
         return embed 
 
 # endregion
+
+# region json
+
+    async def lookup_car_id(self, car_id):
+        car_lookup_map = await self.config.CarBodyLookup()
+        return car_lookup_map.get(str(car_id), None)
+
+# endregion
+
