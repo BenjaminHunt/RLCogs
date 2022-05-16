@@ -149,9 +149,9 @@ class BCFunCommands(commands.Cog):
         for team in ['blue', 'orange']:
             for player in replay_json[team].get('players', []):
                 account_match = (
-                    player['id']['platform'] == platform
+                    player.get("id", {}).get('platform', None) == platform
                     and
-                    player['id']['id'] == platform_id
+                    player.get("id", {}).get('id', None) == platform_id
                 )
                 if account_match:
                     return player
