@@ -55,6 +55,17 @@ class BCFunCommands(commands.Cog):
 
     @commands.command()
     @commands.guild_only()
+    async def carbodies(self, ctx):
+        car_map_list = []
+        car_lookup_map = await self.config.CarBodyLookup()
+
+        for id, name in car_lookup_map.items():
+            car_map_list.append(f"{id}: {name}")
+        
+        await ctx.send("```\n{}\n```".format('\n'.join(car_lookup_map)))
+
+    @commands.command()
+    @commands.guild_only()
     async def roles(self, ctx):
         roles = ctx.author.roles
         roles.sort(key=lambda r: r.position, reverse=True)
