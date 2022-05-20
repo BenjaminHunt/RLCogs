@@ -138,10 +138,12 @@ class AccountManager(commands.Cog):
             plat_id = acc[1]
 
             latest_replay = await self.get_latest_account_replay(ctx.guild, platform, plat_id)
+            
+            if latest_replay:
+                player_data = self.get_player_data_from_replay(latest_replay, platform, plat_id)
+                acc_player_name = player_data.get('name')
             if not latest_replay:
-                return await ctx.send(":x: Latest replay not found.")
-            player_data = self.get_player_data_from_replay(latest_replay, platform, plat_id)
-            acc_player_name = player_data.get('name')
+                acc_player_name = member.nick if member.nick else member.name
 
             linked_accounts.append(f"[{platform} | {acc_player_name}](https://ballchasing.com/player/{platform}/{plat_id})")
         
