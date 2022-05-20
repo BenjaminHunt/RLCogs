@@ -138,6 +138,8 @@ class AccountManager(commands.Cog):
             plat_id = acc[1]
 
             latest_replay = await self.get_latest_account_replay(ctx.guild, platform, plat_id)
+            if not latest_replay:
+                return await ctx.send(":x: Latest replay not found.")
             player_data = self.get_player_data_from_replay(latest_replay, platform, plat_id)
             acc_player_name = player_data.get('name')
 
@@ -327,6 +329,7 @@ class AccountManager(commands.Cog):
                 await ctx.send("Done.")
                 return
 
+        await ctx.send(f"Acc: {valid_account}")
         if valid_account:
             username, appearances = valid_account
         
