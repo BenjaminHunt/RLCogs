@@ -315,23 +315,14 @@ class AccountManager(commands.Cog):
         try:
             valid_account = await self._validate_account(ctx, platform, identifier)
         except:
-            prompt = "It appears that no games have been played on this account. Would you like to add it anyways?"
-            prompt += "\n_Warning: This may cause issues if the account does not exist_"
-            nvm_message = "Registration cancelled."
-            if await self._react_prompt(ctx, prompt, nvm_message):
-                account_register = await self.get_account_register()
-                if str(member.id) in account_register:
-                    if [platform, identifier] not in account_register[str(member.id)]:
-                        account_register[str(member.id)].append([platform, identifier])
-                else:
-                    account_register[str(member.id)] = [[platform, identifier]]
-                await self._save_account_register(account_register)
-                await ctx.send("Done.")
-                return
+            await self.invalid_account_prompt(ctx, member, platform, identifier)
+            return
 
-        await ctx.send(f"Acc: {valid_account}")
         if valid_account:
             username, appearances = valid_account
+        else:
+            await self.invalid_account_prompt(ctx, member, platform, identifier)
+            return
         
         account_register = await self.get_account_register()
         
@@ -483,6 +474,20 @@ class AccountManager(commands.Cog):
         return response
 
 # other commands
+    async def invalid_account_prompt(self, ctx, member, platform, identifier):
+        prompt = "It appears that no games have been played on this account. Would you like to add it anyways?"
+        prompt += "\n_Warning: This may cause issues if the account does not exist_"
+        nvm_message = "Registration cancelled."
+        if await self._react_prompt(ctx, prompt, nvm_message):
+            account_register = await self.get_account_register()
+            if str(member.id) in account_register:
+                if [platform, identifier] not in account_register[str(member.id)]:
+                    account_register[str(member.id)].append([platform, identifier])
+            else:
+                account_register[str(member.id)] = [[platform, identifier]]
+            await self._save_account_register(account_register)
+            await ctx.send("Done.")
+    
     async def get_latest_account_replay(self, guild, platform, plat_id):
         endpoint = '/replays'
         params = [
