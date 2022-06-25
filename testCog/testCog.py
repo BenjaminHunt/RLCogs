@@ -245,8 +245,11 @@ class TestCog(commands.Cog):
 
     @commands.guild_only()
     @commands.command()
-    async def mypfp(self, ctx,):
-        await ctx.send(f"My pfp link: {ctx.author.avatar_url}")
+    async def mypfp(self, ctx, member=None):
+        if not member:
+            member = ctx.author
+
+        await ctx.send(f"My pfp link: {member.avatar_url}")
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""
