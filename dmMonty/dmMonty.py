@@ -106,7 +106,7 @@ class DMMonty(commands.Cog):
         dm = self.dm_compliments.get(member)
         while dm:
             member.send(self.get_compliment())
-            update_time = self.schedule_next_update()
+            update_time = 10 # self.schedule_next_update()
             await asyncio.sleep(update_time)
         del self.dm_compliments[member]
 
