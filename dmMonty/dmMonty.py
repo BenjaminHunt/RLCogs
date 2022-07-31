@@ -55,7 +55,7 @@ class DMMonty(commands.Cog):
         try:
             self.dm_compliments[member] = True
             await self.auto_dm_compliments(member)
-            await ctx.message.add_reaction(WHITE_X_REACT)
+            await ctx.message.add_reaction(WHITE_CHECK_REACT)
         except:
             await ctx.reply("I tried and failed :(")
     
@@ -67,7 +67,7 @@ class DMMonty(commands.Cog):
         try:
             self.dm_compliments[member] = False
             await ctx.reply(compliment)
-            await ctx.message.add_reaction(WHITE_X_REACT)
+            await ctx.message.add_reaction(WHITE_CHECK_REACT)
         except:
             await ctx.reply("I tried and failed :(")
     
@@ -87,7 +87,7 @@ class DMMonty(commands.Cog):
         compliment = self.get_compliment()
         try:
             await member.send(compliment)
-            await ctx.message.add_reaction(WHITE_X_REACT)
+            await ctx.message.add_reaction(WHITE_CHECK_REACT)
         except:
             await ctx.reply("I tried and failed :(")
 
