@@ -57,7 +57,7 @@ class DMMonty(commands.Cog):
             await ctx.reply("I tried and failed :(")
 
     @commands.guild_only()
-    @commands.command(aliases=['c'])
+    @commands.command(aliases=['cs'])
     @checks.admin_or_permissions(manage_guild=True)
     async def compliments(self, ctx, quantity=5, interval_sec=10):
         for i in range(quantity):
