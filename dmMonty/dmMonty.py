@@ -97,11 +97,15 @@ class DMMonty(commands.Cog):
     async def auto_dm_compliments(self, member: discord.Member, message: discord.Message=None):
         """Loop task to auto-update match day"""
         await self.bot.wait_until_ready()
-        while self.dm_compliments.get(member, False):
-            await member.send(self.get_compliment())
-            update_time = 20 # self.schedule_next_update()
-            await asyncio.sleep(update_time)
+        try:
+            while self.dm_compliments.get(member, False):
+                await member.send(self.get_compliment())
+                update_time = self.schedule_next_update()
+                await asyncio.sleep(update_time)
+        except:
+            self.dm_compliments[member] = False
         del self.dm_compliments[member]
+        
         if message:
             try:
                 await message.add_reaction(WHITE_X_REACT)
