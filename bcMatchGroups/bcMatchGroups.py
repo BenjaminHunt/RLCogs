@@ -868,8 +868,7 @@ class BCMatchGroups(commands.Cog):
             match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
-        opposing_team = opposing_team.title() if opposing_team.upper(
-        ) != opposing_team else opposing_team
+        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
 
         if match_type == bcConfig.REGULAR_SEASON_MT:
             series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)

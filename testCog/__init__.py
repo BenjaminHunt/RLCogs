@@ -1,4 +1,4 @@
-from .testCog import TestCog
+from .dmMonty import DMMonty
 
 def setup(bot):
-    bot.add_cog(TestCog(bot))
+    bot.add_cog(DMMonty(bot))
