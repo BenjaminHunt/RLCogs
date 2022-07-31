@@ -24,7 +24,7 @@ class DMMonty(commands.Cog):
             self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
         self.time_zones = {}
-
+        self.dm_monty = False
         self.task = asyncio.create_task(self.pre_load_data())
 
 
@@ -59,6 +59,14 @@ class DMMonty(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=['c'])
     @checks.admin_or_permissions(manage_guild=True)
+    async def compliments(self, ctx, quantity=5, interval_sec=10):
+        for i in range(quantity):
+            await ctx.reply(self.get_compliment())
+            await asyncio.sleep(interval_sec)
+    
+    @commands.guild_only()
+    @commands.command(aliases=['c'])
+    @checks.admin_or_permissions(manage_guild=True)
     async def compliment(self, ctx, member: discord.Member):
         compliment = self.get_compliment()
         try:
@@ -66,13 +74,32 @@ class DMMonty(commands.Cog):
         except:
             await ctx.reply("I tried and failed :(")
 
+    # helper functions
     async def pre_load_data(self):
         """Loop task to preload guild data"""
         await self.bot.wait_until_ready()
         for guild in self.bot.guilds:
             self.time_zones[guild] = (await self._get_time_zone(guild))
 
-    # helpers
+    async def auto_dm_monty(self, monty: discord.Member):
+        """Loop task to auto-update match day"""
+        await self.bot.wait_until_ready()
+        # self.bot.get_cog("bcMatchGroups") == self:
+        while self.dm_monty:
+            monty.send(self.get_compliment())
+            update_time = self.schedule_next_update()
+            await asyncio.sleep(update_time)
+
+    def schedule_next_update(self):
+        # wait_time = 3600  # one hour
+        today = datetime.date(datetime.now())
+        tomorrow = today + timedelta(days=1)
+        tomorrow_dt = datetime.combine(tomorrow, datetime.min.time())
+        tomorrow_dt.hour = 12 # send at noon
+        wait_time = (tomorrow_dt - datetime.now()).seconds + 30
+        return wait_time
+
+    # secondary helpers
     def get_compliment(self):
         return requests.get("https://complimentr.com/api").json().get("compliment")
 
