@@ -51,14 +51,20 @@ class TestCog(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def DMMonty(self, ctx):
         compliment = self.get_compliment()
-        await ctx.reply(compliment)
-    
+        try:
+            await ctx.reply(compliment)
+        except:
+            await ctx.reply("I tried and failed :(")
+
     @commands.guild_only()
     @commands.command(aliases=['c'])
     @checks.admin_or_permissions(manage_guild=True)
     async def compliment(self, ctx, member: discord.Member):
         compliment = self.get_compliment()
-        await member.send(compliment)
+        try:
+            await member.send(compliment)
+        except:
+            await ctx.reply("I tried and failed :(")
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""
