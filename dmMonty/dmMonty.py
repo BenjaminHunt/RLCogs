@@ -52,7 +52,7 @@ class DMMonty(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def dailyCompliment(self, ctx, member: discord.Member):
         self.dm_compliments[member] = True
-        await self.auto_dm_compliments(member)
+        asyncio.create_task(self.auto_dm_compliments(member))
         await ctx.message.add_reaction(WHITE_CHECK_REACT)
         # try:
         #     self.dm_compliments[member] = True
@@ -72,7 +72,6 @@ class DMMonty(commands.Cog):
             await ctx.message.add_reaction(WHITE_CHECK_REACT)
         except:
             await ctx.reply("I tried and failed :(")
-    
 
     @commands.guild_only()
     @commands.command(aliases=['cs'])
