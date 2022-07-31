@@ -51,7 +51,9 @@ class DMMonty(commands.Cog):
     @commands.command(aliases=['dc'])
     @checks.admin_or_permissions(manage_guild=True)
     async def dailyCompliment(self, ctx, member: discord.Member):
-        compliment = self.get_compliment()
+        self.dm_compliments[member] = True
+        await self.auto_dm_compliments(member)
+        await ctx.message.add_reaction(WHITE_CHECK_REACT)
         try:
             self.dm_compliments[member] = True
             await self.auto_dm_compliments(member)
