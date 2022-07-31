@@ -51,24 +51,19 @@ class DMMonty(commands.Cog):
     @commands.command(aliases=['dc'])
     @checks.admin_or_permissions(manage_guild=True)
     async def dailyCompliment(self, ctx, member: discord.Member):
-        self.dm_compliments[member] = True
-        asyncio.create_task(self.auto_dm_compliments(member))
-        await ctx.message.add_reaction(WHITE_CHECK_REACT)
-        # try:
-        #     self.dm_compliments[member] = True
-        #     await self.auto_dm_compliments(member)
-        #     await ctx.message.add_reaction(WHITE_CHECK_REACT)
-        # except:
-        #     await ctx.reply("I tried and failed :(")
+        try:
+            self.dm_compliments[member] = True
+            asyncio.create_task(self.auto_dm_compliments(member, ctx.message))
+            await ctx.message.add_reaction(WHITE_CHECK_REACT)
+        except:
+            await ctx.reply("I tried and failed :(")
     
     @commands.guild_only()
     @commands.command(aliases=['sdc'])
     @checks.admin_or_permissions(manage_guild=True)
     async def stopDailyCompliments(self, ctx, member: discord.Member):
-        compliment = self.get_compliment()
         try:
             self.dm_compliments[member] = False
-            await ctx.reply(compliment)
             await ctx.message.add_reaction(WHITE_CHECK_REACT)
         except:
             await ctx.reply("I tried and failed :(")
@@ -102,14 +97,16 @@ class DMMonty(commands.Cog):
     async def auto_dm_compliments(self, member: discord.Member, message: discord.Message=None):
         """Loop task to auto-update match day"""
         await self.bot.wait_until_ready()
-        # self.bot.get_cog("bcMatchGroups") == self:
         while self.dm_compliments.get(member, False):
             await member.send(self.get_compliment())
             update_time = 20 # self.schedule_next_update()
             await asyncio.sleep(update_time)
         del self.dm_compliments[member]
         if message:
-            await message.add_reaction(WHITE_X_REACT)
+            try:
+                await message.add_reaction(WHITE_X_REACT)
+            except:
+                pass 
 
     def schedule_next_update(self):
         # wait_time = 3600  # one hour
