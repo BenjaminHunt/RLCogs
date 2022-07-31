@@ -52,7 +52,7 @@ class DMMonty(commands.Cog):
     @checks.admin_or_permissions(manage_guild=True)
     async def dailyCompliment(self, ctx, member: discord.Member):
         self.dm_compliments[member] = True
-        await self.auto_dm_compliments(member)
+        asyncio.create_task(self.auto_dm_compliments(member))
         await ctx.message.add_reaction(WHITE_CHECK_REACT)
         # try:
         #     self.dm_compliments[member] = True
@@ -99,7 +99,7 @@ class DMMonty(commands.Cog):
         for guild in self.bot.guilds:
             self.time_zones[guild] = (await self._get_time_zone(guild))
 
-    async def auto_dm_compliments(self, member: discord.Member):
+    async def auto_dm_compliments(self, member: discord.Member, message: discord.Message=None):
         """Loop task to auto-update match day"""
         await self.bot.wait_until_ready()
         # self.bot.get_cog("bcMatchGroups") == self:
@@ -108,6 +108,8 @@ class DMMonty(commands.Cog):
             update_time = 20 # self.schedule_next_update()
             await asyncio.sleep(update_time)
         del self.dm_compliments[member]
+        if message:
+            await message.add_reaction(WHITE_X_REACT)
 
     def schedule_next_update(self):
         # wait_time = 3600  # one hour
