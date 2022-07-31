@@ -116,7 +116,7 @@ class DMMonty(commands.Cog):
         today = datetime.date(datetime.now())
         tomorrow = today + timedelta(days=1)
         tomorrow_dt = datetime.combine(tomorrow, datetime.min.time())
-        tomorrow_dt.hour = 12 # send at noon
+        tomorrow_dt.replace(hour = 12) # send at noon
         wait_time = (tomorrow_dt - datetime.now()).seconds + 30
         return wait_time
 
