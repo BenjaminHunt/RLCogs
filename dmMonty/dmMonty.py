@@ -54,12 +54,12 @@ class DMMonty(commands.Cog):
         self.dm_compliments[member] = True
         await self.auto_dm_compliments(member)
         await ctx.message.add_reaction(WHITE_CHECK_REACT)
-        try:
-            self.dm_compliments[member] = True
-            await self.auto_dm_compliments(member)
-            await ctx.message.add_reaction(WHITE_CHECK_REACT)
-        except:
-            await ctx.reply("I tried and failed :(")
+        # try:
+        #     self.dm_compliments[member] = True
+        #     await self.auto_dm_compliments(member)
+        #     await ctx.message.add_reaction(WHITE_CHECK_REACT)
+        # except:
+        #     await ctx.reply("I tried and failed :(")
     
     @commands.guild_only()
     @commands.command(aliases=['sdc'])
