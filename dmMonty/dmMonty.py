@@ -50,15 +50,25 @@ class TestCog(commands.Cog):
     @commands.command(aliases=['dmm'])
     @checks.admin_or_permissions(manage_guild=True)
     async def DMMonty(self, ctx):
-        response = requests.get("https://complimentr.com/api")
-        compliment = response.json().get("compliment")
+        compliment = self.get_compliment()
         await ctx.reply(compliment)
+    
+    @commands.guild_only()
+    @commands.command(aliases=['c'])
+    @checks.admin_or_permissions(manage_guild=True)
+    async def compliment(self, ctx, member: discord.Member):
+        compliment = self.get_compliment()
+        await member.send(compliment)
 
     async def pre_load_data(self):
         """Loop task to preload guild data"""
         await self.bot.wait_until_ready()
         for guild in self.bot.guilds:
             self.time_zones[guild] = (await self._get_time_zone(guild))
+
+    # helpers
+    def get_compliment(self):
+        return requests.get("https://complimentr.com/api").json().get("compliment")
 
     # db
 
