@@ -13,7 +13,8 @@ from pytz import timezone, all_timezones_set
 import requests
 
 defaults = {'TimeZone': 'America/New_York'}
-
+WHITE_X_REACT = "\U0000274E"                # :negative_squared_cross_mark:
+WHITE_CHECK_REACT = "\U00002705"            # :white_check_mark:
 
 class DMMonty(commands.Cog):
     """We love Monty!"""
@@ -24,7 +25,7 @@ class DMMonty(commands.Cog):
             self, identifier=1234567893, force_registration=True)
         self.config.register_guild(**defaults)
         self.time_zones = {}
-        self.dm_monty = False
+        self.dm_compliments = {}
         self.task = asyncio.create_task(self.pre_load_data())
 
 
@@ -47,14 +48,29 @@ class DMMonty(commands.Cog):
         await ctx.send("Done")
 
     @commands.guild_only()
-    @commands.command(aliases=['dmm'])
+    @commands.command(aliases=['dc'])
     @checks.admin_or_permissions(manage_guild=True)
-    async def DMMonty(self, ctx):
+    async def dailyCompliment(self, ctx, member: discord.Member):
         compliment = self.get_compliment()
         try:
-            await ctx.reply(compliment)
+            self.dm_compliments[member] = True
+            await self.auto_dm_compliments(member)
+            await ctx.message.add_reaction(WHITE_X_REACT)
         except:
             await ctx.reply("I tried and failed :(")
+    
+    @commands.guild_only()
+    @commands.command(aliases=['sdc'])
+    @checks.admin_or_permissions(manage_guild=True)
+    async def stopDailyCompliments(self, ctx, member: discord.Member):
+        compliment = self.get_compliment()
+        try:
+            self.dm_compliments[member] = False
+            await ctx.reply(compliment)
+            await ctx.message.add_reaction(WHITE_X_REACT)
+        except:
+            await ctx.reply("I tried and failed :(")
+    
 
     @commands.guild_only()
     @commands.command(aliases=['cs'])
@@ -71,6 +87,7 @@ class DMMonty(commands.Cog):
         compliment = self.get_compliment()
         try:
             await member.send(compliment)
+            await ctx.message.add_reaction(WHITE_X_REACT)
         except:
             await ctx.reply("I tried and failed :(")
 
@@ -81,14 +98,16 @@ class DMMonty(commands.Cog):
         for guild in self.bot.guilds:
             self.time_zones[guild] = (await self._get_time_zone(guild))
 
-    async def auto_dm_monty(self, monty: discord.Member):
+    async def auto_dm_compliments(self, member: discord.Member):
         """Loop task to auto-update match day"""
         await self.bot.wait_until_ready()
         # self.bot.get_cog("bcMatchGroups") == self:
-        while self.dm_monty:
-            monty.send(self.get_compliment())
+        dm = self.dm_compliments.get(member)
+        while dm:
+            member.send(self.get_compliment())
             update_time = self.schedule_next_update()
             await asyncio.sleep(update_time)
+        del self.dm_compliments[member]
 
     def schedule_next_update(self):
         # wait_time = 3600  # one hour
