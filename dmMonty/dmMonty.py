@@ -105,7 +105,7 @@ class DMMonty(commands.Cog):
         # self.bot.get_cog("bcMatchGroups") == self:
         dm = self.dm_compliments.get(member)
         while dm:
-            member.send(self.get_compliment())
+            await member.send(self.get_compliment())
             update_time = 10 # self.schedule_next_update()
             await asyncio.sleep(update_time)
         del self.dm_compliments[member]
