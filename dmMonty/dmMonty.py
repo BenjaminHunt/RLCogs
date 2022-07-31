@@ -15,8 +15,8 @@ import requests
 defaults = {'TimeZone': 'America/New_York'}
 
 
-class TestCog(commands.Cog):
-    """Test misc commands for anything!"""
+class DMMonty(commands.Cog):
+    """We love Monty!"""
 
     def __init__(self, bot):
         self.bot = bot
