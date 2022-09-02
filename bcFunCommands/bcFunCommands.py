@@ -1,10 +1,6 @@
 
-from datetime import datetime, timezone
-import tempfile
 import discord
-import asyncio
 import requests
-import urllib.parse
 
 from redbot.core import Config
 from redbot.core import commands
@@ -15,10 +11,10 @@ from .funCmdsReference import FunCmdsReference as fcr
 
 # TODO: Build in player and team stats , just neeed player, team, tier
 
+TYPING_INDICATOR_GIF = "https://cdn.discordapp.com/emojis/522583389350658048.gif?size=96&quality=lossless"
 global_defaults = {"CarBodyLookup": {}}
 class BCFunCommands(commands.Cog):
     """Neat misc ballchasing related commands"""
-
 
     def __init__(self, bot):
         self.bot = bot
@@ -31,7 +27,7 @@ class BCFunCommands(commands.Cog):
     @commands.guild_only()
     async def settings(self, ctx, *, player:discord.Member=None):
         """Get the settings from your latest game"""
-        looking = await ctx.send("Let's take a look...")
+        looking: discord.Message = await ctx.send(TYPING_INDICATOR_GIF)
         if not player:
             player = ctx.author
         
@@ -51,6 +47,7 @@ class BCFunCommands(commands.Cog):
 
         embed = await self.get_player_settings_embed(target_replay_id, player, player_data)
 
+        await looking.delete()
         await ctx.send(embed=embed)
 
     @commands.command()
