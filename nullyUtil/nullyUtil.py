@@ -9,7 +9,7 @@ defaults = {'TimeZone': 'America/New_York'}
 
 WHITE_X_REACT = "\U0000274E"
 
-class TestCog(commands.Cog):
+class NullyUtil(commands.Cog):
     """Test misc commands for anything!"""
     def __init__(self, bot):
         self.bot = bot
