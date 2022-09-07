@@ -1,6 +1,5 @@
 import discord
 
-from discord.ui import ActionRow, Button, ButtonStyle
 from redbot.core import Config, commands, checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
