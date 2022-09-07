@@ -21,7 +21,8 @@ class NullyUtil(commands.Cog):
     @commands.guild_only()
     @commands.command(aliases=['addEmote', 'addemoji', 'addemote'])
     @checks.admin_or_permissions(manage_guild=True)
-    async def addEmoji(self, ctx, emoji: discord.Emoji, *, emoji_name=None):
+    async def addEmoji(self, ctx, emoji, *, emoji_name=None):
+        await ctx.send(f"{emoji} is of type {type(emoji)}")
         guild : discord.Guild = ctx.guild
         if len(guild.emojis) >= guild.emoji_limit:
             return await ctx.reply(":x: The guild has already met its emoji limit.")
