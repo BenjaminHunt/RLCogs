@@ -43,7 +43,52 @@ When you have copied the token, you'll want to register it with the bot.
 ```
 
 ## 2. Register your steam account with the bot.
-You must register the same account you used to sign in and register an upload token. For the bot to work best, it is **strongly** encouraged to [enable automatic uploads](https://ballchasing.com/doc/faq#upload) with **BakkesMod**. Example:
+You must register the same account you used to sign in and register an upload token. For the bot to work best, it is **strongly** encouraged to [enable automatic uploads](https://ballchasing.com/doc/faq#upload) with **BakkesMod**. 
+
+Note: You can not use your display name to register your account. This will not work!
+
+<br>
+
+**How can I find my steam platform ID?**
+
+1. **Use ballchasing.com!** (Works for all platforms)
+
+    a. Navigate to your player page by signing in and clicking on your profile at the top right (**Note:** Don't click log out, just click on your name.)
+
+    ![](https://media.discordapp.net/attachments/741758967260250213/1019711228999893043/unknown.png?width=2251&height=358)
+
+    **OR**
+    
+    b. Find an uploaded replay where you played, and click on your name.
+
+    ![](https://cdn.discordapp.com/attachments/741758967260250213/1019710941216129144/unknown.png)
+    
+    Either of these actions will take you to your player page, where you can find your platform id in the url of that page.
+
+    ![](https://media.discordapp.net/attachments/741758967260250213/1019713823101435965/unknown.png?width=2251&height=581)
+
+    The platform and platform ID can be found in the url of any account page. The url for every account page ends in the format of `/platform/platform_id`.
+    
+    In this example, the URL is `https://ballchasing.com/player/steam/76561198380344413`.
+
+    That means that
+    - The `platform` is `steam`
+    
+      and
+
+    - The `platform_id` is `76561198380344413`.
+
+1. **Look it up on Tracker Network** (similar solution as above)
+1. **Use a Steam ID lookup service**
+
+    - [STEAMID IO](https://steamid.io/) is a good tool to use for this.
+
+      You can look up any of your steam accounts with this tool. In this case, the `platform_id` is `steamID64`:
+
+      ![](https://cdn.discordapp.com/attachments/741758967260250213/1019715204222832701/unknown.png)
+
+
+Account Registration Example:
         
     Format:
     <p>registerAccount <platform> <platform_id>
