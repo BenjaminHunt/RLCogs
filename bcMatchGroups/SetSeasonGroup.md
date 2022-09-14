@@ -6,6 +6,24 @@ Note: **ONLY** the top level group is required, (i.e. RSC S15 Gorillas)
 
 <br>
 
+## Contents
+- [**Contents** (here!)](#contents)
+- [**Overview**](#overview)
+    - [Administrative Prerequisites](#gmserver-owner-prerequisites)
+    - [Player Prerequisites](#player-prerequisites)
+- [**Full Instructions**](#full-instructions) (Good Place to start)
+    - [Register your Ballchasing Token](#1-register-your-ballchasing-token-with-the-bot)
+    - [Register a Steam Account](#2-register-your-steam-account-with-the-bot)
+        - [How can I find my platform id?](#how-can-i-find-my-steam-platform-id)
+        - [Account Registration](#account-registration)
+    - [Register Your Team's Ballchasing Season Group](#3-set-your-top-level-group-for-the-season)
+        - [Create Ballchasing Group](#1-create-ballchasing-group) (returning players can start here)
+        - [Get the new group link/code](#2-get-the-link-or-group-id-from-your-new-group)
+        - [Register the group with the bot](#3-register-the-team-ballchasing-group-for-the-season)
+
+
+<br>
+
 # Overview
 
 ## GM/Server Owner Prerequisites
@@ -49,7 +67,7 @@ Note: You can not use your display name to register your account. This will not 
 
 <br>
 
-**How can I find my steam platform ID?**
+#### **How can I find my steam platform ID?**
 
 1. **Use ballchasing.com!** (Works for all platforms)
 
@@ -88,12 +106,14 @@ Note: You can not use your display name to register your account. This will not 
       ![](https://cdn.discordapp.com/attachments/741758967260250213/1019715204222832701/unknown.png)
 
 
-Account Registration Example:
-        
-    Format:
+#### **Account Registration**
+
+Registering a new account with the bot must be done in the following format:
+      
     <p>registerAccount <platform> <platform_id>
 
-    Example:
+Example Registration:
+
     <p>registerAccount steam 76561198380344413
 
 **Note:** If other players on your team will be uploading replays to ballchasing, encourage them to register their accounts as well. Your teammates may, but are not required to register an upload token.
@@ -104,47 +124,53 @@ Once the pre-requisite steps (1-2) are done, group registration is very easy! Al
 
 <br>
 
-1. **Create ballchasing group**
+#### **1. Create ballchasing group**
 
-    a. Under `Replay Groups` click on `My replay Groups`
-    ![](https://cdn.discordapp.com/attachments/741758967260250213/1019698623174422628/unknown.png)
+1. Under `Replay Groups` click on `My replay Groups`
+![](https://cdn.discordapp.com/attachments/741758967260250213/1019698623174422628/unknown.png)
 
-    b. **[Option 1]** Scroll down and click `Create New Group`
-    ![](https://cdn.discordapp.com/attachments/741758967260250213/1019699256958918708/unknown.png)
+1. **Create a New Ballchasing Group**
 
-    **[Option 2]** If you want your ballchasing group to be in another subgroup, you may navigate to that point and make the subgroup there by clicking `New Group`.
-    ![](https://media.discordapp.net/attachments/741758967260250213/1019700329207574729/unknown.png)
+    - **[Option 1]** Scroll down and click `Create New Group`
+      
+      ![](https://cdn.discordapp.com/attachments/741758967260250213/1019699256958918708/unknown.png)
 
-    c. Give your group a name, and set the configurations to align with the screenshot below:
+    - **[Option 2]** If you want your ballchasing group to be in another subgroup, you may navigate to that point and make the subgroup there by clicking `New Group`.
+    
+        ![](https://media.discordapp.net/attachments/741758967260250213/1019700329207574729/unknown.png)
+
+1. Give your group a name, and set the configurations to align with the screenshot below:
+
     ![](https://cdn.discordapp.com/attachments/741758967260250213/1019699889791316118/unknown.png)
 
 <br>
 
-2. **Get the link or group ID from your new group.**
+#### **2. Get the link or group ID from your new group.**
 
-    a. Navigate to your new season ballchasing group
+1. Navigate to your new season ballchasing group
+
     ![](https://cdn.discordapp.com/attachments/741758967260250213/1019701372314198067/unknown.png)
 
     In this example, you can see the url is `https://ballchasing.com/group/s15-gorillas-oj7jeak7kq`. The ballchasing group code is everything that follows `group/`. So in this example, the group code is `s15-gorillas-oj7jeak7kq`. Either value can be used when using the following command to set the season group.
 
 <br>
 
-3. **Register the Team Ballchasing Group for the season**
+#### **3. Register the Team Ballchasing Group for the season**
 
-    As stated previously, either the link or the group code can be used to register the season group
+As stated previously, either the link or the group code can be used to register the season group
 
-    - Link: `https://ballchasing.com/group/s15-gorillas-oj7jeak7kq`
-    - Group: `s15-gorillas-oj7jeak7kq`
+- Link: `https://ballchasing.com/group/s15-gorillas-oj7jeak7kq`
+- Group: `s15-gorillas-oj7jeak7kq`
 
-    Use `<p>setSeasonGroup <link or code>` to register your group
+Use `<p>setSeasonGroup <link or code>` to register your group
 
-    ```
-    <p>setSeasonGroup https://ballchasing.com/group/s15-gorillas-oj7jeak7kq
-
-    OR
-
-    <p>setSeasonGroup s15-gorillas-oj7jeak7kq
-    ```
+```
+<p>setSeasonGroup https://ballchasing.com/group/s15-gorillas-oj7jeak7kq
+```
+OR
+```
+<p>setSeasonGroup s15-gorillas-oj7jeak7kq
+```
 
 <br>
 
