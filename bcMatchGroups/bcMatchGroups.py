@@ -145,7 +145,7 @@ class BCMatchGroups(commands.Cog):
             await ctx.send("Done")
 
 # Admin Settings - Team Mgmt
-    @commands.command(aliases=['addFranchiseTeams'])
+    @commands.command(aliases=['addTeams', 'addFranchiseTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def addTeamRoles(self, ctx, *roleList):
@@ -180,7 +180,7 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(":x: No roles provided.")
 
-    @commands.command(aliases=['removeFranchiseTeam', 'rmteam'])
+    @commands.command(aliases=['removeTeam', 'removeFranchiseTeam', 'rmteam'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def removeTeamRole(self, ctx, *, team_name):
@@ -195,7 +195,7 @@ class BCMatchGroups(commands.Cog):
         else:
             await ctx.send(":x: {} is not a valid team identifier.".format(team_name))
 
-    @commands.command(aliases=['clearFranchiseTeams'])
+    @commands.command(aliases=['clearFranchiseTeams', 'clearTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def clearTeamRoles(self, ctx):
@@ -868,8 +868,7 @@ class BCMatchGroups(commands.Cog):
             match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
-        opposing_team = opposing_team.title() if opposing_team.upper(
-        ) != opposing_team else opposing_team
+        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
 
         if match_type == bcConfig.REGULAR_SEASON_MT:
             series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)

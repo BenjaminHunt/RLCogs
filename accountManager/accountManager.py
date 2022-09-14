@@ -44,13 +44,13 @@ class AccountManager(commands.Cog):
     async def setMyBCAuthToken(self, ctx, auth_token):
         """Sets the Auth Key for Ballchasing API requests for the given user.
         """
-        member = ctx.message.author
+        member = ctx.author
         try:
             try:
                 await ctx.message.delete()
             except:
                 pass
-            r = await self._bc_get_request(auth_token, '')
+            r = await self.bc_get_request(auth_token, '')
 
             if r.status_code == 200:
                 await self._save_member_bc_token(member, auth_token)
@@ -77,8 +77,22 @@ class AccountManager(commands.Cog):
                 await ctx.send(f"{msg}.")
             else:
                 await ctx.send(":x: The upload token you passed is invalid.")
-        except:
-            await ctx.send(":x: Error setting auth token.")
+        except Exception as e:
+            await ctx.send(f":x: Error setting auth token: {e}")
+
+    @commands.command(aliases=['tokencheck'])
+    async def tokenCheck(self, ctx):
+        member = ctx.author
+        
+        token = await self._get_member_bc_token(member)
+        
+        if token:
+            response = await self.bc_get_request(token, "")
+            if response.status_code == 200:
+                return await ctx.send(f":white_check_mark: {member.mention}, you have a valid token registered.")
+        
+        await self._save_member_bc_token(member, "")
+        await ctx.send(f":x: {member.mention}, you do not have a valid token registered.")
 
     @commands.command(aliases=['clearMyBCAuthKey'])
     async def clearMyBCAuthToken(self, ctx):
@@ -124,8 +138,12 @@ class AccountManager(commands.Cog):
             plat_id = acc[1]
 
             latest_replay = await self.get_latest_account_replay(ctx.guild, platform, plat_id)
-            player_data = self.get_player_data_from_replay(latest_replay, platform, plat_id)
-            acc_player_name = player_data.get('name')
+            
+            if latest_replay:
+                player_data = self.get_player_data_from_replay(latest_replay, platform, plat_id)
+                acc_player_name = player_data.get('name')
+            if not latest_replay:
+                acc_player_name = member.nick if member.nick else member.name
 
             linked_accounts.append(f"[{platform} | {acc_player_name}](https://ballchasing.com/player/{platform}/{plat_id})")
         
@@ -157,7 +175,8 @@ class AccountManager(commands.Cog):
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
             return False
         
-        if not await self.get_bc_auth_token(ctx.guild):
+        auth_token = await self.get_bc_auth_token(ctx.guild)
+        if not auth_token:
             return await ctx.send(":x: An admin must register a ballchasing auth token to enable memebers to register accounts.")
 
         member = ctx.message.author
@@ -249,7 +268,7 @@ class AccountManager(commands.Cog):
     @commands.guild_only()
     async def unregisterAccounts(self, ctx):
         """Unlinks registered account for ballchasing requests."""
-        account_register = await self.get_account_register(ctx.guild)
+        account_register = await self.get_account_register()
         discord_id = str(ctx.message.author.id)
         if discord_id in account_register:
             count = len(account_register[discord_id])
@@ -291,28 +310,21 @@ class AccountManager(commands.Cog):
         if platform not in ['steam', 'xbox', 'ps4', 'ps5', 'epic']:
             await ctx.send(":x: \"{}\" is an invalid platform".format(platform))
 
-        if not await self.get_bc_auth_token(ctx.guild):
+        auth_token = await self.get_bc_auth_token(ctx.guild)
+        if not auth_token:
             return await ctx.send(":x: An admin must register a ballchasing auth token to enable memebers to register accounts.")
 
         try:
             valid_account = await self._validate_account(ctx, platform, identifier)
         except:
-            prompt = "It appears that no games have been played on this account. Would you like to add it anyways?"
-            prompt += "\n_Warning: This may cause issues if the account does not exist_"
-            nvm_message = "Registration cancelled."
-            if await self._react_prompt(ctx, prompt, nvm_message):
-                account_register = await self.get_account_register()
-                if str(member.id) in account_register:
-                    if [platform, identifier] not in account_register[str(member.id)]:
-                        account_register[str(member.id)].append([platform, identifier])
-                else:
-                    account_register[str(member.id)] = [[platform, identifier]]
-                await self._save_account_register(account_register)
-                await ctx.send("Done.")
-                return
+            await self.invalid_account_prompt(ctx, member, platform, identifier)
+            return
 
         if valid_account:
             username, appearances = valid_account
+        else:
+            await self.invalid_account_prompt(ctx, member, platform, identifier)
+            return
         
         account_register = await self.get_account_register()
         
@@ -405,46 +417,79 @@ class AccountManager(commands.Cog):
 
 # ballchasing
     # TODO: Update requests to not require guild - auth_token defaults to preloaded data
-    async def _bc_get_request(self, guild, endpoint, params=[], auth_token=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
-        
+    async def bc_delete_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
         # params = [urllib.parse.quote(p) for p in params]
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
+
         # url = urllib.parse.quote_plus(url)
-        
-        return requests.get(url, headers={'Authorization': auth_token})
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.delete(
+            url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
 
-    async def _bc_post_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None, files=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
-        
+    async def bc_get_request(self, auth_token, endpoint, params=[]):
+        url = 'https://ballchasing.com/api'
+        url += endpoint
+        # params = [urllib.parse.quote(p) for p in params]
+        params = '&'.join(params)
+        if params:
+            url += "?{}".format(params)
+
+        # url = urllib.parse.quote_plus(url)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.get(
+            url, headers={'Authorization': auth_token}))
+        response = await future
+        return response
+
+    async def bc_post_request(self, auth_token, endpoint, params=[], json=None, data=None, files=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
-        return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
 
-    async def _bc_patch_request(self, guild, endpoint, params=[], auth_token=None, json=None, data=None):
-        if not auth_token:
-            auth_token = await self.get_bc_auth_token(guild)
+        # return requests.post(url, headers={'Authorization': auth_token}, json=json, data=data, files=files)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.post(
+            url, headers={'Authorization': auth_token}, json=json, data=data, files=files))
+        response = await future
+        return response
 
+    async def bc_patch_request(self, auth_token, endpoint, params=[], json=None, data=None):
         url = 'https://ballchasing.com/api'
         url += endpoint
         params = '&'.join(params)
         if params:
             url += "?{}".format(params)
-        
-        return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+
+        # return requests.patch(url, headers={'Authorization': auth_token}, json=json, data=data)
+        loop = asyncio.get_event_loop()
+        future = loop.run_in_executor(None, lambda: requests.patch(
+            url, headers={'Authorization': auth_token}, json=json, data=data))
+        response = await future
+        return response
 
 # other commands
+    async def invalid_account_prompt(self, ctx, member, platform, identifier):
+        prompt = "It appears that no games have been played on this account. Would you like to add it anyways?"
+        prompt += "\n_Warning: This may cause issues if the account does not exist_"
+        nvm_message = "Registration cancelled."
+        if await self._react_prompt(ctx, prompt, nvm_message):
+            account_register = await self.get_account_register()
+            if str(member.id) in account_register:
+                if [platform, identifier] not in account_register[str(member.id)]:
+                    account_register[str(member.id)].append([platform, identifier])
+            else:
+                account_register[str(member.id)] = [[platform, identifier]]
+            await self._save_account_register(account_register)
+            await ctx.send("Done.")
+    
     async def get_latest_account_replay(self, guild, platform, plat_id):
         endpoint = '/replays'
         params = [
@@ -453,7 +498,8 @@ class AccountManager(commands.Cog):
             'count=1',
             f'player-id={platform}:{plat_id}'
         ]
-        response = await self._bc_get_request(guild, endpoint, params)
+        auth_token = await self.get_bc_auth_token(guild)
+        response = await self.bc_get_request(auth_token, endpoint, params)
         data = response.json()
 
         try:
@@ -465,9 +511,9 @@ class AccountManager(commands.Cog):
         for team in ['blue', 'orange']:
             for player in replay_json[team].get('players', []):
                 account_match = (
-                    player['id']['platform'] == platform
+                    player.get("id", {}).get('platform', None) == platform
                     and
-                    player['id']['id'] == platform_id
+                    player.get("id", {}).get('id', None) == platform_id
                 )
                 if account_match:
                     return player
@@ -497,7 +543,8 @@ class AccountManager(commands.Cog):
             'player-id={platform}:{identifier}'.format(platform=platform, identifier=identifier),
             'count=1'
         ]
-        r = await self._bc_get_request(ctx.guild, endpoint, params)
+        auth_token = await self.get_bc_auth_token(ctx.guild)
+        r = await self.bc_get_request(auth_token, endpoint, params)
         data = r.json()
         
         appearances = 0
@@ -520,15 +567,15 @@ class AccountManager(commands.Cog):
     async def _get_steam_id_from_token(self, guild, auth_token=None):
         if not auth_token:
             auth_token = await self.get_bc_auth_token(guild)
-        r = await self._bc_get_request(guild, "")
+        r = await self.bc_get_request(auth_token, "")
         if r.status_code == 200:
             return r.json()['steam_id']
         return None
 
-    async def _get_steam_ids(self, guild, discord_id):
+    async def _get_steam_ids(self, discord_id):
         discord_id = str(discord_id)
         steam_accounts = []
-        account_register = await self.get_account_register(guild)
+        account_register = await self.get_account_register()
         if discord_id in account_register:
             for account in account_register[discord_id]:
                 if account[0] == 'steam':
