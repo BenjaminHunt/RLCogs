@@ -8,8 +8,8 @@ Note: **ONLY** the top level group is required, (i.e. RSC S15 Gorillas)
 
 # Overview
 
-## GM Prerequisites
-- Must have `accountManager` cog set up
+## GM/Server Owner Prerequisites
+- Must have `accountManager` cog set up (**Note:** bot owner action)
 - Must register a ballchasing upload token with the bot (`<p>help setGuildBCAuthToken`)
 - Must register team roles with the bot (`<p>help setFranchiseTeams`, `<p>help clearFranchiseTeams`)
 - At the end of a season, user `<p>endSeason` to clear all set team groups to prevent new subgroups being added to the previous season's group
