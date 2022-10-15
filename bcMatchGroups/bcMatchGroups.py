@@ -300,7 +300,7 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type=match_type)
 
-    @commands.command(aliases=['bcr', 'bcpull', 'played'])
+    @commands.command(aliases=['bcr', 'bcpull', 'played', 'gg'])
     @commands.guild_only()
     async def bcReport(self, ctx, opposing_team, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
