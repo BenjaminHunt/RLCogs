@@ -41,7 +41,7 @@ class BCSixMans(commands.Cog):
         except:
             pass
     
-    @commands.command(aliases=['ggs', 'gg'])
+    @commands.command()
     @commands.guild_only()
     async def gameOver(self, ctx): # , games_played:int):
         """Finds replays from the six mans series based on the number of games played, and links a new ballchasing group for the series.
