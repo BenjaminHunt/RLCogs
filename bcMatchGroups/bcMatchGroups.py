@@ -2,6 +2,7 @@ import abc
 from distutils.command.config import config
 
 from .bc_config import bcConfig
+from accountManager import AccountManager
 
 from dislash import InteractionClient, ActionRow, Button, ButtonStyle
 from datetime import date, datetime, timedelta, timezone
@@ -36,7 +37,7 @@ class BCMatchGroups(commands.Cog):
             self, identifier=1234567893, force_registration=True)
         self.config.register_global(**global_defaults)
         self.config.register_guild(**defaults)
-        self.account_manager_cog = bot.get_cog("AccountManager")
+        self.account_manager_cog: AccountManager = bot.get_cog("AccountManager")
         self.task = asyncio.create_task(self.auto_update_match_day())
         self.auto_update_md = True
 
@@ -144,7 +145,7 @@ class BCMatchGroups(commands.Cog):
             await ctx.send("Done")
 
 # Admin Settings - Team Mgmt
-    @commands.command(aliases=['addTeams'])
+    @commands.command(aliases=['addTeams', 'addFranchiseTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def addTeamRoles(self, ctx, *roleList):
@@ -179,7 +180,7 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(":x: No roles provided.")
 
-    @commands.command(aliases=['removeTeam', 'rmteam'])
+    @commands.command(aliases=['removeTeam', 'removeFranchiseTeam', 'rmteam'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def removeTeamRole(self, ctx, *, team_name):
@@ -194,7 +195,7 @@ class BCMatchGroups(commands.Cog):
         else:
             await ctx.send(":x: {} is not a valid team identifier.".format(team_name))
 
-    @commands.command(aliases=['clearTeams'])
+    @commands.command(aliases=['clearFranchiseTeams', 'clearTeams'])
     @commands.guild_only()
     @checks.admin_or_permissions(manage_roles=True)
     async def clearTeamRoles(self, ctx):
@@ -226,44 +227,6 @@ class BCMatchGroups(commands.Cog):
         await ctx.send("Removed team roles for {} players.".format(removed))
 
 # Ballchasing Group Setup Commands
-    @commands.command(aliases=['setMyBCAuthKey', 'setMyUploadToken'])
-    async def setMyBCAuthToken(self, ctx, auth_token):
-        """Sets the Auth Key for Ballchasing API requests for the given user.
-        """
-        member = ctx.message.author
-        try:
-            try:
-                await ctx.message.delete()
-            except:
-                pass
-            r = await self._bc_get_request(auth_token, '')
-
-            if r.status_code == 200:
-                await self._save_member_bc_token(member, auth_token)
-                await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been set.".format(member.name))
-
-                # steam_id = r.json()['steam_id']
-                # TODO: automatically register account
-            else:
-                await ctx.send(":x: The upload token you passed is invalid.")
-        except:
-            await ctx.send(":x: Error setting auth token.")
-
-    @commands.command(aliases=['clearMyBCAuthKey'])
-    async def clearMyBCAuthToken(self, ctx):
-        """Sets the Auth Key for Ballchasing API requests for the given user.
-        """
-        member = ctx.message.author
-        try:
-            try:
-                await ctx.message.delete()
-            except:
-                pass
-            await self._save_member_bc_token(member, None)
-            await ctx.send(":white_check_mark: {}, your Ballchasing Auth Token has been removed.".format(member.name))
-        except:
-            await ctx.send(":x: Error clearing auth token.")
-
     @commands.command(aliases=['setTopLevelGroup'])
     @commands.guild_only()
     async def setSeasonGroup(self, ctx, group_code, *, team_role: discord.Role = None):
@@ -337,7 +300,7 @@ class BCMatchGroups(commands.Cog):
         team_name = self._get_team_name(team_role)
         await self._process_bcreport(ctx, team_name, opposing_team, match_day, match_type=match_type)
 
-    @commands.command(aliases=['bcr', 'bcpull', 'played'])
+    @commands.command(aliases=['bcr', 'bcpull', 'played', 'gg'])
     @commands.guild_only()
     async def bcReport(self, ctx, opposing_team, match_day=None):
         """Finds match games from recent public uploads, and adds them to the correct Ballchasing subgroup
@@ -446,9 +409,9 @@ class BCMatchGroups(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['teams'])
+    @commands.command(aliases=['franchiseTeams'])
     @commands.guild_only()
-    async def listTeams(self, ctx):
+    async def listFranchiseTeams(self, ctx):
         """List all registered teams"""
         member = ctx.message.author
         team_roles = await self._get_team_roles(ctx.guild)
@@ -905,12 +868,10 @@ class BCMatchGroups(commands.Cog):
             match_day = await self._get_match_day(ctx.guild)
         emoji_url = ctx.guild.icon_url
 
-        opposing_team = opposing_team.title() if opposing_team.upper(
-        ) != opposing_team else opposing_team
+        opposing_team = opposing_team.title() if opposing_team.upper() != opposing_team else opposing_team
 
         if match_type == bcConfig.REGULAR_SEASON_MT:
-            series_title = "Match Day {}: {} vs {}".format(
-                match_day, team_name, opposing_team)
+            series_title = "Match Day {}: {} vs {}".format(match_day, team_name, opposing_team)
         elif match_type == bcConfig.SCRIM_MT:
             series_title = "{} Scrim vs {}".format(
                 datetime.now().strftime("%m/%d"), opposing_team)
@@ -1465,6 +1426,8 @@ class BCMatchGroups(commands.Cog):
         if member in team_players:
             team_players.remove(member)
             team_players.insert(0, member)
+        else:
+            team_players.append(member)
 
         # Search all players in game for replays until match is found
         return_replay_ids = []
@@ -2049,24 +2012,6 @@ class BCMatchGroups(commands.Cog):
 
     async def _save_team_roles(self, guild, roles):
         await self.config.guild(guild).TeamRoles.set(roles)
-
+    
     async def _get_member_bc_token(self, member: discord.Member):
-        try:
-            return (await self.config.BCTokens())[str(member.id)]
-        except:
-            try:
-                return (await self.config.BCTokens())[member.id]
-            except:
-                return None
-
-    async def _save_member_bc_token(self, member: discord.Member, token):
-        tokens = await self.config.BCTokens()
-        if token:
-            tokens[str(member.id)] = token
-            await self.config.BCTokens.set(tokens)
-        else:
-            try:
-                del tokens[str(member.id)]
-                await self.config.BCTokens.set(tokens)
-            except:
-                pass
+        return await self.account_manager_cog._get_member_bc_token(member)

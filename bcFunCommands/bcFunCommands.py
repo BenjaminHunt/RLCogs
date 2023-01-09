@@ -1,23 +1,25 @@
 
-from datetime import datetime, timezone
-import tempfile
 import discord
-import asyncio
 import requests
-import urllib.parse
 
 from redbot.core import Config
 from redbot.core import commands
 from redbot.core import checks
 from redbot.core.utils.predicates import ReactionPredicate
 from redbot.core.utils.menus import start_adding_reactions
+from .funCmdsReference import FunCmdsReference as fcr
 
+# TODO: Build in player and team stats , just neeed player, team, tier
+
+TYPING_INDICATOR_GIF = "https://cdn.discordapp.com/emojis/522583389350658048.gif?size=96&quality=lossless"
+global_defaults = {"CarBodyLookup": {}}
 class BCFunCommands(commands.Cog):
     """Neat misc ballchasing related commands"""
 
     def __init__(self, bot):
         self.bot = bot
         self.config = Config.get_conf(self, identifier=1234567893, force_registration=True)
+        self.config.register_global(**global_defaults)
         self.account_manager_cog = bot.get_cog("AccountManager")
         # TODO: self.token = await self._auth_token # load on_ready
 
@@ -25,7 +27,7 @@ class BCFunCommands(commands.Cog):
     @commands.guild_only()
     async def settings(self, ctx, *, player:discord.Member=None):
         """Get the settings from your latest game"""
-        looking = await ctx.send("Let's take a look...")
+        looking: discord.Message = await ctx.send(TYPING_INDICATOR_GIF)
         if not player:
             player = ctx.author
         
@@ -43,9 +45,21 @@ class BCFunCommands(commands.Cog):
         target_account = self.which_account_in_full_replay(full_replay_json, accounts)
         player_data = self.get_player_data_from_replay(full_replay_json, target_account[0], target_account[1])
 
-        embed = self.get_player_settings_embed(target_replay_id, player, player_data)
+        embed = await self.get_player_settings_embed(target_replay_id, player, player_data)
 
+        await looking.delete()
         await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.guild_only()
+    async def carbodies(self, ctx):
+        car_map_list = []
+        car_lookup_map = await self.config.CarBodyLookup()
+
+        for id, name in car_lookup_map.items():
+            car_map_list.append(f"{id}: {name}")
+        
+        await ctx.send("```\n{}\n```".format('\n'.join(car_lookup_map)))
 
     @commands.command()
     @commands.guild_only()
@@ -62,6 +76,8 @@ class BCFunCommands(commands.Cog):
         await ctx.send(embed=embed)
 
 # region ballchasing
+    
+    # TODO: Make requests async
     def _bc_get_request(self, auth_token, endpoint, params=[]):
         url = 'https://ballchasing.com/api'
         url += endpoint
@@ -95,6 +111,8 @@ class BCFunCommands(commands.Cog):
 # endregion 
 
 # region helper functions
+
+    # replay processing
     def get_latest_replay_id_from_accounts(self, token, accounts):
         # get latest account replays
         json_replays = []
@@ -131,7 +149,10 @@ class BCFunCommands(commands.Cog):
     def which_account_in_full_replay(self, replay_json, account_list=[]):
         for team in ['blue', 'orange']:
             for player in replay_json[team].get('players', []):
-                account_info = [player['id']['platform'], player['id']['id']]
+                account_info = [
+                    player.get("id", {}).get('platform', None),
+                    player.get("id", {}).get('id', None)
+                ]
                 if account_info in account_list:
                     return account_info
         return None
@@ -140,9 +161,9 @@ class BCFunCommands(commands.Cog):
         for team in ['blue', 'orange']:
             for player in replay_json[team].get('players', []):
                 account_match = (
-                    player['id']['platform'] == platform
+                    player.get("id", {}).get('platform', None) == platform
                     and
-                    player['id']['id'] == platform_id
+                    player.get("id", {}).get('id', None) == platform_id
                 )
                 if account_match:
                     return player
@@ -164,6 +185,7 @@ class BCFunCommands(commands.Cog):
         except:
             return None
 
+    # access json data
     async def get_auth_token(self, member: discord.Member):
         # return member token if exists else guild token
         token = await self.account_manager_cog._get_member_bc_token(member)
@@ -171,6 +193,10 @@ class BCFunCommands(commands.Cog):
             return token 
         token = await self.account_manager_cog.get_bc_auth_token(member.guild)
         return token
+
+    # misc
+    def get_code_title(self, code):
+        return fcr.DATA_CODE_NAME_MAP.get(code.lower(), code)
 
     def get_member_color(self, member: discord.Member):
         roles = member.roles
@@ -180,7 +206,8 @@ class BCFunCommands(commands.Cog):
                 return role.color
         return None
 
-    def get_player_settings_embed(self, replay_id, member, player_data):
+    # embed
+    async def get_player_settings_embed(self, replay_id, member, player_data):
         member_color = self.get_member_color(member)
 
         embed = discord.Embed(
@@ -190,28 +217,46 @@ class BCFunCommands(commands.Cog):
         if member.avatar_url:
             embed.set_thumbnail(url=member.avatar_url)
         
-        
+        # Preformat Camera Settings
         cam_settings = player_data.get("camera")
-        cam_settings_list = []
 
-        for k, v in cam_settings.items():
-            cam_settings_list.append(f"{k}: {v}")
+        cam_settings_order = ["fov", "distance", "height", "pitch", "stiffness", "swivel_speed" , "transition_speed"]
+        cam_settings_list = []
+        for setting in cam_settings_order:
+            setting_name = self.get_code_title(setting)
+            cam_settings_list.append(f"{setting_name}: {cam_settings.get(setting, 'N/A')}")
         
         cam_str = "```\n{}\n```".format('\n'.join(cam_settings_list))
 
-        steer_sens = f"steering sensitivity: {player_data.get('steering_sensitivity')}"
         name = player_data.get('name')
         platform = player_data['id']['platform']
         plat_id = player_data['id']['id']
         player_page_link = f'https://ballchasing.com/player/{platform}/{plat_id}'
 
+        car_id = player_data.get("car_id", "X")
+        car_str = await self.lookup_car_id(car_id)
+        car_str = car_str if car_str else f"Not Found: {car_id}"
+        steer_sens = f"steering sensitivity: {player_data.get('steering_sensitivity')}"
+
+        # Build Embed
         embed.add_field(name="Account", value=f"[{platform} | {name}]({player_page_link})", inline=False)
         embed.add_field(name="Camera Settings", value=cam_str, inline=False)
         embed.add_field(name="Sensitivity Settings", value='```\n{}\n```'.format(steer_sens), inline=False)
-        embed.add_field(name="Source Replay", value=f"[Click Here to view](https://ballchasing.com/replay/{replay_id})", inline=False)
 
-        # embed.description = cam_str
+        if car_str:
+            embed.add_field(name="Car Choice", value=f"```{car_str}```", inline=False)
+
+        embed.add_field(name="Source Replay", value=f"[Click Here to view](https://ballchasing.com/replay/{replay_id})", inline=False)
 
         return embed 
 
 # endregion
+
+# region json
+
+    async def lookup_car_id(self, car_id):
+        car_lookup_map = await self.config.CarBodyLookup()
+        return car_lookup_map.get(str(car_id), None)
+
+# endregion
+
